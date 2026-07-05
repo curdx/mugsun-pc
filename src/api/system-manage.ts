@@ -17,11 +17,11 @@ export function fetchSaveUser(data: Record<string, any>) {
   })
 }
 
-// 删除用户
-export function fetchRemoveUser(id: number | string) {
+// 删除用户（批量，主键数组走 JSON 请求体）
+export function fetchRemoveUser(ids: (number | string)[] | number | string) {
   return request.post<void>({
     url: '/api/system/user/remove',
-    params: { id }
+    data: Array.isArray(ids) ? ids : [ids]
   })
 }
 
