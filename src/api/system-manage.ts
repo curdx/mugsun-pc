@@ -97,6 +97,24 @@ export function fetchRemoveRole(ids: (number | string)[] | number | string) {
     data: Array.isArray(ids) ? ids : [ids]
   })
 }
+// 角色已授权菜单 id 集合（授权树回显）
+export function fetchRoleMenuIds(roleId: number | string) {
+  return request.get<Array<number | string>>({
+    url: '/api/system/role/menu-ids',
+    params: { roleId }
+  })
+}
+// 角色授权菜单（body 信封 {roleId, menuIds}）
+export function fetchGrantRole(roleId: number | string, menuIds: Array<number | string>) {
+  return request.post<void>({
+    url: '/api/system/role/grant',
+    data: { roleId, menuIds }
+  })
+}
+// 菜单树
+export function fetchMenuTree() {
+  return request.get<any[]>({ url: '/api/system/menu/tree' })
+}
 
 // 获取菜单列表
 export function fetchGetMenuList() {

@@ -24,6 +24,12 @@
         :role-data="currentData"
         @submit="handleDialogSubmit"
       />
+
+      <RolePermissionDialog
+        v-model:visible="permissionVisible"
+        :role-data="currentPermRole"
+        @success="refreshData"
+      />
     </ElCard>
   </div>
 </template>
@@ -34,7 +40,8 @@
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetRoleList, fetchSaveRole, fetchRemoveRole } from '@/api/system-manage'
   import RoleDialog from './modules/role-dialog.vue'
-  import { ElMessageBox, ElMessage } from 'element-plus'
+  import RolePermissionDialog from './modules/role-permission-dialog.vue'
+  import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'Role' })
@@ -49,6 +56,13 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentData = ref<Record<string, any>>({})
+  const permissionVisible = ref(false)
+  const currentPermRole = ref<Record<string, any>>({})
+
+  const showPermission = (row: Record<string, any>): void => {
+    currentPermRole.value = row
+    permissionVisible.value = true
+  }
 
   const {
     columns,
@@ -78,12 +92,23 @@
         {
           prop: 'operation',
           label: '操作',
-          width: 120,
+          width: 180,
           fixed: 'right',
           formatter: (row: any) =>
             h('div', [
               h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
+              h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) }),
+              h(
+                ElButton,
+                {
+                  link: true,
+                  type: 'primary',
+                  size: 'small',
+                  style: 'margin-left:8px',
+                  onClick: () => showPermission(row)
+                },
+                () => '授权'
+              )
             ])
         }
       ]
