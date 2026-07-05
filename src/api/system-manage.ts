@@ -52,6 +52,37 @@ export function importUser(file: File) {
   })
 }
 
+// ===== 部门 =====
+export function fetchDeptTree() {
+  return request.get<any[]>({ url: '/api/system/dept/tree' })
+}
+export function fetchDeptSelect() {
+  return request.get<Array<{ label: string; value: string }>>({ url: '/api/system/dept/select' })
+}
+export function fetchSaveDept(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/dept/submit', data })
+}
+export function fetchRemoveDept(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/dept/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
+// ===== 岗位 =====
+export function fetchGetPostList(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/post/page', params })
+}
+export function fetchSavePost(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/post/submit', data })
+}
+export function fetchRemovePost(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/post/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
 // 获取角色列表
 export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
   return request.get<Api.SystemManage.RoleList>({

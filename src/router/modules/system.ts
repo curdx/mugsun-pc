@@ -33,6 +33,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'post',
+      name: 'Post',
+      component: '/system/post',
+      meta: {
+        title: '岗位管理',
+        icon: 'ri:contacts-book-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
