@@ -356,6 +356,28 @@ export function fetchReportPreview(id: number | string) {
   return request.get<any[]>({ url: '/api/system/report/preview', params: { id } })
 }
 
+// ===== 登录日志 =====
+export function fetchLoginLogPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/login-log/page', params })
+}
+
+// ===== API 密钥 =====
+export function fetchApiKeyPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/api-key/page', params })
+}
+export function fetchGenerateApiKey(data: Record<string, any>) {
+  return request.post<any>({ url: '/api/system/api-key/generate', data })
+}
+export function fetchEnableApiKey(id: number | string) {
+  return request.post<void>({ url: `/api/system/api-key/enable/${id}` })
+}
+export function fetchDisableApiKey(id: number | string) {
+  return request.post<void>({ url: `/api/system/api-key/disable/${id}` })
+}
+export function fetchRemoveApiKey(id: number | string) {
+  return request.post<void>({ url: `/api/system/api-key/remove/${id}` })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

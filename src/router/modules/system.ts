@@ -198,6 +198,28 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'login-log',
+      name: 'LoginLog',
+      component: '/system/login-log',
+      meta: {
+        title: '登录日志',
+        icon: 'ri:shield-keyhole-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'api-key',
+      name: 'ApiKey',
+      component: '/system/api-key',
+      meta: {
+        title: 'API密钥',
+        icon: 'ri:key-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'log',
       name: 'OperLog',
       component: '/system/log',
