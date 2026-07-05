@@ -188,7 +188,8 @@
   const loading = ref(false)
 
   onMounted(() => {
-    setupAccount('super')
+    formData.username = 'admin'
+    formData.password = '123456'
   })
 
   // 设置账号
