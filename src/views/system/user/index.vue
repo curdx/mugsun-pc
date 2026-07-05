@@ -33,6 +33,8 @@
         :user-data="currentUserData"
         @submit="handleDialogSubmit"
       />
+
+      <UserRoleDialog v-model:visible="userRoleVisible" :user-data="currentRoleUser" />
     </ElCard>
   </div>
 </template>
@@ -46,10 +48,13 @@
     fetchSaveUser,
     fetchRemoveUser,
     exportUser,
-    importUser
+    importUser,
+    fetchResetPassword,
+    fetchUserStatus
   } from '@/api/system-manage'
   import UserDialog from './modules/user-dialog.vue'
-  import { ElTag, ElMessageBox, ElMessage } from 'element-plus'
+  import UserRoleDialog from './modules/user-role-dialog.vue'
+  import { ElButton, ElSwitch, ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'User' })
@@ -58,6 +63,30 @@
   const dialogVisible = ref(false)
   const currentUserData = ref<Record<string, any>>({})
   const importInput = ref<HTMLInputElement>()
+  const userRoleVisible = ref(false)
+  const currentRoleUser = ref<Record<string, any>>({})
+
+  const showUserRole = (row: Record<string, any>): void => {
+    currentRoleUser.value = row
+    userRoleVisible.value = true
+  }
+
+  const resetPwd = (row: any): void => {
+    ElMessageBox.confirm(`确定重置用户"${row.username}"的密码为 123456 吗？`, '重置密码', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(async () => {
+      await fetchResetPassword(row.id)
+      ElMessage.success('密码已重置为 123456')
+    })
+  }
+
+  const handleStatus = async (row: any, val: number): Promise<void> => {
+    await fetchUserStatus(row.id, val)
+    row.status = val
+    ElMessage.success('操作成功')
+  }
 
   // 导出用户
   const handleExport = async (): Promise<void> => {
@@ -104,20 +133,39 @@
           label: '状态',
           width: 100,
           formatter: (row: any) =>
-            h(ElTag, { type: row.status === 1 ? 'success' : 'info' }, () =>
-              row.status === 1 ? '启用' : '停用'
-            )
+            h(ElSwitch, {
+              modelValue: row.status,
+              activeValue: 1,
+              inactiveValue: 0,
+              onChange: (val: any) => handleStatus(row, val)
+            })
         },
         { prop: 'createTime', label: '创建时间', minWidth: 180 },
         {
           prop: 'operation',
           label: '操作',
-          width: 120,
+          width: 220,
           fixed: 'right',
           formatter: (row: any) =>
             h('div', [
               h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(ArtButtonTable, { type: 'delete', onClick: () => deleteUser(row) })
+              h(ArtButtonTable, { type: 'delete', onClick: () => deleteUser(row) }),
+              h(
+                ElButton,
+                {
+                  link: true,
+                  type: 'primary',
+                  size: 'small',
+                  style: 'margin-left:8px',
+                  onClick: () => showUserRole(row)
+                },
+                () => '授权'
+              ),
+              h(
+                ElButton,
+                { link: true, type: 'warning', size: 'small', onClick: () => resetPwd(row) },
+                () => '重置密码'
+              )
             ])
         }
       ]

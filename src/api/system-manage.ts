@@ -52,6 +52,35 @@ export function importUser(file: File) {
   })
 }
 
+// 重置密码（批量，默认 123456）
+export function fetchResetPassword(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/user/reset-password',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+// 启用/停用用户
+export function fetchUserStatus(id: number | string, status: number) {
+  return request.post<void>({ url: '/api/system/user/status', data: { id, status } })
+}
+// 用户已授权角色 id（回显）
+export function fetchUserRoleIds(userId: number | string) {
+  return request.get<Array<number | string>>({
+    url: '/api/system/user/role-ids',
+    params: { userId }
+  })
+}
+// 用户授权角色（body 信封 {userId, roleIds}）
+export function fetchGrantUser(userId: number | string, roleIds: Array<number | string>) {
+  return request.post<void>({ url: '/api/system/user/grant', data: { userId, roleIds } })
+}
+// 角色下拉选项
+export function fetchRoleSelect() {
+  return request.get<Array<{ label: string; value: string }>>({
+    url: '/api/system/role/select'
+  })
+}
+
 // ===== 部门 =====
 export function fetchDeptTree() {
   return request.get<any[]>({ url: '/api/system/dept/tree' })
