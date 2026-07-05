@@ -115,6 +115,15 @@ export function fetchGrantRole(roleId: number | string, menuIds: Array<number | 
 export function fetchMenuTree() {
   return request.get<any[]>({ url: '/api/system/menu/tree' })
 }
+export function fetchSaveMenu(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/menu/submit', data })
+}
+export function fetchRemoveMenu(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/menu/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
 
 // 获取菜单列表
 export function fetchGetMenuList() {
