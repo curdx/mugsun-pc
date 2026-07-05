@@ -125,6 +125,20 @@ export function fetchRemoveMenu(ids: (number | string)[] | number | string) {
   })
 }
 
+// ===== 参数 =====
+export function fetchParamList() {
+  return request.get<any[]>({ url: '/api/system/param/list' })
+}
+export function fetchSaveParam(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/param/submit', data })
+}
+export function fetchRemoveParam(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/param/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

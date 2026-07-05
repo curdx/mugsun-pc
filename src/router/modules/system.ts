@@ -55,6 +55,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'param',
+      name: 'Param',
+      component: '/system/param',
+      meta: {
+        title: '参数管理',
+        icon: 'ri:settings-3-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
