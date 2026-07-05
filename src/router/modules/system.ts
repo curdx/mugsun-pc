@@ -33,6 +33,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'dept',
+      name: 'Dept',
+      component: '/system/dept',
+      meta: {
+        title: '部门管理',
+        icon: 'ri:organization-chart',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'post',
       name: 'Post',
       component: '/system/post',
