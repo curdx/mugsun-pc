@@ -196,6 +196,20 @@ export function fetchRemoveDictBiz(ids: (number | string)[] | number | string) {
   })
 }
 
+// ===== 租户 =====
+export function fetchTenantList() {
+  return request.get<any[]>({ url: '/api/system/tenant/list' })
+}
+export function fetchCreateTenant(data: Record<string, any>) {
+  return request.post<string>({ url: '/api/system/tenant/create', data })
+}
+export function fetchRemoveTenant(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/tenant/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({
