@@ -84,10 +84,17 @@ export function fetchRemovePost(ids: (number | string)[] | number | string) {
 }
 
 // 获取角色列表
-export function fetchGetRoleList(params: Api.SystemManage.RoleSearchParams) {
-  return request.get<Api.SystemManage.RoleList>({
-    url: '/api/role/list',
-    params
+// ===== 角色 =====
+export function fetchGetRoleList(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/role/page', params })
+}
+export function fetchSaveRole(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/role/submit', data })
+}
+export function fetchRemoveRole(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/role/remove',
+    data: Array.isArray(ids) ? ids : [ids]
   })
 }
 
