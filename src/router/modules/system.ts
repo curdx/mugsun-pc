@@ -176,6 +176,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'job',
+      name: 'Job',
+      component: '/system/job',
+      meta: {
+        title: '定时任务',
+        icon: 'ri:timer-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'log',
       name: 'OperLog',
       component: '/system/log',

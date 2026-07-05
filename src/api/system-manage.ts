@@ -316,6 +316,29 @@ export function fetchFlowHistory(instanceId: number | string) {
   return request.get<any[]>({ url: '/api/system/flow/history', params: { instanceId } })
 }
 
+// ===== 定时任务 =====
+export function fetchJobList() {
+  return request.get<any[]>({ url: '/api/system/job/list' })
+}
+export function fetchSaveJob(data: Record<string, any>) {
+  return request.post<number>({ url: '/api/system/job/save', data })
+}
+export function fetchRunJob(jobId: number | string) {
+  return request.post<string>({ url: `/api/system/job/run/${jobId}` })
+}
+export function fetchEnableJob(jobId: number | string) {
+  return request.post<void>({ url: `/api/system/job/enable/${jobId}` })
+}
+export function fetchDisableJob(jobId: number | string) {
+  return request.post<void>({ url: `/api/system/job/disable/${jobId}` })
+}
+export function fetchDeleteJob(jobId: number | string) {
+  return request.post<void>({ url: `/api/system/job/delete/${jobId}` })
+}
+export function fetchJobInstances(jobId: number | string) {
+  return request.get<any[]>({ url: '/api/system/job/instances', params: { jobId } })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({
