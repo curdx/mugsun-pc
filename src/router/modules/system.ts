@@ -154,6 +154,28 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'flow-def',
+      name: 'FlowDef',
+      component: '/system/flow-def',
+      meta: {
+        title: '流程定义',
+        icon: 'ri:git-branch-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'flow-todo',
+      name: 'FlowTodo',
+      component: '/system/flow-todo',
+      meta: {
+        title: '待办工作台',
+        icon: 'ri:task-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'log',
       name: 'OperLog',
       component: '/system/log',

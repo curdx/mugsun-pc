@@ -293,6 +293,29 @@ export function fetchGenPreview(data: Record<string, any>) {
   return request.post<Record<string, string>>({ url: '/api/system/gen/preview', data })
 }
 
+// ===== 工作流治理 =====
+export function fetchFlowDefinitions() {
+  return request.get<any[]>({ url: '/api/system/flow/definitions' })
+}
+export function fetchFlowDeploy() {
+  return request.post<string>({ url: '/api/system/flow/deploy' })
+}
+export function fetchFlowStart(businessId: string) {
+  return request.post<string>({ url: `/api/system/flow/start/${encodeURIComponent(businessId)}` })
+}
+export function fetchFlowMyTodo() {
+  return request.get<any[]>({ url: '/api/system/flow/my-todo' })
+}
+export function fetchFlowHandle(taskId: number | string) {
+  return request.post<string>({ url: `/api/system/flow/handle/${taskId}` })
+}
+export function fetchFlowReject(taskId: number | string) {
+  return request.post<string>({ url: `/api/system/flow/reject/${taskId}` })
+}
+export function fetchFlowHistory(instanceId: number | string) {
+  return request.get<any[]>({ url: '/api/system/flow/history', params: { instanceId } })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({
