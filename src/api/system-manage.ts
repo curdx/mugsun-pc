@@ -210,6 +210,36 @@ export function fetchRemoveTenant(ids: (number | string)[] | number | string) {
   })
 }
 
+// ===== 通知公告 =====
+export function fetchNoticePage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/notice/page', params })
+}
+export function fetchSaveNotice(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/notice/submit', data })
+}
+export function fetchRemoveNotice(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/notice/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
+// ===== 附件 =====
+export function fetchAttachList() {
+  return request.get<any[]>({ url: '/api/system/file/list' })
+}
+export function fetchUploadFile(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return request.post<any>({ url: '/api/system/file/upload', data: form })
+}
+export function fetchRemoveAttach(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/file/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

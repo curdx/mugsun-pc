@@ -99,6 +99,28 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'notice',
+      name: 'Notice',
+      component: '/system/notice',
+      meta: {
+        title: '通知公告',
+        icon: 'ri:notification-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'attach',
+      name: 'Attach',
+      component: '/system/attach',
+      meta: {
+        title: '附件管理',
+        icon: 'ri:folder-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
