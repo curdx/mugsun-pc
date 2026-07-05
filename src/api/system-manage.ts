@@ -279,6 +279,20 @@ export function fetchEnableSms(id: number | string) {
   return request.post<void>({ url: `/api/system/sms/enable/${id}` })
 }
 
+// ===== 在线代码生成 =====
+export function fetchGenDatasource() {
+  return request.get<any>({ url: '/api/system/gen/datasource' })
+}
+export function fetchGenTables() {
+  return request.get<any[]>({ url: '/api/system/gen/tables' })
+}
+export function fetchGenColumns(table: string) {
+  return request.get<any>({ url: '/api/system/gen/columns', params: { table } })
+}
+export function fetchGenPreview(data: Record<string, any>) {
+  return request.post<Record<string, string>>({ url: '/api/system/gen/preview', data })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

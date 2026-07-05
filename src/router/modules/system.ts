@@ -143,6 +143,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'gen',
+      name: 'Gen',
+      component: '/system/gen',
+      meta: {
+        title: '代码生成',
+        icon: 'ri:code-box-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'log',
       name: 'OperLog',
       component: '/system/log',
