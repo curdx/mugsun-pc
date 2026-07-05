@@ -339,6 +339,23 @@ export function fetchJobInstances(jobId: number | string) {
   return request.get<any[]>({ url: '/api/system/job/instances', params: { jobId } })
 }
 
+// ===== 报表 =====
+export function fetchReportDatasets() {
+  return request.get<any[]>({ url: '/api/system/report/datasets' })
+}
+export function fetchReportList() {
+  return request.get<any[]>({ url: '/api/system/report/list' })
+}
+export function fetchSaveReport(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/report/submit', data })
+}
+export function fetchRemoveReport(id: number | string) {
+  return request.post<void>({ url: `/api/system/report/remove/${id}` })
+}
+export function fetchReportPreview(id: number | string) {
+  return request.get<any[]>({ url: '/api/system/report/preview', params: { id } })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

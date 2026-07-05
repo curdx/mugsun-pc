@@ -187,6 +187,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'report',
+      name: 'Report',
+      component: '/system/report',
+      meta: {
+        title: '报表管理',
+        icon: 'ri:bar-chart-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'log',
       name: 'OperLog',
       component: '/system/log',
