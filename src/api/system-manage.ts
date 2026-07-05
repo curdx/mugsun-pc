@@ -240,6 +240,11 @@ export function fetchRemoveAttach(ids: (number | string)[] | number | string) {
   })
 }
 
+// ===== 操作日志 =====
+export function fetchOperLogPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/oper-log/page', params })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

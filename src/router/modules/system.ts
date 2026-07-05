@@ -121,6 +121,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'log',
+      name: 'OperLog',
+      component: '/system/log',
+      meta: {
+        title: '操作日志',
+        icon: 'ri:file-list-3-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
