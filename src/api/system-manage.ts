@@ -1,5 +1,6 @@
 import request from '@/utils/http'
 import { AppRouteRecord } from '@/types/router'
+import { useUserStore } from '@/store/modules/user'
 
 // 获取用户列表（对接后端 /system/user/page）
 export function fetchGetUserList(params: Record<string, any>) {
@@ -22,6 +23,32 @@ export function fetchRemoveUser(ids: (number | string)[] | number | string) {
   return request.post<void>({
     url: '/api/system/user/remove',
     data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
+// 导出用户（认证 GET 二进制，原生 fetch 触发下载）
+export async function exportUser(): Promise<void> {
+  const { accessToken } = useUserStore()
+  const res = await fetch('/api/system/user/export', {
+    headers: accessToken ? { Authorization: accessToken } : undefined
+  })
+  if (!res.ok) throw new Error('导出失败')
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = '用户数据.xlsx'
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+// 导入用户（multipart 上传）
+export function importUser(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return request.post<void>({
+    url: '/api/system/user/import',
+    data: form
   })
 }
 

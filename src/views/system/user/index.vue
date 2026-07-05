@@ -5,6 +5,15 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElButton @click="showDialog('add')" v-ripple>新增用户</ElButton>
+          <ElButton @click="handleExport" v-ripple>导出</ElButton>
+          <ElButton @click="triggerImport" v-ripple>导入</ElButton>
+          <input
+            ref="importInput"
+            type="file"
+            accept=".xlsx,.xls"
+            style="display: none"
+            @change="handleImport"
+          />
         </template>
       </ArtTableHeader>
 
@@ -32,7 +41,13 @@
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetUserList, fetchSaveUser, fetchRemoveUser } from '@/api/system-manage'
+  import {
+    fetchGetUserList,
+    fetchSaveUser,
+    fetchRemoveUser,
+    exportUser,
+    importUser
+  } from '@/api/system-manage'
   import UserDialog from './modules/user-dialog.vue'
   import { ElTag, ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
@@ -42,6 +57,28 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentUserData = ref<Record<string, any>>({})
+  const importInput = ref<HTMLInputElement>()
+
+  // 导出用户
+  const handleExport = async (): Promise<void> => {
+    await exportUser()
+  }
+
+  // 触发导入文件选择
+  const triggerImport = (): void => {
+    importInput.value?.click()
+  }
+
+  // 导入用户
+  const handleImport = async (event: Event): Promise<void> => {
+    const input = event.target as HTMLInputElement
+    const file = input.files?.[0]
+    if (!file) return
+    await importUser(file)
+    ElMessage.success('导入成功')
+    input.value = ''
+    refreshData()
+  }
 
   const {
     columns,
