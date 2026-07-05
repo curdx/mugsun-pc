@@ -66,6 +66,28 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'dict',
+      name: 'Dict',
+      component: '/system/dict',
+      meta: {
+        title: '字典管理',
+        icon: 'ri:book-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'dict-biz',
+      name: 'DictBiz',
+      component: '/system/dict-biz',
+      meta: {
+        title: '业务字典',
+        icon: 'ri:book-marked-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',

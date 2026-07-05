@@ -139,6 +139,34 @@ export function fetchRemoveParam(ids: (number | string)[] | number | string) {
   })
 }
 
+// ===== 系统字典（树） =====
+export function fetchDictTree() {
+  return request.get<any[]>({ url: '/api/system/dict/tree' })
+}
+export function fetchSaveDict(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/dict/submit', data })
+}
+export function fetchRemoveDict(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/dict/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
+// ===== 业务字典（树） =====
+export function fetchDictBizTree() {
+  return request.get<any[]>({ url: '/api/system/dict-biz/tree' })
+}
+export function fetchSaveDictBiz(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/dict-biz/submit', data })
+}
+export function fetchRemoveDictBiz(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/dict-biz/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({
