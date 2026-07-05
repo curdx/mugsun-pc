@@ -378,6 +378,44 @@ export function fetchRemoveApiKey(id: number | string) {
   return request.post<void>({ url: `/api/system/api-key/remove/${id}` })
 }
 
+// ===== 行政区划 =====
+export function fetchRegionLazyTree(parentCode: string) {
+  return request.get<any[]>({ url: '/api/system/region/lazy-tree', params: { parentCode } })
+}
+export function fetchSaveRegion(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/region/submit', data })
+}
+export function fetchRemoveRegion(id: number | string) {
+  return request.post<void>({ url: `/api/system/region/remove/${id}` })
+}
+export async function exportRegion(): Promise<void> {
+  const { accessToken } = useUserStore()
+  const res = await fetch('/api/system/region/export', {
+    headers: accessToken ? { Authorization: accessToken } : undefined
+  })
+  if (!res.ok) throw new Error('导出失败')
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = '行政区划.xlsx'
+  link.click()
+  URL.revokeObjectURL(url)
+}
+export function importRegion(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  return request.post<number>({ url: '/api/system/region/import', data: form })
+}
+
+// ===== 个人中心 =====
+export function fetchUpdateInfo(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/auth/update-info', data })
+}
+export function fetchUpdatePassword(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/auth/update-password', data })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

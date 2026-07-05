@@ -220,6 +220,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'region',
+      name: 'Region',
+      component: '/system/region',
+      meta: {
+        title: '行政区划',
+        icon: 'ri:map-pin-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'log',
       name: 'OperLog',
       component: '/system/log',
