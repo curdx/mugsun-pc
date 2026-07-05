@@ -245,6 +245,40 @@ export function fetchOperLogPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/oper-log/page', params })
 }
 
+// ===== 对象存储配置 =====
+export function fetchOssPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/oss/page', params })
+}
+export function fetchSaveOss(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/oss/submit', data })
+}
+export function fetchRemoveOss(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/oss/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+export function fetchEnableOss(id: number | string) {
+  return request.post<void>({ url: `/api/system/oss/enable/${id}` })
+}
+
+// ===== 短信平台配置 =====
+export function fetchSmsPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/sms/page', params })
+}
+export function fetchSaveSms(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/sms/submit', data })
+}
+export function fetchRemoveSms(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/sms/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+export function fetchEnableSms(id: number | string) {
+  return request.post<void>({ url: `/api/system/sms/enable/${id}` })
+}
+
 // 获取菜单列表
 export function fetchGetMenuList() {
   return request.get<AppRouteRecord[]>({

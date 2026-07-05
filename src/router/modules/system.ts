@@ -121,6 +121,28 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'oss',
+      name: 'Oss',
+      component: '/system/oss',
+      meta: {
+        title: '存储配置',
+        icon: 'ri:cloud-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
+      path: 'sms',
+      name: 'Sms',
+      component: '/system/sms',
+      meta: {
+        title: '短信配置',
+        icon: 'ri:message-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'log',
       name: 'OperLog',
       component: '/system/log',
