@@ -1,25 +1,7 @@
 import { AppRouteRecord } from '@/types/router'
-import { dashboardRoutes } from './dashboard'
-import { templateRoutes } from './template'
-import { widgetsRoutes } from './widgets'
 import { systemRoutes } from './system'
-import { articleRoutes } from './article'
-import { resultRoutes } from './result'
-import { exceptionRoutes } from './exception'
-import { safeguardRoutes } from './safeguard'
-import { helpRoutes } from './help'
 
 /**
- * 导出所有模块化路由
+ * 导出所有模块化路由（仅真实功能模块，已移除模板演示路由）
  */
-export const routeModules: AppRouteRecord[] = [
-  dashboardRoutes,
-  templateRoutes,
-  widgetsRoutes,
-  systemRoutes,
-  articleRoutes,
-  resultRoutes,
-  exceptionRoutes,
-  safeguardRoutes,
-  ...helpRoutes
-]
+export const routeModules: AppRouteRecord[] = [systemRoutes]
