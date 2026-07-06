@@ -17,6 +17,12 @@
       <ElFormItem label="昵称" prop="nickname">
         <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
       </ElFormItem>
+      <ElFormItem label="手机号" prop="phone">
+        <ElInput v-model="formData.phone" placeholder="请输入手机号（展示脱敏）" />
+      </ElFormItem>
+      <ElFormItem label="身份证" prop="idCard">
+        <ElInput v-model="formData.idCard" placeholder="请输入身份证号（加密存储）" />
+      </ElFormItem>
       <ElFormItem v-if="type === 'add'" label="密码" prop="password">
         <ElInput
           v-model="formData.password"
@@ -67,6 +73,8 @@
     username: '',
     nickname: '',
     password: '',
+    phone: '',
+    idCard: '',
     status: 1
   })
 
@@ -80,7 +88,15 @@
       if (visible) {
         Object.assign(
           formData,
-          { id: undefined, username: '', nickname: '', password: '', status: 1 },
+          {
+            id: undefined,
+            username: '',
+            nickname: '',
+            password: '',
+            phone: '',
+            idCard: '',
+            status: 1
+          },
           props.userData || {}
         )
         nextTick(() => formRef.value?.clearValidate())

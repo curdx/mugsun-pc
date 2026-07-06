@@ -128,6 +128,7 @@
         { type: 'index', width: 60, label: '序号' },
         { prop: 'username', label: '用户名', minWidth: 120 },
         { prop: 'nickname', label: '昵称', minWidth: 120 },
+        { prop: 'phone', label: '手机号', minWidth: 130 },
         {
           prop: 'status',
           label: '状态',
