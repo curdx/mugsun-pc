@@ -264,6 +264,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'data-audit',
+      name: 'DataAudit',
+      component: '/system/data-audit',
+      meta: {
+        title: '变更记录',
+        icon: 'ri:history-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',

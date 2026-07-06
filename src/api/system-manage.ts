@@ -262,6 +262,14 @@ export function fetchOperLogPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/oper-log/page', params })
 }
 
+// ===== 数据变更记录 =====
+export function fetchDataAuditPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/data-audit/page', params })
+}
+export function fetchDataAuditDetail(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/data-audit/detail', params })
+}
+
 // ===== 对象存储配置 =====
 export function fetchOssPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/oss/page', params })
