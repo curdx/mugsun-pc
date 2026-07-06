@@ -15,6 +15,16 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
 }
 
 /**
+ * 获取图形验证码
+ * @returns 验证码唯一标识 + Base64 图片
+ */
+export function fetchCaptcha() {
+  return request.get<Api.Auth.Captcha>({
+    url: '/api/auth/captcha'
+  })
+}
+
+/**
  * 获取用户信息
  * @returns 用户信息
  */

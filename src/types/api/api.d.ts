@@ -66,6 +66,16 @@ declare namespace Api {
     interface LoginParams {
       username: string
       password: string
+      captchaUuid?: string
+      captchaCode?: string
+    }
+
+    /** 图形验证码 */
+    interface Captcha {
+      captchaUuid: string
+      captchaImage: string
+      expireSeconds: number
+      captchaCode?: string
     }
 
     /** 登录响应 */
