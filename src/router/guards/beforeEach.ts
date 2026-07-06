@@ -371,6 +371,8 @@ async function fetchUserInfo(): Promise<void> {
   const userStore = useUserStore()
   const data = await fetchGetUserInfo()
   userStore.setUserInfo(data)
+  // 按后端策略开关全局水印（等保：用户名+日期，防截屏泄露溯源）
+  useSettingStore().setWatermarkVisible(!!(data as any).watermark)
   // 检查并清理工作台标签页（如果是不同用户登录）
   userStore.checkAndClearWorktabs()
 }

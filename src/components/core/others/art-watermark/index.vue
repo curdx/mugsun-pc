@@ -6,7 +6,7 @@
     :style="{ zIndex: zIndex }"
   >
     <ElWatermark
-      :content="content"
+      :content="watermarkContent"
       :font="{ fontSize: fontSize, color: fontColor }"
       :rotate="rotate"
       :gap="[gapX, gapY]"
@@ -20,11 +20,21 @@
 <script setup lang="ts">
   import AppConfig from '@/config'
   import { useSettingStore } from '@/store/modules/setting'
+  import { useUserStore } from '@/store/modules/user'
 
   defineOptions({ name: 'ArtWatermark' })
 
   const settingStore = useSettingStore()
   const { watermarkVisible } = storeToRefs(settingStore)
+  const userStore = useUserStore()
+
+  // 水印内容：登录用户名 + 当前日期（等保防截屏泄露溯源）
+  const watermarkContent = computed<string[]>(() => {
+    const info: any = userStore.getUserInfo || {}
+    const name = info.userName || info.nickName || AppConfig.systemInfo.name
+    const date = new Date().toISOString().slice(0, 10)
+    return [String(name), date]
+  })
 
   interface WatermarkProps {
     /** 水印内容 */
