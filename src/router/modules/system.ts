@@ -66,6 +66,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'crypto',
+      name: 'CryptoDemo',
+      component: '/system/crypto',
+      meta: {
+        title: '接口加解密',
+        icon: 'ri:shield-keyhole-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'dict',
       name: 'Dict',
       component: '/system/dict',
