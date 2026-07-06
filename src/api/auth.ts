@@ -15,6 +15,17 @@ export function fetchLogin(params: Api.Auth.LoginParams) {
 }
 
 /**
+ * 双因子登录二次校验
+ * @param params twoFactorToken + code
+ */
+export function fetchTwoFactor(params: { twoFactorToken: string; code: string }) {
+  return request.post<Api.Auth.LoginResponse>({
+    url: '/api/auth/two-factor',
+    data: params
+  })
+}
+
+/**
  * 获取图形验证码
  * @returns 验证码唯一标识 + Base64 图片
  */

@@ -168,6 +168,23 @@ export function fetchRemoveParam(ids: (number | string)[] | number | string) {
   })
 }
 
+// ===== 邮件模板 =====
+export function fetchMailTemplatePage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/mail-template/page', params })
+}
+export function fetchSaveMailTemplate(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/mail-template/submit', data })
+}
+export function fetchRemoveMailTemplate(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/mail-template/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
+export function fetchSendTestMail(data: Record<string, any>) {
+  return request.post<string>({ url: '/api/system/mail-template/send-test', data })
+}
+
 // ===== 系统字典（树） =====
 export function fetchDictTree() {
   return request.get<any[]>({ url: '/api/system/dict/tree' })

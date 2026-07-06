@@ -77,6 +77,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'mail-template',
+      name: 'MailTemplate',
+      component: '/system/mail-template',
+      meta: {
+        title: '邮件模板',
+        icon: 'ri:mail-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'dict',
       name: 'Dict',
       component: '/system/dict',

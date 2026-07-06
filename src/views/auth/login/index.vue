@@ -95,8 +95,8 @@
   import { useUserStore } from '@/store/modules/user'
   import { useI18n } from 'vue-i18n'
   import { HttpError } from '@/utils/http/error'
-  import { fetchLogin, fetchCaptcha } from '@/api/auth'
-  import { ElNotification, type FormInstance, type FormRules } from 'element-plus'
+  import { fetchLogin, fetchCaptcha, fetchTwoFactor } from '@/api/auth'
+  import { ElNotification, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 
   defineOptions({ name: 'Login' })
 
@@ -165,12 +165,31 @@
       // 登录请求
       const { username, password, captchaUuid, captchaCode } = formData
 
-      const { token, refreshToken } = await fetchLogin({
+      const resp = await fetchLogin({
         username,
         password,
         captchaUuid,
         captchaCode
       })
+
+      let token = resp.token
+      let refreshToken = resp.refreshToken
+
+      // 双因子登录：需二次验证码
+      if (resp.twoFactorRequired) {
+        const { value: code } = await ElMessageBox.prompt(
+          '登录验证码已发送（无凭证时降级为日志，开发环境已自动填充）',
+          '双因子验证',
+          {
+            confirmButtonText: '验证',
+            cancelButtonText: '取消',
+            inputValue: resp.twoFactorCode || ''
+          }
+        )
+        const tf = await fetchTwoFactor({ twoFactorToken: resp.twoFactorToken as string, code })
+        token = tf.token
+        refreshToken = tf.refreshToken
+      }
 
       // 验证token
       if (!token) {

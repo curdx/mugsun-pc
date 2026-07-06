@@ -82,6 +82,9 @@ declare namespace Api {
     interface LoginResponse {
       token: string
       refreshToken: string
+      twoFactorRequired?: boolean
+      twoFactorToken?: string
+      twoFactorCode?: string
     }
 
     /** 用户信息 */
