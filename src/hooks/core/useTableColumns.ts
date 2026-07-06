@@ -136,6 +136,12 @@ export interface DynamicColumnConfig<T = any> {
    * 重置所有列
    */
   resetColumns: () => void
+
+  /**
+   * 以完整列数组一次性重设列配置（顺序 + 显隐 + 列宽一并生效，用于持久化恢复）
+   * @param cols 完整列配置数组
+   */
+  setColumns: (cols: ColumnOption<T>[]) => void
 }
 
 export function useTableColumns<T = any>(
@@ -263,6 +269,14 @@ export function useTableColumns<T = any>(
      */
     resetColumns: () => {
       dynamicColumns.value = columnsFactory()
+    },
+
+    /**
+     * 以完整列数组一次性重设列配置（顺序 + 显隐 + 列宽一并生效）
+     */
+    setColumns: (cols: ColumnOption<T>[]) => {
+      dynamicColumns.value = cols
+      columnChecks.value = getColumnChecks(cols)
     },
 
     /**

@@ -4,7 +4,12 @@
 <!-- 获取 ref：默认暴露了 elTableRef 外部通过 ref.value.elTableRef 可以调用 el-table 方法 -->
 <template>
   <div class="art-table" :class="{ 'is-empty': isEmpty }" :style="containerHeight">
-    <ElTable ref="elTableRef" v-loading="!!loading" v-bind="mergedTableProps">
+    <ElTable
+      ref="elTableRef"
+      v-loading="!!loading"
+      v-bind="mergedTableProps"
+      @header-dragend="(nw, ow, col, e) => emit('header-dragend', nw, ow, col, e)"
+    >
       <template v-for="col in columns" :key="col.prop || col.type">
         <!-- 渲染全局序号列 -->
         <ElTableColumn v-if="col.type === 'globalIndex'" v-bind="{ ...col }">
@@ -320,6 +325,7 @@
   const emit = defineEmits<{
     (e: 'pagination:size-change', val: number): void
     (e: 'pagination:current-change', val: number): void
+    (e: 'header-dragend', newWidth: number, oldWidth: number, column: any, event: MouseEvent): void
   }>()
 
   // 查找并绑定表格头部元素 - 使用 VueUse 优化

@@ -7,6 +7,7 @@
           <ElButton @click="showDialog('add')" v-ripple>新增用户</ElButton>
           <ElButton @click="handleExport" v-ripple>导出</ElButton>
           <ElButton @click="triggerImport" v-ripple>导入</ElButton>
+          <ElButton @click="handleResetColumns" v-ripple>恢复默认列</ElButton>
           <input
             ref="importInput"
             type="file"
@@ -22,6 +23,8 @@
         :data="data as any[]"
         :columns="columns"
         :pagination="pagination"
+        border
+        @header-dragend="onHeaderDragend"
         @pagination:size-change="handleSizeChange"
         @pagination:current-change="handleCurrentChange"
       >
@@ -43,6 +46,7 @@
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
+  import { useTableColumnPersist } from '@/hooks/core/useTableColumnPersist'
   import {
     fetchGetUserList,
     fetchSaveUser,
@@ -56,6 +60,7 @@
   import UserRoleDialog from './modules/user-role-dialog.vue'
   import { ElButton, ElSwitch, ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
+  import type { ColumnOption } from '@/types/component'
 
   defineOptions({ name: 'User' })
 
@@ -109,6 +114,54 @@
     refreshData()
   }
 
+  // 表格列工厂（与列持久化共用同一份出厂默认）
+  const columnsFactory = (): ColumnOption[] => [
+    { type: 'index', width: 60, label: '序号' },
+    { prop: 'username', label: '用户名', minWidth: 120 },
+    { prop: 'nickname', label: '昵称', minWidth: 120 },
+    { prop: 'phone', label: '手机号', minWidth: 130 },
+    {
+      prop: 'status',
+      label: '状态',
+      width: 100,
+      formatter: (row: any) =>
+        h(ElSwitch, {
+          modelValue: row.status,
+          activeValue: 1,
+          inactiveValue: 0,
+          onChange: (val: any) => handleStatus(row, val)
+        })
+    },
+    { prop: 'createTime', label: '创建时间', minWidth: 180 },
+    {
+      prop: 'operation',
+      label: '操作',
+      width: 220,
+      fixed: 'right',
+      formatter: (row: any) =>
+        h('div', [
+          h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
+          h(ArtButtonTable, { type: 'delete', onClick: () => deleteUser(row) }),
+          h(
+            ElButton,
+            {
+              link: true,
+              type: 'primary',
+              size: 'small',
+              style: 'margin-left:8px',
+              onClick: () => showUserRole(row)
+            },
+            () => '授权'
+          ),
+          h(
+            ElButton,
+            { link: true, type: 'warning', size: 'small', onClick: () => resetPwd(row) },
+            () => '重置密码'
+          )
+        ])
+    }
+  ]
+
   const {
     columns,
     columnChecks,
@@ -117,59 +170,16 @@
     pagination,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    setColumns,
+    resetColumns
   } = useTable({
     core: {
       apiFn: fetchGetUserList,
       apiParams: { pageNum: 1, pageSize: 20 },
       // 后端分页参数为 pageNum/pageSize
       paginationKey: { current: 'pageNum', size: 'pageSize' },
-      columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'username', label: '用户名', minWidth: 120 },
-        { prop: 'nickname', label: '昵称', minWidth: 120 },
-        { prop: 'phone', label: '手机号', minWidth: 130 },
-        {
-          prop: 'status',
-          label: '状态',
-          width: 100,
-          formatter: (row: any) =>
-            h(ElSwitch, {
-              modelValue: row.status,
-              activeValue: 1,
-              inactiveValue: 0,
-              onChange: (val: any) => handleStatus(row, val)
-            })
-        },
-        { prop: 'createTime', label: '创建时间', minWidth: 180 },
-        {
-          prop: 'operation',
-          label: '操作',
-          width: 220,
-          fixed: 'right',
-          formatter: (row: any) =>
-            h('div', [
-              h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(ArtButtonTable, { type: 'delete', onClick: () => deleteUser(row) }),
-              h(
-                ElButton,
-                {
-                  link: true,
-                  type: 'primary',
-                  size: 'small',
-                  style: 'margin-left:8px',
-                  onClick: () => showUserRole(row)
-                },
-                () => '授权'
-              ),
-              h(
-                ElButton,
-                { link: true, type: 'warning', size: 'small', onClick: () => resetPwd(row) },
-                () => '重置密码'
-              )
-            ])
-        }
-      ]
+      columnsFactory
     },
     transform: {
       // 适配后端 mybatis-flex Page：records + totalRow
@@ -181,6 +191,21 @@
       })
     }
   })
+
+  // 列配置持久化：每用户 + 本表（system-user）
+  const { resetToDefault, onHeaderDragend } = useTableColumnPersist({
+    tableKey: 'system-user',
+    columnChecks,
+    columnsFactory,
+    setColumns: setColumns!,
+    resetColumns: resetColumns!
+  })
+
+  // 恢复默认列
+  const handleResetColumns = async (): Promise<void> => {
+    await resetToDefault()
+    ElMessage.success('已恢复默认列')
+  }
 
   const showDialog = (type: DialogType, row?: Record<string, any>): void => {
     dialogType.value = type

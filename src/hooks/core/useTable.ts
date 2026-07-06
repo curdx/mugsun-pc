@@ -751,7 +751,9 @@ function useTableImpl<TApiFn extends (params: any) => Promise<any>>(
       /** 获取所有列配置 */
       getAllColumns: columnConfig.getAllColumns,
       /** 重置所有列配置到默认状态 */
-      resetColumns: columnConfig.resetColumns
+      resetColumns: columnConfig.resetColumns,
+      /** 以完整列数组一次性重设列配置（持久化恢复用） */
+      setColumns: columnConfig.setColumns
     })
   }
 }
