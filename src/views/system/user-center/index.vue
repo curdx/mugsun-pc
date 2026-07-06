@@ -101,7 +101,14 @@
   const pwdForm = reactive({ oldPassword: '', newPassword: '', confirmPassword: '' })
   const pwdRules: FormRules = {
     oldPassword: [{ required: true, message: '请输入原密码', trigger: 'blur' }],
-    newPassword: [{ required: true, min: 6, message: '新密码至少 6 位', trigger: 'blur' }],
+    newPassword: [
+      {
+        required: true,
+        min: 8,
+        message: '密码至少 8 位，且含大小写/数字/特殊字符中至少 3 类',
+        trigger: 'blur'
+      }
+    ],
     confirmPassword: [
       {
         validator: (_r: any, v: string, cb: any) =>
