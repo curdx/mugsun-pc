@@ -109,15 +109,8 @@
           </template>
         </ElDropdown>
 
-        <!-- 通知按钮 -->
-        <ArtIconButton
-          v-if="shouldShowNotification"
-          icon="ri:notification-2-line"
-          class="notice-button relative"
-          @click="visibleNotice"
-        >
-          <div class="absolute top-2 right-2 size-1.5 !bg-danger rounded-full"></div>
-        </ArtIconButton>
+        <!-- 站内信通知铃铛（未读角标 + 下拉） -->
+        <ArtMessageBell v-if="shouldShowNotification" />
 
         <!-- 聊天按钮 -->
         <ArtIconButton
@@ -162,9 +155,6 @@
 
     <!-- 标签页 -->
     <ArtWorkTab />
-
-    <!-- 通知 -->
-    <ArtNotification v-model:value="showNotice" ref="notice" />
   </div>
 </template>
 
@@ -183,6 +173,7 @@
   import { useCommon } from '@/hooks/core/useCommon'
   import { useHeaderBar } from '@/hooks/core/useHeaderBar'
   import ArtUserMenu from './widget/ArtUserMenu.vue'
+  import ArtMessageBell from './widget/ArtMessageBell.vue'
 
   defineOptions({ name: 'ArtHeaderBar' })
 
@@ -219,9 +210,6 @@
   const { language } = storeToRefs(userStore)
   const { menuList } = storeToRefs(menuStore)
 
-  const showNotice = ref(false)
-  const notice = ref(null)
-
   // 菜单类型判断
   const isLeftMenu = computed(() => menuType.value === MenuTypeEnum.LEFT)
   const isDualMenu = computed(() => menuType.value === MenuTypeEnum.DUAL_MENU)
@@ -232,11 +220,6 @@
 
   onMounted(() => {
     initLanguage()
-    document.addEventListener('click', bodyCloseNotice)
-  })
-
-  onUnmounted(() => {
-    document.removeEventListener('click', bodyCloseNotice)
   })
 
   /**
@@ -308,31 +291,6 @@
    */
   const openSearchDialog = (): void => {
     mittBus.emit('openSearchDialog')
-  }
-
-  /**
-   * 点击页面其他区域关闭通知面板
-   * @param {Event} e - 点击事件对象
-   */
-  const bodyCloseNotice = (e: any): void => {
-    if (!showNotice.value) return
-
-    const target = e.target as HTMLElement
-
-    // 检查是否点击了通知按钮或通知面板内部
-    const isNoticeButton = target.closest('.notice-button')
-    const isNoticePanel = target.closest('.art-notification-panel')
-
-    if (!isNoticeButton && !isNoticePanel) {
-      showNotice.value = false
-    }
-  }
-
-  /**
-   * 切换通知面板显示状态
-   */
-  const visibleNotice = (): void => {
-    showNotice.value = !showNotice.value
   }
 
   /**
@@ -455,10 +413,6 @@
 
   .exit-full-screen-btn:hover :deep(.art-svg-icon) {
     animation: shrink 0.6s forwards;
-  }
-
-  .notice-button:hover :deep(.art-svg-icon) {
-    animation: shake 0.5s ease-in-out;
   }
 
   .chat-button:hover :deep(.art-svg-icon) {

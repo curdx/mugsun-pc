@@ -308,6 +308,38 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'message',
+      name: 'Message',
+      component: '/system/message',
+      meta: {
+        title: '我的消息',
+        icon: 'ri:notification-2-line',
+        keepAlive: true
+      }
+    },
+    {
+      path: 'message-send',
+      name: 'MessageSend',
+      component: '/system/message-send',
+      meta: {
+        title: '发送站内信',
+        icon: 'ri:send-plane-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
+      path: 'message-template',
+      name: 'MessageTemplate',
+      component: '/system/message-template',
+      meta: {
+        title: '消息模板',
+        icon: 'ri:mail-settings-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
