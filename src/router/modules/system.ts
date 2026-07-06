@@ -275,6 +275,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'help-doc',
+      name: 'HelpDoc',
+      component: '/system/help-doc',
+      meta: {
+        title: '帮助文档',
+        icon: 'ri:question-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',

@@ -40,6 +40,9 @@ importers:
       diff2html:
         specifier: ^3.4.56
         version: 3.4.56
+      dompurify:
+        specifier: ^3.4.11
+        version: 3.4.11
       echarts:
         specifier: ^6.0.0
         version: 6.0.0
@@ -1711,6 +1714,12 @@ packages:
         integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==
       }
 
+  '@types/trusted-types@2.0.7':
+    resolution:
+      {
+        integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==
+      }
+
   '@types/web-bluetooth@0.0.16':
     resolution:
       {
@@ -2987,6 +2996,12 @@ packages:
         integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==
       }
     engines: { node: '>= 4' }
+
+  dompurify@3.4.11:
+    resolution:
+      {
+        integrity: sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==
+      }
 
   domutils@3.2.2:
     resolution:
@@ -7327,6 +7342,9 @@ snapshots:
 
   '@types/sortablejs@1.15.8': {}
 
+  '@types/trusted-types@2.0.7':
+    optional: true
+
   '@types/web-bluetooth@0.0.16': {}
 
   '@types/web-bluetooth@0.0.21': {}
@@ -8182,6 +8200,10 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
+
+  dompurify@3.4.11:
+    optionalDependencies:
+      '@types/trusted-types': 2.0.7
 
   domutils@3.2.2:
     dependencies:

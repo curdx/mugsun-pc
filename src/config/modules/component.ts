@@ -68,6 +68,14 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
       () => import('@/components/core/others/art-watermark/index.vue')
     ),
     enabled: true
+  },
+  {
+    name: '帮助抽屉',
+    key: 'help-drawer',
+    component: defineAsyncComponent(
+      () => import('@/components/core/layouts/art-help-drawer/index.vue')
+    ),
+    enabled: true
   }
 ]
 
