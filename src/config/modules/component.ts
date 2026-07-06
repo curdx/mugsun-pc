@@ -76,6 +76,14 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
       () => import('@/components/core/layouts/art-help-drawer/index.vue')
     ),
     enabled: true
+  },
+  {
+    name: '意见反馈',
+    key: 'feedback-dialog',
+    component: defineAsyncComponent(
+      () => import('@/components/core/layouts/art-feedback-dialog/index.vue')
+    ),
+    enabled: true
   }
 ]
 

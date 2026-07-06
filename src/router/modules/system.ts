@@ -286,6 +286,28 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'changelog',
+      name: 'ChangeLog',
+      component: '/system/changelog',
+      meta: {
+        title: '更新日志',
+        icon: 'ri:git-branch-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'feedback',
+      name: 'Feedback',
+      component: '/system/feedback',
+      meta: {
+        title: '意见反馈',
+        icon: 'ri:feedback-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
