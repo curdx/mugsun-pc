@@ -27,6 +27,7 @@
         <ElButton type="primary" :loading="loading" :disabled="!form.tableName" @click="generate">
           生成预览
         </ElButton>
+        <ElButton :disabled="!form.tableName" @click="saveConfig">保存配置</ElButton>
       </div>
 
       <ElTable v-if="columns.length" :data="columns" border size="small" class="gen-cols">
@@ -52,7 +53,9 @@
     fetchGenDatasource,
     fetchGenTables,
     fetchGenColumns,
-    fetchGenPreview
+    fetchGenPreview,
+    fetchGenConfig,
+    fetchSaveGenConfig
   } from '@/api/system-manage'
   import { ElMessage } from 'element-plus'
 
@@ -88,6 +91,19 @@
     code.value = {}
     const resp = await fetchGenColumns(name)
     columns.value = resp?.columns ?? []
+    // 回显该表已存生成配置
+    const cfg = await fetchGenConfig(name)
+    if (cfg) {
+      if (cfg.basePackage) form.basePackage = cfg.basePackage
+      form.tablePrefix = cfg.tablePrefix || ''
+    } else {
+      form.tablePrefix = ''
+    }
+  }
+
+  const saveConfig = async (): Promise<void> => {
+    await fetchSaveGenConfig({ ...form })
+    ElMessage.success('配置已保存')
   }
 
   const generate = async (): Promise<void> => {

@@ -11,6 +11,14 @@
         <ElTableColumn prop="code" label="字典编码" min-width="140" />
         <ElTableColumn prop="dictKey" label="字典键值" min-width="120" />
         <ElTableColumn prop="sort" label="排序" width="80" />
+        <ElTableColumn label="标签" width="120">
+          <template #default="{ row }">
+            <ElTag v-if="row.color" :color="row.color" effect="dark" disable-transitions>
+              {{ row.dictValue }}
+            </ElTag>
+            <span v-else>—</span>
+          </template>
+        </ElTableColumn>
         <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
         <ElTableColumn label="操作" width="240">
           <template #default="{ row }">
@@ -50,6 +58,12 @@
           </ElFormItem>
           <ElFormItem label="排序" prop="sort">
             <ElInputNumber v-model="formData.sort" :min="0" />
+          </ElFormItem>
+          <ElFormItem label="标签颜色" prop="color">
+            <ElColorPicker
+              v-model="formData.color"
+              :predefine="['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399']"
+            />
           </ElFormItem>
           <ElFormItem label="备注" prop="remark">
             <ElInput v-model="formData.remark" placeholder="请输入备注" />
@@ -91,7 +105,8 @@
     dictValue: '',
     dictKey: '',
     sort: 0,
-    remark: ''
+    remark: '',
+    color: ''
   })
 
   const formData = reactive<Record<string, any>>(defaultForm())

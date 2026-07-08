@@ -317,6 +317,12 @@ export function fetchGenColumns(table: string) {
 export function fetchGenPreview(data: Record<string, any>) {
   return request.post<Record<string, string>>({ url: '/api/system/gen/preview', data })
 }
+export function fetchGenConfig(table: string) {
+  return request.get<any>({ url: '/api/system/gen/config', params: { table } })
+}
+export function fetchSaveGenConfig(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/gen/config/save', data })
+}
 
 // ===== 工作流治理 =====
 export function fetchFlowDefinitions() {

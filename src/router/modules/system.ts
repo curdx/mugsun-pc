@@ -340,6 +340,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'cache',
+      name: 'Cache',
+      component: '/system/cache',
+      meta: {
+        title: '缓存管理',
+        icon: 'ri:database-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'user-center',
       name: 'UserCenter',
       component: '/system/user-center',
