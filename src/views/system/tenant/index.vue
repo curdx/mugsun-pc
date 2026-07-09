@@ -3,49 +3,94 @@
   <div class="tenant-page art-full-height">
     <ElCard class="art-table-card">
       <div class="tenant-toolbar">
-        <ElButton @click="dialogVisible = true" v-ripple>新增租户</ElButton>
+        <ElButton type="primary" @click="openCreate" v-ripple>新增租户</ElButton>
       </div>
 
       <ElTable :data="tableData" border>
         <ElTableColumn type="index" label="序号" width="60" />
         <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
-        <ElTableColumn prop="tenantName" label="租户名称" min-width="160" />
-        <ElTableColumn prop="contactUser" label="联系人" min-width="120" />
-        <ElTableColumn prop="contactPhone" label="联系电话" min-width="140" />
-        <ElTableColumn prop="expireTime" label="过期时间" min-width="180" />
-        <ElTableColumn label="操作" width="100">
+        <ElTableColumn prop="tenantName" label="租户名称" min-width="150" />
+        <ElTableColumn label="套餐" min-width="130">
           <template #default="{ row }">
+            <ElTag v-if="row.packageId" type="success">{{ packageName(row.packageId) }}</ElTag>
+            <ElTag v-else type="info">不限功能</ElTag>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="contactUser" label="联系人" min-width="110" />
+        <ElTableColumn prop="contactPhone" label="联系电话" min-width="130" />
+        <ElTableColumn prop="expireTime" label="过期时间" min-width="170" />
+        <ElTableColumn label="操作" width="150">
+          <template #default="{ row }">
+            <ElButton link type="primary" @click="openEdit(row)">编辑</ElButton>
             <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
           </template>
         </ElTableColumn>
       </ElTable>
 
-      <TenantDialog v-model:visible="dialogVisible" @submit="handleCreate" />
+      <TenantDialog
+        v-model:visible="dialogVisible"
+        :row="current"
+        :packages="packages"
+        @submit="handleSubmit"
+      />
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
-  import { fetchTenantList, fetchCreateTenant, fetchRemoveTenant } from '@/api/system-manage'
+  import {
+    fetchTenantList,
+    fetchCreateTenant,
+    fetchUpdateTenant,
+    fetchRemoveTenant,
+    fetchTenantPackageList
+  } from '@/api/system-manage'
   import TenantDialog from './modules/tenant-dialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
 
   defineOptions({ name: 'Tenant' })
 
   const tableData = ref<any[]>([])
+  const packages = ref<any[]>([])
   const dialogVisible = ref(false)
+  const current = ref<Record<string, any> | null>(null)
+
+  const packageName = (id: number | string): string =>
+    packages.value.find((p) => String(p.id) === String(id))?.name ?? '—'
 
   const loadData = async (): Promise<void> => {
     tableData.value = (await fetchTenantList()) || []
   }
 
-  onMounted(loadData)
+  const loadPackages = async (): Promise<void> => {
+    packages.value = (await fetchTenantPackageList()) || []
+  }
 
-  const handleCreate = async (form: Record<string, any>): Promise<void> => {
-    const code = await fetchCreateTenant(form)
+  onMounted(() => {
+    loadData()
+    loadPackages()
+  })
+
+  const openCreate = (): void => {
+    current.value = null
+    dialogVisible.value = true
+  }
+
+  const openEdit = (row: any): void => {
+    current.value = { ...row }
+    dialogVisible.value = true
+  }
+
+  const handleSubmit = async (form: Record<string, any>): Promise<void> => {
+    if (form.id) {
+      await fetchUpdateTenant(form)
+      ElMessage.success('更新成功')
+    } else {
+      const code = await fetchCreateTenant(form)
+      ElMessage.success(`租户创建成功，编号 ${code}，已初始化默认数据`)
+    }
     dialogVisible.value = false
-    ElMessage.success(`租户创建成功，编号 ${code}，已初始化默认数据`)
     loadData()
   }
 

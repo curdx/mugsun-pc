@@ -1,6 +1,11 @@
-<!-- 租户新增弹窗（对接后端 /system/tenant/create，创建即一键初始化默认数据） -->
+<!-- 租户新增/编辑弹窗（create 一键初始化默认数据；update 仅改信息与套餐分配） -->
 <template>
-  <ElDialog v-model="dialogVisible" title="新增租户" width="500px" align-center>
+  <ElDialog
+    v-model="dialogVisible"
+    :title="isEdit ? '编辑租户' : '新增租户'"
+    width="500px"
+    align-center
+  >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="90px">
       <ElFormItem label="租户名称" prop="tenantName">
         <ElInput v-model="formData.tenantName" placeholder="请输入租户名称" />
@@ -10,6 +15,11 @@
       </ElFormItem>
       <ElFormItem label="联系电话" prop="contactPhone">
         <ElInput v-model="formData.contactPhone" placeholder="请输入联系电话" />
+      </ElFormItem>
+      <ElFormItem label="套餐" prop="packageId">
+        <ElSelect v-model="formData.packageId" clearable placeholder="不限功能" style="width: 100%">
+          <ElOption v-for="p in packages" :key="p.id" :label="p.name" :value="p.id" />
+        </ElSelect>
       </ElFormItem>
       <ElFormItem label="过期时间" prop="expireTime">
         <ElDatePicker
@@ -35,6 +45,8 @@
 
   interface Props {
     visible: boolean
+    row?: Record<string, any> | null
+    packages?: any[]
   }
 
   interface Emits {
@@ -42,7 +54,7 @@
     (e: 'submit', form: Record<string, any>): void
   }
 
-  const props = defineProps<Props>()
+  const props = withDefaults(defineProps<Props>(), { row: null, packages: () => [] })
   const emit = defineEmits<Emits>()
 
   const dialogVisible = computed({
@@ -50,12 +62,15 @@
     set: (value) => emit('update:visible', value)
   })
 
+  const isEdit = computed(() => !!props.row?.id)
   const formRef = ref<FormInstance>()
 
   const formData = reactive<Record<string, any>>({
+    id: null,
     tenantName: '',
     contactUser: '',
     contactPhone: '',
+    packageId: null,
     expireTime: ''
   })
 
@@ -67,11 +82,14 @@
     () => props.visible,
     (visible) => {
       if (visible) {
+        const r = props.row
         Object.assign(formData, {
-          tenantName: '',
-          contactUser: '',
-          contactPhone: '',
-          expireTime: ''
+          id: r?.id ?? null,
+          tenantName: r?.tenantName ?? '',
+          contactUser: r?.contactUser ?? '',
+          contactPhone: r?.contactPhone ?? '',
+          packageId: r?.packageId ?? null,
+          expireTime: r?.expireTime ?? ''
         })
         nextTick(() => formRef.value?.clearValidate())
       }

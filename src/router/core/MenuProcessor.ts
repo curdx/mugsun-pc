@@ -50,7 +50,36 @@ export class MenuProcessor {
       menuList = this.filterMenuByRoles(menuList, roles)
     }
 
+    // 根据租户套餐过滤菜单（后端 /auth/info 下发 menus；超管/未绑套餐为 null，不限）
+    const allowed = (userStore.info as Record<string, any>)?.menus
+    if (Array.isArray(allowed) && allowed.length > 0) {
+      const filtered = this.filterMenuByPackage(menuList, new Set(allowed))
+      // 安全兜底：套餐配置异常导致全空时回退到不过滤，避免锁死无菜单
+      if (filtered.length > 0) {
+        menuList = filtered
+      }
+    }
+
     return this.filterEmptyMenus(menuList)
+  }
+
+  /**
+   * 根据租户套餐可用菜单标识过滤菜单
+   * 目录（有子项）在其子项存活时保留；叶子按 name 是否在白名单决定
+   */
+  private filterMenuByPackage(menu: AppRouteRecord[], allowed: Set<string>): AppRouteRecord[] {
+    return menu.reduce((acc: AppRouteRecord[], item) => {
+      const name = item.name ? String(item.name) : ''
+      if (item.children?.length) {
+        const children = this.filterMenuByPackage(item.children, allowed)
+        if (children.length > 0 || allowed.has(name)) {
+          acc.push({ ...item, children })
+        }
+      } else if (allowed.has(name)) {
+        acc.push({ ...item })
+      }
+      return acc
+    }, [])
   }
 
   /**

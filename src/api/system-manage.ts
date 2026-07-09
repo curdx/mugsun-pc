@@ -233,6 +233,26 @@ export function fetchRemoveTenant(ids: (number | string)[] | number | string) {
     data: Array.isArray(ids) ? ids : [ids]
   })
 }
+export function fetchUpdateTenant(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/tenant/update', data })
+}
+
+// ===== 租户套餐 =====
+export function fetchTenantPackagePage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/tenant-package/page', params })
+}
+export function fetchTenantPackageList() {
+  return request.get<any[]>({ url: '/api/system/tenant-package/list' })
+}
+export function fetchSubmitTenantPackage(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/tenant-package/submit', data })
+}
+export function fetchRemoveTenantPackage(ids: (number | string)[] | number | string) {
+  return request.post<void>({
+    url: '/api/system/tenant-package/remove',
+    data: Array.isArray(ids) ? ids : [ids]
+  })
+}
 
 // ===== 通知公告 =====
 export function fetchNoticePage(params: Record<string, any>) {

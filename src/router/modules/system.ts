@@ -121,6 +121,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'tenant-package',
+      name: 'TenantPackage',
+      component: '/system/tenant-package',
+      meta: {
+        title: '租户套餐',
+        icon: 'ri:price-tag-3-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'notice',
       name: 'Notice',
       component: '/system/notice',
