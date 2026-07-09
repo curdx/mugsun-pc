@@ -231,6 +231,9 @@ export function fetchRemoveTenant(ids: (number | string)[] | number | string) {
 export function fetchNoticePage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/notice/page', params })
 }
+export function fetchNoticeDetail(id: number | string) {
+  return request.get<any>({ url: '/api/system/notice/detail', params: { id } })
+}
 export function fetchSaveNotice(data: Record<string, any>) {
   return request.post<void>({ url: '/api/system/notice/submit', data })
 }
@@ -239,6 +242,22 @@ export function fetchRemoveNotice(ids: (number | string)[] | number | string) {
     url: '/api/system/notice/remove',
     data: Array.isArray(ids) ? ids : [ids]
   })
+}
+/** 某公告的阅读记录分页（谁读了/次数/首末时间） */
+export function fetchNoticeReadPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/notice/read/page', params })
+}
+/** 我可见的通知分页（按可见范围过滤 + 已读标记） */
+export function fetchMyNoticePage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/notice/my/page', params })
+}
+/** 标记通知已读（幂等，首读计 UV） */
+export function fetchReadNotice(noticeId: number | string) {
+  return request.post<void>({ url: `/api/system/notice/read/${noticeId}` })
+}
+/** 我的未读通知数 */
+export function fetchMyNoticeUnreadCount() {
+  return request.get<number>({ url: '/api/system/notice/my/unread-count' })
 }
 
 // ===== 附件 =====

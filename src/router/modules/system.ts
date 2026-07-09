@@ -132,6 +132,16 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'my-notice',
+      name: 'MyNotice',
+      component: '/system/my-notice',
+      meta: {
+        title: '我的通知',
+        icon: 'ri:mail-open-line',
+        keepAlive: true
+      }
+    },
+    {
       path: 'attach',
       name: 'Attach',
       component: '/system/attach',
