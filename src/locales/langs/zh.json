@@ -41,6 +41,7 @@
   "search": {
     "placeholder": "搜索页面",
     "historyTitle": "搜索历史",
+    "dataTitle": "数据联想",
     "switchKeydown": "切换",
     "selectKeydown": "选择",
     "exitKeydown": "关闭"

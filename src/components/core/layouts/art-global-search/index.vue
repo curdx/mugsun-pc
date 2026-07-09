@@ -45,6 +45,32 @@
           </div>
         </div>
 
+        <!-- 后端业务数据联想（用户/部门/角色/通知） -->
+        <div class="result w-full" v-show="dataResult.length">
+          <p class="mt-3 text-xs text-g-500">{{ $t('search.dataTitle') }}</p>
+          <div
+            class="box !mt-0 c-p text-base leading-none"
+            v-for="(item, index) in dataResult"
+            :key="'data-' + index"
+          >
+            <div
+              class="mt-2 h-12 flex-cb rounded-custom-sm bg-g-200/80 px-4 text-sm text-g-700 hover:!bg-theme/70 hover:!text-white"
+              @click="goDataPage(item)"
+            >
+              <span class="flex items-center gap-2 truncate">
+                <span class="shrink-0 rounded bg-theme/10 px-1.5 py-0.5 text-xs text-theme">
+                  {{ item.typeName }}
+                </span>
+                <span class="truncate">{{ item.title }}</span>
+                <span v-if="item.subtitle" class="shrink-0 text-xs text-g-500">
+                  {{ item.subtitle }}
+                </span>
+              </span>
+              <ArtSvgIcon icon="fluent:arrow-enter-left-20-filled" class="shrink-0" />
+            </div>
+          </div>
+        </div>
+
         <div v-show="!searchVal && searchResult.length === 0 && historyResult.length > 0">
           <p class="text-xs text-g-500">{{ $t('search.historyTitle') }}</p>
           <div class="mt-1.5 w-full">
@@ -102,15 +128,19 @@
   import { formatMenuTitle } from '@/utils/router'
   import { handleMenuJump } from '@/utils/navigation'
   import { type ScrollbarInstance } from 'element-plus'
+  import { useDebounceFn } from '@vueuse/core'
+  import { fetchSearchSuggest, type SearchSuggestItem } from '@/api/search'
 
   defineOptions({ name: 'ArtGlobalSearch' })
 
+  const router = useRouter()
   const userStore = useUserStore()
   const { menuList } = storeToRefs(useMenuStore())
 
   const showSearchDialog = ref(false)
   const searchVal = ref('')
   const searchResult = ref<AppRouteRecord[]>([])
+  const dataResult = ref<SearchSuggestItem[]>([])
   const historyMaxLength = 10
 
   const { searchHistory: historyResult } = storeToRefs(userStore)
@@ -173,6 +203,29 @@
     } else {
       searchResult.value = []
     }
+    fetchBackendSuggest(val)
+  }
+
+  // 后端业务数据联想（防抖，避免逐字符打接口）
+  const fetchBackendSuggest = useDebounceFn(async (val: string) => {
+    if (!val) {
+      dataResult.value = []
+      return
+    }
+    try {
+      dataResult.value = (await fetchSearchSuggest(val)) || []
+    } catch {
+      dataResult.value = []
+    }
+  }, 300)
+
+  // 联想数据项跳转对应模块
+  const goDataPage = (item: SearchSuggestItem) => {
+    showSearchDialog.value = false
+    router.push(item.path)
+    searchVal.value = ''
+    searchResult.value = []
+    dataResult.value = []
   }
 
   const flattenAndFilterMenuItems = (items: AppRouteRecord[], val: string): AppRouteRecord[] => {
@@ -348,6 +401,7 @@
   const closeSearchDialog = () => {
     searchVal.value = ''
     searchResult.value = []
+    dataResult.value = []
     highlightedIndex.value = 0
     historyHIndex.value = 0
   }
