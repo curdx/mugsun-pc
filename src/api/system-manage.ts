@@ -133,6 +133,13 @@ export function fetchRoleMenuIds(roleId: number | string) {
     params: { roleId }
   })
 }
+// 角色自定义部门 id 集合（data_scope=5 回显）
+export function fetchRoleDeptIds(roleId: number | string) {
+  return request.get<Array<number | string>>({
+    url: '/api/system/role/dept-ids',
+    params: { roleId }
+  })
+}
 // 角色授权菜单（body 信封 {roleId, menuIds}）
 export function fetchGrantRole(roleId: number | string, menuIds: Array<number | string>) {
   return request.post<void>({
