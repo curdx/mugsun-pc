@@ -10,13 +10,20 @@
         <div class="form">
           <h3 class="title">{{ $t('login.title') }}</h3>
           <p class="sub-title">{{ $t('login.subTitle') }}</p>
+
+          <ElTabs v-model="loginType" class="login-tabs">
+            <ElTabPane label="账号登录" name="account" />
+            <ElTabPane label="短信登录" name="sms" />
+          </ElTabs>
+
+          <!-- 账号密码登录 -->
           <ElForm
+            v-if="loginType === 'account'"
             ref="formRef"
             :model="formData"
             :rules="rules"
             :key="formKey"
             @keyup.enter="handleSubmit"
-            style="margin-top: 25px"
           >
             <ElFormItem prop="username">
               <ElInput
@@ -76,14 +83,62 @@
                 {{ $t('login.btnText') }}
               </ElButton>
             </div>
+          </ElForm>
 
-            <div class="mt-5 text-sm text-gray-600">
-              <span>{{ $t('login.noAccount') }}</span>
-              <RouterLink class="text-theme" :to="{ name: 'Register' }">{{
-                $t('login.register')
-              }}</RouterLink>
+          <!-- 短信验证码登录 -->
+          <ElForm
+            v-else
+            ref="smsFormRef"
+            :model="smsForm"
+            :rules="smsRules"
+            @keyup.enter="handleSmsSubmit"
+            style="margin-top: 8px"
+          >
+            <ElFormItem prop="phone">
+              <ElInput
+                class="custom-height"
+                placeholder="请输入手机号"
+                v-model.trim="smsForm.phone"
+                maxlength="11"
+              />
+            </ElFormItem>
+            <ElFormItem prop="code">
+              <div class="flex w-full gap-2">
+                <ElInput
+                  class="custom-height"
+                  placeholder="请输入短信验证码"
+                  v-model.trim="smsForm.code"
+                  maxlength="6"
+                />
+                <ElButton
+                  class="custom-height sms-code-btn"
+                  :disabled="smsCountdown > 0"
+                  @click="sendSmsCode"
+                >
+                  {{ smsCountdown > 0 ? smsCountdown + 's' : '发送验证码' }}
+                </ElButton>
+              </div>
+            </ElFormItem>
+
+            <div style="margin-top: 30px">
+              <ElButton
+                class="w-full custom-height"
+                type="primary"
+                @click="handleSmsSubmit"
+                :loading="loading"
+                v-ripple
+              >
+                {{ $t('login.btnText') }}
+              </ElButton>
             </div>
           </ElForm>
+
+          <div class="mt-5 text-sm text-gray-600">
+            <span>{{ $t('login.noAccount') }}</span>
+            <RouterLink class="text-theme" :to="{ name: 'Register' }">{{
+              $t('login.register')
+            }}</RouterLink>
+          </div>
         </div>
       </div>
     </div>
@@ -95,8 +150,14 @@
   import { useUserStore } from '@/store/modules/user'
   import { useI18n } from 'vue-i18n'
   import { HttpError } from '@/utils/http/error'
-  import { fetchLogin, fetchCaptcha, fetchTwoFactor } from '@/api/auth'
-  import { ElNotification, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+  import { fetchLogin, fetchCaptcha, fetchTwoFactor, fetchSmsCode, fetchSmsLogin } from '@/api/auth'
+  import {
+    ElNotification,
+    ElMessage,
+    ElMessageBox,
+    type FormInstance,
+    type FormRules
+  } from 'element-plus'
 
   defineOptions({ name: 'Login' })
 
@@ -132,6 +193,79 @@
   }))
 
   const loading = ref(false)
+
+  // ===== 短信登录 =====
+  const loginType = ref<'account' | 'sms'>('account')
+  const smsFormRef = ref<FormInstance>()
+  const smsForm = reactive({ phone: '', code: '' })
+  const smsRules = computed<FormRules>(() => ({
+    phone: [
+      { required: true, message: '请输入手机号', trigger: 'blur' },
+      { pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }
+    ],
+    code: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }]
+  }))
+  const smsCountdown = ref(0)
+  let smsTimer: ReturnType<typeof setInterval> | null = null
+
+  // 存储 token 并跳转（账号/短信登录共用）
+  const applyToken = (token?: string, refreshToken?: string) => {
+    if (!token) throw new Error('Login failed - no token received')
+    userStore.setToken(token, refreshToken)
+    userStore.setLoginStatus(true)
+    showLoginSuccessNotice()
+    const redirect = route.query.redirect as string
+    router.push(redirect || '/')
+  }
+
+  // 发送短信验证码（开发环境后端回显，自动填充）
+  const sendSmsCode = async () => {
+    if (!/^1\d{10}$/.test(smsForm.phone)) {
+      ElMessage.warning('请先输入正确的手机号')
+      return
+    }
+    try {
+      const resp = await fetchSmsCode(smsForm.phone)
+      smsCountdown.value = 60
+      smsTimer = setInterval(() => {
+        smsCountdown.value--
+        if (smsCountdown.value <= 0 && smsTimer) {
+          clearInterval(smsTimer)
+          smsTimer = null
+        }
+      }, 1000)
+      if (resp?.code) {
+        smsForm.code = resp.code
+        ElMessage.success(`验证码已发送（开发回显：${resp.code}）`)
+      } else {
+        ElMessage.success('验证码已发送')
+      }
+    } catch (error) {
+      console.error('[Login] send sms code failed:', error)
+    }
+  }
+
+  // 短信登录提交
+  const handleSmsSubmit = async () => {
+    if (!smsFormRef.value) return
+    try {
+      const valid = await smsFormRef.value.validate()
+      if (!valid) return
+      loading.value = true
+      const resp = await fetchSmsLogin({ phone: smsForm.phone, code: smsForm.code })
+      applyToken(resp.token, resp.refreshToken)
+    } catch (error) {
+      if (!(error instanceof HttpError)) {
+        console.error('[Login] sms login error:', error)
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  onUnmounted(() => {
+    if (smsTimer) clearInterval(smsTimer)
+  })
 
   // 加载图形验证码
   const loadCaptcha = async () => {
@@ -191,21 +325,8 @@
         refreshToken = tf.refreshToken
       }
 
-      // 验证token
-      if (!token) {
-        throw new Error('Login failed - no token received')
-      }
-
-      // 存储 token 和登录状态
-      userStore.setToken(token, refreshToken)
-      userStore.setLoginStatus(true)
-
-      // 登录成功处理
-      showLoginSuccessNotice()
-
-      // 获取 redirect 参数，如果存在则跳转到指定页面，否则跳转到首页
-      const redirect = route.query.redirect as string
-      router.push(redirect || '/')
+      // 验证并存储 token，跳转
+      applyToken(token, refreshToken)
     } catch (error) {
       // 登录失败刷新验证码（答案已在后端消费）
       loadCaptcha()
@@ -251,5 +372,10 @@
     cursor: pointer;
     border: 1px solid var(--art-border-color);
     border-radius: 6px;
+  }
+
+  .sms-code-btn {
+    flex-shrink: 0;
+    width: 125px;
   }
 </style>

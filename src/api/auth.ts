@@ -44,3 +44,23 @@ export function fetchGetUserInfo() {
     url: '/api/auth/info'
   })
 }
+
+/** 自助注册 */
+export function fetchRegister(data: {
+  username: string
+  password: string
+  nickname?: string
+  phone?: string
+}) {
+  return request.post<null>({ url: '/api/auth/register', data })
+}
+
+/** 短信登录：发送验证码（开发回显 code） */
+export function fetchSmsCode(phone: string) {
+  return request.post<{ code?: string }>({ url: '/api/auth/sms-code', data: { phone } })
+}
+
+/** 短信登录：校验验证码换 token */
+export function fetchSmsLogin(data: { phone: string; code: string }) {
+  return request.post<Api.Auth.LoginResponse>({ url: '/api/auth/sms-login', data })
+}

@@ -44,8 +44,16 @@
                 :placeholder="$t('register.placeholder.confirmPassword')"
                 type="password"
                 autocomplete="off"
-                @keyup.enter="register"
                 show-password
+              />
+            </ElFormItem>
+
+            <ElFormItem prop="phone">
+              <ElInput
+                class="custom-height"
+                v-model.trim="formData.phone"
+                placeholder="请输入手机号（选填，可用于短信登录）"
+                @keyup.enter="register"
               />
             </ElFormItem>
 
@@ -88,6 +96,7 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
+  import { fetchRegister } from '@/api/auth'
 
   defineOptions({ name: 'Register' })
 
@@ -95,13 +104,13 @@
     username: string
     password: string
     confirmPassword: string
+    phone: string
     agreement: boolean
   }
 
   const USERNAME_MIN_LENGTH = 3
   const USERNAME_MAX_LENGTH = 20
   const PASSWORD_MIN_LENGTH = 6
-  const REDIRECT_DELAY = 1000
 
   const { t, locale } = useI18n()
   const router = useRouter()
@@ -119,6 +128,7 @@
     username: '',
     password: '',
     confirmPassword: '',
+    phone: '',
     agreement: false
   })
 
@@ -201,37 +211,19 @@
     try {
       await formRef.value.validate()
       loading.value = true
-
-      // TODO: 替换为真实 API 调用
-      // const params = {
-      //   username: formData.username,
-      //   password: formData.password
-      // }
-      // const res = await AuthService.register(params)
-      // if (res.code === ApiStatus.success) {
-      //   ElMessage.success('注册成功')
-      //   toLogin()
-      // }
-
-      // 模拟注册请求
-      setTimeout(() => {
-        loading.value = false
-        ElMessage.success('注册成功')
-        toLogin()
-      }, REDIRECT_DELAY)
+      await fetchRegister({
+        username: formData.username,
+        password: formData.password,
+        nickname: formData.username,
+        phone: formData.phone || undefined
+      })
+      ElMessage.success('注册成功，请登录')
+      loading.value = false
+      router.push({ name: 'Login' })
     } catch (error) {
-      console.error('表单验证失败:', error)
+      console.error('注册失败:', error)
       loading.value = false
     }
-  }
-
-  /**
-   * 跳转到登录页面
-   */
-  const toLogin = () => {
-    setTimeout(() => {
-      router.push({ name: 'Login' })
-    }, REDIRECT_DELAY)
   }
 </script>
 
