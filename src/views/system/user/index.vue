@@ -4,9 +4,9 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton @click="showDialog('add')" v-ripple>新增用户</ElButton>
+          <ElButton v-perm="'sys:user:add'" @click="showDialog('add')" v-ripple>新增用户</ElButton>
           <ElButton @click="handleExport" v-ripple>导出</ElButton>
-          <ElButton @click="triggerImport" v-ripple>导入</ElButton>
+          <ElButton v-perm="'sys:user:add'" @click="triggerImport" v-ripple>导入</ElButton>
           <ElButton @click="handleResetColumns" v-ripple>恢复默认列</ElButton>
           <input
             ref="importInput"
@@ -60,6 +60,7 @@
   import UserRoleDialog from './modules/user-role-dialog.vue'
   import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
   import { DICT_CODE } from '@/utils/constants'
+  import { hasPerm } from '@/utils/permission'
   import { DialogType } from '@/types'
   import type { ColumnOption } from '@/types/component'
 
@@ -128,26 +129,35 @@
       label: '操作',
       width: 220,
       fixed: 'right',
+      // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
       formatter: (row: any) =>
         h('div', [
-          h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-          h(ArtButtonTable, { type: 'delete', onClick: () => deleteUser(row) }),
-          h(
-            ElButton,
-            {
-              link: true,
-              type: 'primary',
-              size: 'small',
-              style: 'margin-left:8px',
-              onClick: () => showUserRole(row)
-            },
-            () => '授权'
-          ),
-          h(
-            ElButton,
-            { link: true, type: 'warning', size: 'small', onClick: () => resetPwd(row) },
-            () => '重置密码'
-          )
+          hasPerm('sys:user:edit')
+            ? h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) })
+            : null,
+          hasPerm('sys:user:remove')
+            ? h(ArtButtonTable, { type: 'delete', onClick: () => deleteUser(row) })
+            : null,
+          hasPerm('sys:user:grant')
+            ? h(
+                ElButton,
+                {
+                  link: true,
+                  type: 'primary',
+                  size: 'small',
+                  style: 'margin-left:8px',
+                  onClick: () => showUserRole(row)
+                },
+                () => '授权'
+              )
+            : null,
+          hasPerm('sys:user:reset')
+            ? h(
+                ElButton,
+                { link: true, type: 'warning', size: 'small', onClick: () => resetPwd(row) },
+                () => '重置密码'
+              )
+            : null
         ])
     }
   ]
