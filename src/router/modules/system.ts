@@ -132,6 +132,28 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'tenant-datasource',
+      name: 'TenantDatasource',
+      component: '/system/tenant-datasource',
+      meta: {
+        title: '租户数据源',
+        icon: 'ri:database-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
+      path: 'customer',
+      name: 'Customer',
+      component: '/system/customer',
+      meta: {
+        title: '客户管理',
+        icon: 'ri:contacts-book-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'notice',
       name: 'Notice',
       component: '/system/notice',
