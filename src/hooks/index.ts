@@ -13,6 +13,9 @@ export { useDict } from './core/useDict'
 // 表格数据管理方案
 export { useTable } from './core/useTable'
 
+// 页面级 CRUD 一体封装
+export { useCrud } from './core/useCrud'
+
 // 表格列配置管理
 export { useTableColumns } from './core/useTableColumns'
 

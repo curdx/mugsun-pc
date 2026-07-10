@@ -1,4 +1,4 @@
-<!-- 参数管理页面 -->
+<!-- 参数管理页面（useCrud 组合式收敛：列表+弹窗+删除+保存一体，见 hooks/core/useCrud） -->
 <template>
   <div class="param-page art-full-height">
     <ElCard class="art-table-card">
@@ -6,74 +6,85 @@
         <ElButton @click="showDialog('add')" v-ripple>新增参数</ElButton>
       </div>
 
-      <ElTable :data="tableData" border>
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="paramName" label="参数名称" min-width="160" />
-        <ElTableColumn prop="paramKey" label="参数键" min-width="180" />
-        <ElTableColumn prop="paramValue" label="参数值" min-width="160" />
-        <ElTableColumn prop="remark" label="备注" min-width="160" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="160">
-          <template #default="{ row }">
-            <ElButton link type="primary" @click="showDialog('edit', row)">编辑</ElButton>
-            <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <ArtTable
+        :loading="loading"
+        :data="data as any[]"
+        :columns="columns"
+        :pagination="pagination"
+        border
+        @pagination:size-change="handleSizeChange"
+        @pagination:current-change="handleCurrentChange"
+      />
 
       <ParamDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
-        :param-data="currentData"
-        @submit="handleDialogSubmit"
+        :param-data="currentRow"
+        @submit="handleSubmit"
       />
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { h } from 'vue'
+  import { useCrud } from '@/hooks/core/useCrud'
   import { fetchParamList, fetchSaveParam, fetchRemoveParam } from '@/api/system-manage'
   import ParamDialog from './modules/param-dialog.vue'
-  import { ElMessageBox, ElMessage } from 'element-plus'
-  import { DialogType } from '@/types'
+  import { ElButton } from 'element-plus'
+  import type { ColumnOption } from '@/types/component'
 
-  defineOptions({ name: 'Param' })
+  defineOptions({ name: 'SysParam' })
 
-  const tableData = ref<any[]>([])
-  const dialogType = ref<DialogType>('add')
-  const dialogVisible = ref(false)
-  const currentData = ref<Record<string, any>>({})
+  const columnsFactory = (): ColumnOption[] => [
+    { type: 'index', width: 60, label: '序号' },
+    { prop: 'paramName', label: '参数名称', minWidth: 160 },
+    { prop: 'paramKey', label: '参数键', minWidth: 180 },
+    { prop: 'paramValue', label: '参数值', minWidth: 160 },
+    { prop: 'remark', label: '备注', minWidth: 160 },
+    {
+      prop: 'operation',
+      label: '操作',
+      width: 160,
+      fixed: 'right',
+      formatter: (row: any) =>
+        h('div', [
+          h(
+            ElButton,
+            { link: true, type: 'primary', size: 'small', onClick: () => showDialog('edit', row) },
+            () => '编辑'
+          ),
+          h(
+            ElButton,
+            { link: true, type: 'danger', size: 'small', onClick: () => handleDelete(row) },
+            () => '删除'
+          )
+        ])
+    }
+  ]
 
-  const loadData = async (): Promise<void> => {
-    tableData.value = (await fetchParamList()) || []
-  }
-
-  onMounted(loadData)
-
-  const showDialog = (type: DialogType, row?: Record<string, any>): void => {
-    dialogType.value = type
-    currentData.value = row ? { ...row } : {}
-    dialogVisible.value = true
-  }
-
-  const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除参数"${row.paramName}"吗？`, '删除参数', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
-      await fetchRemoveParam(row.id)
-      ElMessage.success('删除成功')
-      loadData()
-    })
-  }
-
-  const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
-    await fetchSaveParam(form)
-    dialogVisible.value = false
-    ElMessage.success('保存成功')
-    loadData()
-  }
+  // 列表+弹窗+删除+保存 全由 useCrud 收敛（删后页码自动回退复用 useTable.refreshRemove）
+  const {
+    columns,
+    data,
+    loading,
+    pagination,
+    handleSizeChange,
+    handleCurrentChange,
+    dialogVisible,
+    dialogType,
+    currentRow,
+    showDialog,
+    handleDelete,
+    handleSubmit
+  } = useCrud({
+    listApi: fetchParamList,
+    saveApi: fetchSaveParam,
+    removeApi: fetchRemoveParam,
+    columnsFactory,
+    label: '参数',
+    rowName: (row) => row.paramName
+  })
 </script>
 
 <style scoped>

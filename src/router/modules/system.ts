@@ -56,7 +56,7 @@ export const systemRoutes: AppRouteRecord = {
     },
     {
       path: 'param',
-      name: 'Param',
+      name: 'SysParam',
       component: '/system/param',
       meta: {
         title: '参数管理',
