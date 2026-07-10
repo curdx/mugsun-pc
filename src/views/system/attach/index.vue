@@ -29,7 +29,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { fetchAttachList, fetchUploadFile, fetchRemoveAttach } from '@/api/system-manage'
-  import { useUserStore } from '@/store/modules/user'
+  import request from '@/utils/http'
   import { ElMessageBox, ElMessage } from 'element-plus'
 
   defineOptions({ name: 'Attach' })
@@ -64,23 +64,12 @@
     loadData()
   }
 
-  const download = async (row: any): Promise<void> => {
-    // 授权流式下载：带 token 取字节流，前端触发浏览器下载
-    const resp = await fetch(`/api/system/file/download-stream/${row.id}`, {
-      headers: { Authorization: useUserStore().accessToken }
+  const download = (row: any): Promise<void> =>
+    // 授权流式下载：统一走 request.download（带 token + 真实文件名 + 失败 toast）
+    request.download({
+      url: `/api/system/file/download-stream/${row.id}`,
+      filename: row.name || row.filename
     })
-    if (!resp.ok) {
-      ElMessage.error('下载失败')
-      return
-    }
-    const blob = await resp.blob()
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = row.name || row.filename || 'file'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
 
   const deleteRow = (row: any): void => {
     ElMessageBox.confirm(`确定删除附件"${row.name}"吗？`, '删除附件', {

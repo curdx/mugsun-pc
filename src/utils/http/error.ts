@@ -60,6 +60,8 @@ export class HttpError extends Error {
   public readonly timestamp: string
   public readonly url?: string
   public readonly method?: string
+  /** 是否为请求取消（路由切换中断 / 重复提交去重），取消不弹错误提示 */
+  public readonly canceled: boolean
 
   constructor(
     message: string,
@@ -68,6 +70,7 @@ export class HttpError extends Error {
       data?: unknown
       url?: string
       method?: string
+      canceled?: boolean
     }
   ) {
     super(message)
@@ -77,6 +80,7 @@ export class HttpError extends Error {
     this.timestamp = new Date().toISOString()
     this.url = options?.url
     this.method = options?.method
+    this.canceled = options?.canceled ?? false
   }
 
   public toLogData(): ErrorLogData {
@@ -122,7 +126,7 @@ export function handleError(error: AxiosError<ErrorResponse>): never {
   // 处理取消的请求
   if (error.code === 'ERR_CANCELED') {
     console.warn('Request cancelled:', error.message)
-    throw new HttpError($t('httpMsg.requestCancelled'), ApiStatus.error)
+    throw new HttpError($t('httpMsg.requestCancelled'), ApiStatus.error, { canceled: true })
   }
 
   const statusCode = error.response?.status

@@ -1,6 +1,5 @@
 import request from '@/utils/http'
 import { AppRouteRecord } from '@/types/router'
-import { useUserStore } from '@/store/modules/user'
 import type { DictItem } from '@/utils/constants/dict'
 
 // 获取用户列表（对接后端 /system/user/page）
@@ -27,20 +26,9 @@ export function fetchRemoveUser(ids: (number | string)[] | number | string) {
   })
 }
 
-// 导出用户（认证 GET 二进制，原生 fetch 触发下载）
-export async function exportUser(): Promise<void> {
-  const { accessToken } = useUserStore()
-  const res = await fetch('/api/system/user/export', {
-    headers: accessToken ? { Authorization: accessToken } : undefined
-  })
-  if (!res.ok) throw new Error('导出失败')
-  const blob = await res.blob()
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = '用户数据.xlsx'
-  link.click()
-  URL.revokeObjectURL(url)
+// 导出用户（统一走授权流式下载，真实文件名 + 失败 toast）
+export function exportUser(): Promise<void> {
+  return request.download({ url: '/api/system/user/export', filename: '用户数据.xlsx' })
 }
 
 // 导入用户（multipart 上传）
@@ -493,19 +481,8 @@ export function fetchSaveRegion(data: Record<string, any>) {
 export function fetchRemoveRegion(id: number | string) {
   return request.post<void>({ url: `/api/system/region/remove/${id}` })
 }
-export async function exportRegion(): Promise<void> {
-  const { accessToken } = useUserStore()
-  const res = await fetch('/api/system/region/export', {
-    headers: accessToken ? { Authorization: accessToken } : undefined
-  })
-  if (!res.ok) throw new Error('导出失败')
-  const blob = await res.blob()
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-  link.href = url
-  link.download = '行政区划.xlsx'
-  link.click()
-  URL.revokeObjectURL(url)
+export function exportRegion(): Promise<void> {
+  return request.download({ url: '/api/system/region/export', filename: '行政区划.xlsx' })
 }
 export function importRegion(file: File) {
   const form = new FormData()
