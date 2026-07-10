@@ -80,6 +80,12 @@ export function fetchRoleSelect() {
     url: '/api/system/role/select'
   })
 }
+/** 角色码下拉（value=角色码），流程审批人选择用 */
+export function fetchRoleCodeSelect() {
+  return request.get<Array<{ label: string; value: string }>>({
+    url: '/api/system/role/code-select'
+  })
+}
 
 // ===== 部门 =====
 export function fetchDeptTree() {
@@ -380,6 +386,16 @@ export function fetchFlowDeploy() {
 export function fetchFlowStart(businessId: string) {
   return request.post<string>({ url: `/api/system/flow/start/${encodeURIComponent(businessId)}` })
 }
+/** 图形设计部署：结构化设计生成 warm-flow 定义并发布 */
+export function fetchFlowDesign(data: Record<string, any>) {
+  return request.post<number>({ url: '/api/system/flow/design', data })
+}
+/** 发起指定流程码实例 */
+export function fetchFlowStartBy(flowCode: string, businessId: string) {
+  return request.post<string>({
+    url: `/api/system/flow/start-by/${encodeURIComponent(flowCode)}/${encodeURIComponent(businessId)}`
+  })
+}
 export function fetchFlowMyTodo() {
   return request.get<any[]>({ url: '/api/system/flow/my-todo' })
 }
@@ -431,6 +447,10 @@ export function fetchRemoveReport(id: number | string) {
 }
 export function fetchReportPreview(id: number | string) {
   return request.get<any[]>({ url: '/api/system/report/preview', params: { id } })
+}
+/** 按内置数据集 key 取聚合数据（多图表仪表盘逐图取数） */
+export function fetchReportPreviewDataset(key: string) {
+  return request.get<any[]>({ url: '/api/system/report/preview-dataset', params: { key } })
 }
 
 // ===== 登录日志 =====
