@@ -83,6 +83,7 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
+  import { useDictStore } from '@/store/modules/dict'
 
   interface Props {
     treeApi: () => Promise<any[]>
@@ -91,6 +92,8 @@
   }
 
   const props = defineProps<Props>()
+
+  const dictStore = useDictStore()
 
   const treeData = ref<any[]>([])
   const topOptions = ref<Array<{ label: string; value: any }>>([])
@@ -140,6 +143,8 @@
       await props.saveApi({ ...formData })
       dialogVisible.value = false
       ElMessage.success('保存成功')
+      // 字典维护变更后重载运行时缓存，业务页即时生效
+      if (formData.code) dictStore.reload(formData.code)
       loadData()
     })
   }
@@ -152,6 +157,8 @@
     }).then(async () => {
       await props.removeApi(row.id)
       ElMessage.success('删除成功')
+      // 删除后重载运行时缓存，业务页即时生效
+      if (row.code) dictStore.reload(row.code)
       loadData()
     })
   }

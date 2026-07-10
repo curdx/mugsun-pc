@@ -45,6 +45,7 @@
 <script setup lang="ts">
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { useTableColumnPersist } from '@/hooks/core/useTableColumnPersist'
   import {
@@ -53,12 +54,12 @@
     fetchRemoveUser,
     exportUser,
     importUser,
-    fetchResetPassword,
-    fetchUserStatus
+    fetchResetPassword
   } from '@/api/system-manage'
   import UserDialog from './modules/user-dialog.vue'
   import UserRoleDialog from './modules/user-role-dialog.vue'
-  import { ElButton, ElSwitch, ElMessageBox, ElMessage } from 'element-plus'
+  import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
+  import { DICT_CODE } from '@/utils/constants'
   import { DialogType } from '@/types'
   import type { ColumnOption } from '@/types/component'
 
@@ -85,12 +86,6 @@
       await fetchResetPassword(row.id)
       ElMessage.success('密码已重置为 123456')
     })
-  }
-
-  const handleStatus = async (row: any, val: number): Promise<void> => {
-    await fetchUserStatus(row.id, val)
-    row.status = val
-    ElMessage.success('操作成功')
   }
 
   // 导出用户
@@ -124,13 +119,8 @@
       prop: 'status',
       label: '状态',
       width: 100,
-      formatter: (row: any) =>
-        h(ElSwitch, {
-          modelValue: row.status,
-          activeValue: 1,
-          inactiveValue: 0,
-          onChange: (val: any) => handleStatus(row, val)
-        })
+      // 字典运行时驱动：改用 ArtDictTag，不再硬编码 h(ElSwitch)/手写 options（状态切换归编辑弹窗）
+      formatter: (row: any) => h(ArtDictTag, { code: DICT_CODE.USER_STATUS, value: row.status })
     },
     { prop: 'createTime', label: '创建时间', minWidth: 180 },
     {

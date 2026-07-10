@@ -1,6 +1,7 @@
 import request from '@/utils/http'
 import { AppRouteRecord } from '@/types/router'
 import { useUserStore } from '@/store/modules/user'
+import type { DictItem } from '@/utils/constants/dict'
 
 // 获取用户列表（对接后端 /system/user/page）
 export function fetchGetUserList(params: Record<string, any>) {
@@ -201,6 +202,13 @@ export function fetchSendTestMail(data: Record<string, any>) {
 // ===== 系统字典（树） =====
 export function fetchDictTree() {
   return request.get<any[]>({ url: '/api/system/dict/tree' })
+}
+/** 批量按字典码查询字典项（一次拉多码，供字典运行时并发去重） */
+export function fetchDictBatch(codes: string[]) {
+  return request.post<Record<string, DictItem[]>>({
+    url: '/api/system/dict/batch',
+    data: codes
+  })
 }
 export function fetchSaveDict(data: Record<string, any>) {
   return request.post<void>({ url: '/api/system/dict/submit', data })

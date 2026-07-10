@@ -13,9 +13,7 @@
         <ElTableColumn prop="ip" label="IP" min-width="160" />
         <ElTableColumn label="结果" width="100">
           <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'danger'">
-              {{ row.status === 1 ? '成功' : '失败' }}
-            </ElTag>
+            <ArtStatusTag :code="DICT_CODE.LOGIN_RESULT" :value="row.status" />
           </template>
         </ElTableColumn>
         <ElTableColumn prop="msg" label="说明" min-width="180" show-overflow-tooltip />
@@ -38,6 +36,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { fetchLoginLogPage } from '@/api/system-manage'
+  import { DICT_CODE } from '@/utils/constants'
 
   defineOptions({ name: 'LoginLog' })
 
