@@ -27,8 +27,8 @@ import { SystemThemeEnum, MenuThemeEnum, MenuTypeEnum, ContainerWidthEnum } from
  * 系统设置默认值配置
  */
 export const SETTING_DEFAULT_CONFIG = {
-  /** 菜单类型 */
-  menuType: MenuTypeEnum.LEFT,
+  /** 菜单类型（多应用：顶部一级应用 + 左侧应用内菜单） */
+  menuType: MenuTypeEnum.TOP_LEFT,
   /** 菜单展开宽度 */
   menuOpenWidth: 230,
   /** 菜单是否展开 */

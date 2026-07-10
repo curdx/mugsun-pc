@@ -110,50 +110,6 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
-      path: 'tenant',
-      name: 'Tenant',
-      component: '/system/tenant',
-      meta: {
-        title: '租户管理',
-        icon: 'ri:building-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
-      }
-    },
-    {
-      path: 'tenant-package',
-      name: 'TenantPackage',
-      component: '/system/tenant-package',
-      meta: {
-        title: '租户套餐',
-        icon: 'ri:price-tag-3-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
-      }
-    },
-    {
-      path: 'tenant-datasource',
-      name: 'TenantDatasource',
-      component: '/system/tenant-datasource',
-      meta: {
-        title: '租户数据源',
-        icon: 'ri:database-2-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
-      }
-    },
-    {
-      path: 'customer',
-      name: 'Customer',
-      component: '/system/customer',
-      meta: {
-        title: '客户管理',
-        icon: 'ri:contacts-book-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
-      }
-    },
-    {
       path: 'notice',
       name: 'Notice',
       component: '/system/notice',
@@ -271,50 +227,6 @@ export const systemRoutes: AppRouteRecord = {
         icon: 'ri:shield-keyhole-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
-      }
-    },
-    {
-      path: 'api-key',
-      name: 'ApiKey',
-      component: '/system/api-key',
-      meta: {
-        title: 'API密钥',
-        icon: 'ri:key-2-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
-      }
-    },
-    {
-      path: 'oauth-client',
-      name: 'OauthClient',
-      component: '/system/oauth-client',
-      meta: {
-        title: '开放平台',
-        icon: 'ri:apps-2-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
-      }
-    },
-    {
-      path: 'oauth-debug',
-      name: 'OauthDebug',
-      component: '/system/oauth-debug',
-      meta: {
-        title: '接口调试',
-        icon: 'ri:terminal-box-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
-      }
-    },
-    {
-      path: 'oauth-log',
-      name: 'OauthLog',
-      component: '/system/oauth-log',
-      meta: {
-        title: '调用日志',
-        icon: 'ri:file-list-3-line',
-        keepAlive: true,
-        roles: ['R_SUPER']
       }
     },
     {

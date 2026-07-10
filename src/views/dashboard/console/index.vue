@@ -147,7 +147,7 @@
     { name: '岗位管理', path: '/system/post' },
     { name: '字典管理', path: '/system/dict' },
     { name: '参数管理', path: '/system/param' },
-    { name: '租户管理', path: '/system/tenant' },
+    { name: '租户管理', path: '/saas/tenant' },
     { name: '通知公告', path: '/system/notice' },
     { name: '我的通知', path: '/system/my-notice' },
     { name: '代码生成', path: '/system/gen' },
