@@ -20,7 +20,8 @@
 
 <script setup lang="ts">
   import { ElMessage } from 'element-plus'
-  import { fetchMenuTree, fetchRoleMenuIds, fetchGrantRole } from '@/api/system-manage'
+  import { fetchMenuTree } from '@/api/system-manage'
+  import { fetchRoleMenuIds, grantRole } from '@/api/role'
 
   interface Props {
     visible: boolean
@@ -57,7 +58,7 @@
   const handleSubmit = async () => {
     if (!treeRef.value || !props.roleData?.id) return
     const menuIds = [...treeRef.value.getCheckedKeys(false), ...treeRef.value.getHalfCheckedKeys()]
-    await fetchGrantRole(props.roleData.id, menuIds)
+    await grantRole(props.roleData.id, menuIds)
     ElMessage.success('授权成功')
     dialogVisible.value = false
     emit('success')

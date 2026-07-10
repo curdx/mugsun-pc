@@ -17,7 +17,8 @@
 
 <script setup lang="ts">
   import { ElMessage } from 'element-plus'
-  import { fetchRoleSelect, fetchUserRoleIds, fetchGrantUser } from '@/api/system-manage'
+  import { fetchRoleSelect } from '@/api/role'
+  import { fetchUserRoleIds, grantUser } from '@/api/user'
 
   interface Props {
     visible: boolean
@@ -52,7 +53,7 @@
 
   const handleSubmit = async (): Promise<void> => {
     if (!props.userData?.id) return
-    await fetchGrantUser(props.userData.id, checkedRoles.value)
+    await grantUser(props.userData.id, checkedRoles.value)
     ElMessage.success('授权成功')
     dialogVisible.value = false
     emit('success')

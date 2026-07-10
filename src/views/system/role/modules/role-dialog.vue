@@ -51,7 +51,8 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
-  import { fetchDeptTree, fetchRoleDeptIds } from '@/api/system-manage'
+  import { fetchDeptTree } from '@/api/system-manage'
+  import { fetchRoleDeptIds } from '@/api/role'
 
   interface Props {
     visible: boolean

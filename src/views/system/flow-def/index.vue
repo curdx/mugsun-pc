@@ -79,9 +79,9 @@
     fetchFlowDeploy,
     fetchFlowStart,
     fetchFlowStartBy,
-    fetchFlowDesign,
-    fetchRoleCodeSelect
+    fetchFlowDesign
   } from '@/api/system-manage'
+  import { fetchRoleCodeSelect } from '@/api/role'
   import { ElMessage, ElMessageBox } from 'element-plus'
 
   defineOptions({ name: 'FlowDef' })

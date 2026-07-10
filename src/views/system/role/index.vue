@@ -38,7 +38,7 @@
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchGetRoleList, fetchSaveRole, fetchRemoveRole } from '@/api/system-manage'
+  import { fetchRolePage, saveRole, removeRole } from '@/api/role'
   import RoleDialog from './modules/role-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
   import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
@@ -76,7 +76,7 @@
     refreshData
   } = useTable({
     core: {
-      apiFn: fetchGetRoleList,
+      apiFn: fetchRolePage,
       apiParams: { pageNum: 1, pageSize: 20 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
@@ -138,14 +138,14 @@
       cancelButtonText: '取消',
       type: 'warning'
     }).then(async () => {
-      await fetchRemoveRole(row.id)
+      await removeRole([row.id])
       ElMessage.success('删除成功')
       refreshData()
     })
   }
 
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
-    await fetchSaveRole(form)
+    await saveRole(form)
     dialogVisible.value = false
     ElMessage.success('保存成功')
     refreshData()

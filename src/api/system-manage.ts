@@ -1,81 +1,7 @@
 import request from '@/utils/http'
 import { AppRouteRecord } from '@/types/router'
-import type { DictItem } from '@/utils/constants/dict'
 
-// 获取用户列表（对接后端 /system/user/page）
-export function fetchGetUserList(params: Record<string, any>) {
-  return request.get<any>({
-    url: '/api/system/user/page',
-    params
-  })
-}
-
-// 保存用户（新增/编辑，对接后端 /system/user/submit）
-export function fetchSaveUser(data: Record<string, any>) {
-  return request.post<void>({
-    url: '/api/system/user/submit',
-    data
-  })
-}
-
-// 删除用户（批量，主键数组走 JSON 请求体）
-export function fetchRemoveUser(ids: (number | string)[] | number | string) {
-  return request.post<void>({
-    url: '/api/system/user/remove',
-    data: Array.isArray(ids) ? ids : [ids]
-  })
-}
-
-// 导出用户（统一走授权流式下载，真实文件名 + 失败 toast）
-export function exportUser(): Promise<void> {
-  return request.download({ url: '/api/system/user/export', filename: '用户数据.xlsx' })
-}
-
-// 导入用户（multipart 上传）
-export function importUser(file: File) {
-  const form = new FormData()
-  form.append('file', file)
-  return request.post<void>({
-    url: '/api/system/user/import',
-    data: form
-  })
-}
-
-// 重置密码（批量，默认 123456）
-export function fetchResetPassword(ids: (number | string)[] | number | string) {
-  return request.post<void>({
-    url: '/api/system/user/reset-password',
-    data: Array.isArray(ids) ? ids : [ids]
-  })
-}
-// 启用/停用用户
-export function fetchUserStatus(id: number | string, status: number) {
-  return request.post<void>({ url: '/api/system/user/status', data: { id, status } })
-}
-// 用户已授权角色 id（回显）
-export function fetchUserRoleIds(userId: number | string) {
-  return request.get<Array<number | string>>({
-    url: '/api/system/user/role-ids',
-    params: { userId }
-  })
-}
-// 用户授权角色（body 信封 {userId, roleIds}）
-export function fetchGrantUser(userId: number | string, roleIds: Array<number | string>) {
-  return request.post<void>({ url: '/api/system/user/grant', data: { userId, roleIds } })
-}
-// 角色下拉选项
-export function fetchRoleSelect() {
-  return request.get<Array<{ label: string; value: string }>>({
-    url: '/api/system/role/select'
-  })
-}
-/** 角色码下拉（value=角色码），流程审批人选择用 */
-export function fetchRoleCodeSelect() {
-  return request.get<Array<{ label: string; value: string }>>({
-    url: '/api/system/role/code-select'
-  })
-}
-
+// 用户域 → @/api/user，角色域 → @/api/role，字典域 → @/api/dict（均 openapi 生成类型，无 any）
 // ===== 部门 =====
 export function fetchDeptTree() {
   return request.get<any[]>({ url: '/api/system/dept/tree' })
@@ -108,40 +34,7 @@ export function fetchRemovePost(ids: (number | string)[] | number | string) {
 }
 
 // 获取角色列表
-// ===== 角色 =====
-export function fetchGetRoleList(params: Record<string, any>) {
-  return request.get<any>({ url: '/api/system/role/page', params })
-}
-export function fetchSaveRole(data: Record<string, any>) {
-  return request.post<void>({ url: '/api/system/role/submit', data })
-}
-export function fetchRemoveRole(ids: (number | string)[] | number | string) {
-  return request.post<void>({
-    url: '/api/system/role/remove',
-    data: Array.isArray(ids) ? ids : [ids]
-  })
-}
-// 角色已授权菜单 id 集合（授权树回显）
-export function fetchRoleMenuIds(roleId: number | string) {
-  return request.get<Array<number | string>>({
-    url: '/api/system/role/menu-ids',
-    params: { roleId }
-  })
-}
-// 角色自定义部门 id 集合（data_scope=5 回显）
-export function fetchRoleDeptIds(roleId: number | string) {
-  return request.get<Array<number | string>>({
-    url: '/api/system/role/dept-ids',
-    params: { roleId }
-  })
-}
-// 角色授权菜单（body 信封 {roleId, menuIds}）
-export function fetchGrantRole(roleId: number | string, menuIds: Array<number | string>) {
-  return request.post<void>({
-    url: '/api/system/role/grant',
-    data: { roleId, menuIds }
-  })
-}
+// ===== 角色 =====（CRUD/授权/下拉已迁至 @/api/role）
 // 菜单树
 export function fetchMenuTree() {
   return request.get<any[]>({ url: '/api/system/menu/tree' })
@@ -187,40 +80,7 @@ export function fetchSendTestMail(data: Record<string, any>) {
   return request.post<string>({ url: '/api/system/mail-template/send-test', data })
 }
 
-// ===== 系统字典（树） =====
-export function fetchDictTree() {
-  return request.get<any[]>({ url: '/api/system/dict/tree' })
-}
-/** 批量按字典码查询字典项（一次拉多码，供字典运行时并发去重） */
-export function fetchDictBatch(codes: string[]) {
-  return request.post<Record<string, DictItem[]>>({
-    url: '/api/system/dict/batch',
-    data: codes
-  })
-}
-export function fetchSaveDict(data: Record<string, any>) {
-  return request.post<void>({ url: '/api/system/dict/submit', data })
-}
-export function fetchRemoveDict(ids: (number | string)[] | number | string) {
-  return request.post<void>({
-    url: '/api/system/dict/remove',
-    data: Array.isArray(ids) ? ids : [ids]
-  })
-}
-
-// ===== 业务字典（树） =====
-export function fetchDictBizTree() {
-  return request.get<any[]>({ url: '/api/system/dict-biz/tree' })
-}
-export function fetchSaveDictBiz(data: Record<string, any>) {
-  return request.post<void>({ url: '/api/system/dict-biz/submit', data })
-}
-export function fetchRemoveDictBiz(ids: (number | string)[] | number | string) {
-  return request.post<void>({
-    url: '/api/system/dict-biz/remove',
-    data: Array.isArray(ids) ? ids : [ids]
-  })
-}
+// ===== 系统字典 / 业务字典 =====（树/批量/CRUD 已迁至 @/api/dict）
 
 // ===== 租户 =====
 export function fetchTenantList() {

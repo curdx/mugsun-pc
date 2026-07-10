@@ -49,13 +49,13 @@
   import { useTable } from '@/hooks/core/useTable'
   import { useTableColumnPersist } from '@/hooks/core/useTableColumnPersist'
   import {
-    fetchGetUserList,
-    fetchSaveUser,
-    fetchRemoveUser,
+    fetchUserPage,
+    saveUser,
+    removeUser,
     exportUser,
     importUser,
-    fetchResetPassword
-  } from '@/api/system-manage'
+    resetUserPassword
+  } from '@/api/user'
   import UserDialog from './modules/user-dialog.vue'
   import UserRoleDialog from './modules/user-role-dialog.vue'
   import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
@@ -84,7 +84,7 @@
       cancelButtonText: '取消',
       type: 'warning'
     }).then(async () => {
-      await fetchResetPassword(row.id)
+      await resetUserPassword([row.id])
       ElMessage.success('密码已重置为 123456')
     })
   }
@@ -175,7 +175,7 @@
     resetColumns
   } = useTable({
     core: {
-      apiFn: fetchGetUserList,
+      apiFn: fetchUserPage,
       apiParams: { pageNum: 1, pageSize: 20 },
       // 后端分页参数为 pageNum/pageSize
       paginationKey: { current: 'pageNum', size: 'pageSize' },
@@ -221,14 +221,14 @@
       cancelButtonText: '取消',
       type: 'warning'
     }).then(async () => {
-      await fetchRemoveUser(row.id)
+      await removeUser([row.id])
       ElMessage.success('删除成功')
       refreshData()
     })
   }
 
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
-    await fetchSaveUser(form)
+    await saveUser(form)
     dialogVisible.value = false
     ElMessage.success('保存成功')
     refreshData()

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
-import { fetchDictBatch } from '@/api/system-manage'
+import { fetchDictBatch } from '@/api/dict'
 import type { DictItem } from '@/utils/constants/dict'
 
 /**
