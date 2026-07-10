@@ -53,6 +53,8 @@
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
+    "@form-create/designer": "^3.5.0",
+    "@form-create/element-ui": "^3.3.1",
     "@iconify/vue": "^5.0.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vue/reactivity": "^3.5.21",

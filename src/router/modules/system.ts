@@ -175,6 +175,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'form-designer',
+      name: 'FormDesigner',
+      component: '/system/form-designer',
+      meta: {
+        title: '表单设计',
+        icon: 'ri:file-edit-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'flow-def',
       name: 'FlowDef',
       component: '/system/flow-def',
