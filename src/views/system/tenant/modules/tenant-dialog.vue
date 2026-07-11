@@ -26,9 +26,19 @@
           v-model="formData.expireTime"
           type="datetime"
           value-format="YYYY-MM-DDTHH:mm:ss"
-          placeholder="选择过期时间"
+          placeholder="选择过期时间（留空永不过期）"
           style="width: 100%"
         />
+      </ElFormItem>
+      <ElFormItem label="账号上限" prop="accountCount">
+        <ElInputNumber v-model="formData.accountCount" :min="-1" :step="1" style="width: 100%" />
+        <span class="form-tip">-1 表示不限制</span>
+      </ElFormItem>
+      <ElFormItem label="状态" prop="status">
+        <ElRadioGroup v-model="formData.status">
+          <ElRadio :value="1">正常</ElRadio>
+          <ElRadio :value="0">停用</ElRadio>
+        </ElRadioGroup>
       </ElFormItem>
     </ElForm>
     <template #footer>
@@ -71,7 +81,9 @@
     contactUser: '',
     contactPhone: '',
     packageId: null,
-    expireTime: ''
+    expireTime: '',
+    accountCount: -1,
+    status: 1
   })
 
   const rules: FormRules = {
@@ -89,7 +101,9 @@
           contactUser: r?.contactUser ?? '',
           contactPhone: r?.contactPhone ?? '',
           packageId: r?.packageId ?? null,
-          expireTime: r?.expireTime ?? ''
+          expireTime: r?.expireTime ?? '',
+          accountCount: r?.accountCount ?? -1,
+          status: r?.status ?? 1
         })
         nextTick(() => formRef.value?.clearValidate())
       }
@@ -105,3 +119,11 @@
     })
   }
 </script>
+
+<style scoped>
+  .form-tip {
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+  }
+</style>
