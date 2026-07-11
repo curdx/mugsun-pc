@@ -60,7 +60,33 @@
 
     <!-- 字段级配置 -->
     <ElDialog v-model="configVisible" title="字段配置" width="920px" align-center>
-      <ElTable :data="configColumns" border size="small" max-height="460">
+      <div v-if="configTable" class="gen-form" style="margin-bottom: 12px">
+        <span class="gen-label">模板</span>
+        <ElSelect v-model="configTable.tplCategory" style="width: 120px">
+          <ElOption label="单表" value="crud" />
+          <ElOption label="树表" value="tree" />
+          <ElOption label="主子表" value="master" />
+        </ElSelect>
+        <template v-if="configTable.tplCategory === 'tree'">
+          <span class="gen-label">父字段</span>
+          <ElInput
+            v-model="configTable.treeParentField"
+            style="width: 130px"
+            placeholder="parent_id"
+          />
+        </template>
+        <template v-if="configTable.tplCategory === 'master'">
+          <span class="gen-label">子表</span>
+          <ElInput v-model="configTable.subTableName" style="width: 170px" placeholder="子表名" />
+          <span class="gen-label">外键列</span>
+          <ElInput
+            v-model="configTable.subJoinField"
+            style="width: 130px"
+            placeholder="如 order_id"
+          />
+        </template>
+      </div>
+      <ElTable :data="configColumns" border size="small" max-height="420">
         <ElTableColumn prop="javaField" label="字段" min-width="120" />
         <ElTableColumn prop="javaType" label="类型" min-width="90" />
         <ElTableColumn label="注释" min-width="130">
