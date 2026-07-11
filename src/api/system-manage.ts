@@ -314,6 +314,16 @@ export function fetchLoginLogPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/login-log/page', params })
 }
 
+// ===== 在线会话 =====
+/** 在线会话列表（每行 = 一个在线终端，会话落 Redis 重启不失效） */
+export function fetchOnlineList() {
+  return request.get<any[]>({ url: '/api/system/online/list' })
+}
+/** 强制下线：按 tokenValue 踢单端 */
+export function fetchKickoutOnline(tokenValue: string) {
+  return request.post<void>({ url: '/api/system/online/kickout', data: { tokenValue } })
+}
+
 // ===== API 密钥 =====
 export function fetchApiKeyPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/api-key/page', params })

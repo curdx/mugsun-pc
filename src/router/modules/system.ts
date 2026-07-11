@@ -241,6 +241,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'online',
+      name: 'Online',
+      component: '/system/online',
+      meta: {
+        title: '在线会话',
+        icon: 'ri:computer-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'region',
       name: 'Region',
       component: '/system/region',
