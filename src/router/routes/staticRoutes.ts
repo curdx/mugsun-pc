@@ -43,6 +43,12 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     meta: { title: '第三方登录', isHideTab: true }
   },
   {
+    path: '/oauth-consent',
+    name: 'OauthConsent',
+    component: () => import('@views/system/oauth-consent/index.vue'),
+    meta: { title: '授权确认', isHideTab: true }
+  },
+  {
     path: '/403',
     name: 'Exception403',
     component: () => import('@views/exception/403/index.vue'),

@@ -27,9 +27,9 @@
           <ElInput v-model="form.scope" placeholder="如 user:read（留空为全部授权范围）" />
         </ElFormItem>
         <ElFormItem v-if="form.grantType === 'authorization_code'" label="授权码">
-          <ElInput v-model="form.code" placeholder="点击下方按钮由当前登录用户授权获取">
+          <ElInput v-model="form.code" placeholder="点击右侧按钮跳转同意页授权后自动回填">
             <template #append>
-              <ElButton @click="doAuthorize" :loading="authorizing">当前用户授权</ElButton>
+              <ElButton @click="doAuthorize" :loading="authorizing">浏览器授权</ElButton>
             </template>
           </ElInput>
         </ElFormItem>
@@ -69,11 +69,13 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive } from 'vue'
+  import { ref, reactive, onMounted } from 'vue'
+  import { useRoute } from 'vue-router'
   import { ElMessage } from 'element-plus'
-  import { useUserStore } from '@/store/modules/user'
 
   defineOptions({ name: 'OauthDebug' })
+
+  const route = useRoute()
 
   const form = reactive({
     grantType: 'client_credentials',
@@ -94,51 +96,63 @@
 
   const pretty = (o: unknown): string => JSON.stringify(o, null, 2)
 
-  /** 当前登录用户对客户端授权，获取一次性 code */
-  const doAuthorize = async (): Promise<void> => {
-    authorizing.value = true
-    try {
-      const resp = await fetch('/api/oauth2/authorize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: useUserStore().accessToken },
-        body: JSON.stringify({ clientId: form.clientId, scope: form.scope, redirectUri: '' })
-      })
-      const data = await resp.json()
-      if (data?.code === 200 && data?.data?.code) {
-        form.code = data.data.code
-        ElMessage.success('授权成功，已填入授权码')
-      } else {
-        ElMessage.error(data?.msg || '授权失败')
-      }
-    } finally {
-      authorizing.value = false
+  /** 本页 URL 作 redirect_uri，授权后带 code 回跳此页 */
+  const selfRedirect = (): string => `${window.location.origin}/#/open-platform/oauth-debug`
+
+  /** 授权后回跳带回 code，自动填入 */
+  onMounted(() => {
+    const code = route.query.code as string
+    if (code) {
+      form.grantType = 'authorization_code'
+      form.code = code
+      ElMessage.success('已从授权回调获取授权码')
     }
+  })
+
+  /** 跳转标准授权端点 → 同意页 → 回跳本页（浏览器授权码流） */
+  const doAuthorize = (): void => {
+    if (!form.clientId) {
+      ElMessage.warning('请先填写 ClientId')
+      return
+    }
+    authorizing.value = true
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: form.clientId,
+      redirect_uri: selfRedirect(),
+      scope: form.scope || '',
+      state: 'debug'
+    })
+    window.location.href = `/api/oauth2/authorize?${params.toString()}`
   }
 
-  /** 换取访问令牌 */
+  /** 换取访问令牌（form 入参 + 标准原始 JSON 响应） */
   const doToken = async (): Promise<void> => {
     tokenLoading.value = true
     try {
-      const body: Record<string, any> = {
-        grantType: form.grantType,
-        clientId: form.clientId,
-        clientSecret: form.clientSecret,
-        scope: form.scope
+      const body = new URLSearchParams({
+        grant_type: form.grantType,
+        client_id: form.clientId,
+        client_secret: form.clientSecret,
+        scope: form.scope || ''
+      })
+      if (form.grantType === 'authorization_code') {
+        body.set('code', form.code)
+        body.set('redirect_uri', selfRedirect())
       }
-      if (form.grantType === 'authorization_code') body.code = form.code
       const resp = await fetch('/api/oauth2/token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
       })
       const data = await resp.json()
       tokenResult.value = pretty(data)
-      if (data?.code === 200 && data?.data?.accessToken) {
-        token.value = data.data.accessToken
+      if (resp.status === 200 && data?.access_token) {
+        token.value = data.access_token
         ElMessage.success('令牌获取成功')
       } else {
         token.value = ''
-        ElMessage.error(data?.msg || '获取令牌失败')
+        ElMessage.error(data?.error_description || data?.error || '获取令牌失败')
       }
     } finally {
       tokenLoading.value = false
