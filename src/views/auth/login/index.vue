@@ -133,6 +133,13 @@
             </div>
           </ElForm>
 
+          <div class="social-login">
+            <ElDivider>第三方登录</ElDivider>
+            <ElButton class="w-full custom-height" @click="handleSocialLogin('mock')" v-ripple>
+              模拟第三方登录
+            </ElButton>
+          </div>
+
           <div class="mt-5 text-sm text-gray-600">
             <span>{{ $t('login.noAccount') }}</span>
             <RouterLink class="text-theme" :to="{ name: 'Register' }">{{
@@ -151,6 +158,7 @@
   import { useI18n } from 'vue-i18n'
   import { HttpError } from '@/utils/http/error'
   import { fetchLogin, fetchCaptcha, fetchTwoFactor, fetchSmsCode, fetchSmsLogin } from '@/api/auth'
+  import { fetchSocialRender } from '@/api/auth'
   import {
     ElNotification,
     ElMessage,
@@ -216,6 +224,16 @@
     showLoginSuccessNotice()
     const redirect = route.query.redirect as string
     router.push(redirect || '/')
+  }
+
+  // 发起第三方登录：取授权地址并跳转（回调页处理 code+state）
+  const handleSocialLogin = async (source: string) => {
+    try {
+      const { authorizeUrl } = await fetchSocialRender(source)
+      window.location.href = authorizeUrl
+    } catch (e: any) {
+      ElMessage.error(e?.message || '发起第三方登录失败')
+    }
   }
 
   // 发送短信验证码（开发环境后端回显，自动填充）

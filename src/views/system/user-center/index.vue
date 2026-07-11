@@ -64,6 +64,17 @@
             </ElFormItem>
           </ElForm>
         </ElCard>
+
+        <ElCard class="uc-form-card">
+          <template #header>第三方账号</template>
+          <div class="uc-social">
+            <span>模拟第三方（mock）</span>
+            <div>
+              <ElButton type="primary" size="small" @click="bindSocial('mock')">绑定</ElButton>
+              <ElButton size="small" @click="unbindSocial('mock')">解绑</ElButton>
+            </div>
+          </div>
+        </ElCard>
       </ElCol>
     </ElRow>
   </div>
@@ -74,6 +85,7 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
   import { fetchUpdateInfo, fetchUpdatePassword } from '@/api/system-manage'
+  import { fetchSocialRender, fetchSocialUnbind } from '@/api/auth'
   import { ElMessage } from 'element-plus'
 
   defineOptions({ name: 'UserCenter' })
@@ -131,6 +143,21 @@
       pwdForm.newPassword = ''
       pwdForm.confirmPassword = ''
     })
+  }
+
+  // 绑定第三方账号：取授权地址并跳转，回调页检测到已登录态即执行绑定
+  const bindSocial = async (source: string) => {
+    try {
+      const { authorizeUrl } = await fetchSocialRender(source)
+      window.location.href = authorizeUrl
+    } catch (e: any) {
+      ElMessage.error(e?.message || '发起绑定失败')
+    }
+  }
+
+  const unbindSocial = async (source: string) => {
+    await fetchSocialUnbind(source)
+    ElMessage.success('已解绑')
   }
 </script>
 

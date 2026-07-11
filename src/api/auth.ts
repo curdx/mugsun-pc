@@ -64,3 +64,23 @@ export function fetchSmsCode(phone: string) {
 export function fetchSmsLogin(data: { phone: string; code: string }) {
   return request.post<Api.Auth.LoginResponse>({ url: '/api/auth/sms-login', data })
 }
+
+/** 社交登录：获取第三方授权跳转地址（state 落 Redis 防 CSRF） */
+export function fetchSocialRender(source: string) {
+  return request.get<{ authorizeUrl: string }>({ url: `/api/auth/social/render/${source}` })
+}
+
+/** 社交登录：只传 source+code+state，openId 由服务端换取（管理端未绑定会被拒） */
+export function fetchSocialLogin(data: { source: string; code: string; state: string }) {
+  return request.post<Api.Auth.LoginResponse>({ url: '/api/auth/social/login', data })
+}
+
+/** 社交账号绑定（需登录，服务端换 openId） */
+export function fetchSocialBind(data: { source: string; code: string; state: string }) {
+  return request.post<null>({ url: '/api/auth/social/bind', data })
+}
+
+/** 社交账号解绑（需登录） */
+export function fetchSocialUnbind(source: string) {
+  return request.del<null>({ url: `/api/auth/social/unbind/${source}` })
+}
