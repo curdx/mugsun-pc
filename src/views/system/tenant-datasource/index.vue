@@ -16,6 +16,13 @@
         <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
         <ElTableColumn prop="dsUrl" label="数据源 URL" min-width="280" show-overflow-tooltip />
         <ElTableColumn prop="dsUsername" label="用户名" width="120" />
+        <ElTableColumn label="隔离策略" width="120">
+          <template #default="{ row }">
+            <ElTag :type="row.isolationType === 2 ? 'warning' : 'primary'">
+              {{ row.isolationType === 2 ? `schema:${row.schemaName || ''}` : '独立库' }}
+            </ElTag>
+          </template>
+        </ElTableColumn>
         <ElTableColumn label="状态" width="90">
           <template #default="{ row }">
             <ElTag :type="row.status === 1 ? 'success' : 'info'">
@@ -42,6 +49,15 @@
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
         <ElFormItem label="租户编号" prop="tenantCode">
           <ElInput v-model="form.tenantCode" placeholder="如 866786" :disabled="!!form.id" />
+        </ElFormItem>
+        <ElFormItem label="隔离策略" prop="isolationType">
+          <ElSelect v-model="form.isolationType" style="width: 100%">
+            <ElOption label="独立库（独立 JDBC 连接）" :value="1" />
+            <ElOption label="独立 schema（同库 search_path）" :value="2" />
+          </ElSelect>
+        </ElFormItem>
+        <ElFormItem v-if="form.isolationType === 2" label="schema 名称" prop="schemaName">
+          <ElInput v-model="form.schemaName" placeholder="如 t_866786" />
         </ElFormItem>
         <ElFormItem label="数据源 URL" prop="dsUrl">
           <ElInput v-model="form.dsUrl" placeholder="jdbc:postgresql://host:5432/db" />
@@ -92,6 +108,8 @@
   const form = reactive<Record<string, any>>({
     id: null,
     tenantCode: '',
+    isolationType: 1,
+    schemaName: '',
     dsUrl: '',
     dsUsername: '',
     dsPassword: '',
@@ -121,6 +139,8 @@
     Object.assign(form, {
       id: null,
       tenantCode: '',
+      isolationType: 1,
+      schemaName: '',
       dsUrl: '',
       dsUsername: '',
       dsPassword: '',
@@ -134,6 +154,8 @@
     Object.assign(form, {
       id: row.id,
       tenantCode: row.tenantCode,
+      isolationType: row.isolationType ?? 1,
+      schemaName: row.schemaName ?? '',
       dsUrl: row.dsUrl,
       dsUsername: row.dsUsername,
       dsPassword: '******',
