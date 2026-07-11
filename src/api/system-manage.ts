@@ -219,17 +219,43 @@ export function fetchGenDatasource() {
 export function fetchGenTables() {
   return request.get<any[]>({ url: '/api/system/gen/tables' })
 }
-export function fetchGenColumns(table: string) {
-  return request.get<any>({ url: '/api/system/gen/columns', params: { table } })
+// 元数据驱动代码生成（gen_table/gen_column）
+export function fetchGenImport(data: {
+  tableName: string
+  moduleName?: string
+  basePackage?: string
+  tablePrefix?: string
+  author?: string
+}) {
+  return request.post<number | string>({ url: '/api/system/gen/import', data })
 }
-export function fetchGenPreview(data: Record<string, any>) {
-  return request.post<Record<string, string>>({ url: '/api/system/gen/preview', data })
+export function fetchGenList() {
+  return request.get<any[]>({ url: '/api/system/gen/list' })
 }
-export function fetchGenConfig(table: string) {
-  return request.get<any>({ url: '/api/system/gen/config', params: { table } })
+export function fetchGenMeta(tableId: number | string) {
+  return request.get<{ table: any; columns: any[] }>({
+    url: '/api/system/gen/meta',
+    params: { tableId }
+  })
 }
-export function fetchSaveGenConfig(data: Record<string, any>) {
-  return request.post<void>({ url: '/api/system/gen/config/save', data })
+export function fetchSaveGenMeta(data: { table: any; columns: any[] }) {
+  return request.post<void>({ url: '/api/system/gen/meta/save', data })
+}
+export function fetchGenSync(tableId: number | string) {
+  return request.post<void>({ url: '/api/system/gen/sync', params: { tableId } })
+}
+export function fetchGenPreviewMeta(tableId: number | string) {
+  return request.get<Record<string, string>>({
+    url: '/api/system/gen/preview-meta',
+    params: { tableId }
+  })
+}
+export function downloadGenZip(tableId: number | string) {
+  return request.download({
+    url: '/api/system/gen/download',
+    params: { tableId },
+    filename: `mugsun-gen-${tableId}.zip`
+  })
 }
 
 // ===== 工作流治理 =====
