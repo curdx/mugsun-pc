@@ -252,6 +252,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'client',
+      name: 'Client',
+      component: '/system/client',
+      meta: {
+        title: '登录客户端',
+        icon: 'ri:device-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'region',
       name: 'Region',
       component: '/system/region',
