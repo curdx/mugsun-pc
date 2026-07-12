@@ -257,6 +257,32 @@ export function downloadGenZip(tableId: number | string) {
     filename: `mugsun-gen-${tableId}.zip`
   })
 }
+// 在线（低代码）运行时表单
+export function fetchOnlineForms() {
+  return request.get<any[]>({ url: '/api/system/online-form/forms' })
+}
+export function fetchOnlineMeta(tableId: number | string) {
+  return request.get<{ table: any; columns: any[] }>({
+    url: '/api/system/online-form/meta',
+    params: { tableId }
+  })
+}
+export function fetchOnlineData(tableId: number | string, params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/online-form/page', params: { tableId, ...params } })
+}
+export function fetchOnlineDetail(tableId: number | string, id: number | string) {
+  return request.get<any>({ url: '/api/system/online-form/detail', params: { tableId, id } })
+}
+export function fetchOnlineSave(tableId: number | string, data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/online-form/save', params: { tableId }, data })
+}
+export function fetchOnlineRemove(tableId: number | string, ids: (number | string)[]) {
+  return request.post<void>({
+    url: '/api/system/online-form/remove',
+    params: { tableId },
+    data: ids
+  })
+}
 
 // ===== 工作流治理 =====
 export function fetchFlowDefinitions() {

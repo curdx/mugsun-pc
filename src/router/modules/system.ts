@@ -175,6 +175,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'online-form',
+      name: 'OnlineForm',
+      component: '/system/online-form',
+      meta: {
+        title: '在线表单',
+        icon: 'ri:table-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'form-designer',
       name: 'FormDesigner',
       component: '/system/form-designer',
