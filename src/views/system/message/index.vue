@@ -20,15 +20,13 @@
 
     <ElDialog v-model="viewVisible" :title="current.title" width="560px">
       <div class="msg-meta">{{ (current.sendTime || '').slice(0, 19).replace('T', ' ') }}</div>
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="msg-content" v-html="safeContent"></div>
+      <div class="msg-content" v-safe-html="current.content"></div>
     </ElDialog>
   </div>
 </template>
 
 <script setup lang="ts">
   import { h, reactive } from 'vue'
-  import DOMPurify from 'dompurify'
   import { ElButton, ElTag, ElMessage, ElMessageBox } from 'element-plus'
   import { useTable } from '@/hooks/core/useTable'
   import { useMessageStore } from '@/store/modules/message'
@@ -44,7 +42,6 @@
   const messageStore = useMessageStore()
   const viewVisible = ref(false)
   const current = reactive<any>({ title: '', content: '', sendTime: '' })
-  const safeContent = computed(() => DOMPurify.sanitize(current.content || ''))
 
   const TYPE_LABEL: Record<string, string> = { system: '系统', notice: '通知', todo: '待办' }
 

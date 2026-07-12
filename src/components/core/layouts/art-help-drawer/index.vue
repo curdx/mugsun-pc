@@ -20,14 +20,12 @@
     >
       <!-- 详情视图 -->
       <div v-if="current" class="help-detail">
-        <ElButton link type="primary" class="help-back" @click="current = null"
-          >← 返回列表</ElButton
-        >
+        <ElButton link type="primary" class="help-back" @click="current = null">
+          <ArtSvgIcon icon="ri:arrow-left-line" /> 返回列表
+        </ElButton>
         <h3 class="help-detail-title">{{ current.title }}</h3>
         <div class="help-detail-meta">浏览量 {{ current.viewCount ?? 0 }}</div>
-        <!-- 富文本经 DOMPurify 净化后渲染，防存储型 XSS -->
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div class="help-detail-content" v-html="safeContent"></div>
+        <div class="help-detail-content" v-safe-html="current?.content"></div>
       </div>
 
       <!-- 列表视图 -->
@@ -45,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-  import DOMPurify from 'dompurify'
   import { fetchHelpPageDocs, fetchViewHelpDoc } from '@/api/help-doc'
 
   defineOptions({ name: 'ArtHelpDrawer' })
@@ -56,8 +53,7 @@
   const docs = ref<any[]>([])
   const current = ref<any>(null)
 
-  // 富文本净化，防存储型 XSS（内容虽来自本站编辑器仍不可信）
-  const safeContent = computed(() => DOMPurify.sanitize(current.value?.content || ''))
+  // 富文本渲染统一走 v-safe-html 指令（DOMPurify 净化），防存储型 XSS
 
   const openDrawer = () => {
     current.value = null

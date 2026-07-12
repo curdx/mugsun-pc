@@ -25,15 +25,13 @@
         </ElTag>
         <span>{{ (current.releaseTime || '').slice(0, 19).replace('T', ' ') }}</span>
       </div>
-      <!-- eslint-disable-next-line vue/no-v-html -->
-      <div class="notice-content" v-html="safeContent"></div>
+      <div class="notice-content" v-safe-html="current.content"></div>
     </ElDialog>
   </div>
 </template>
 
 <script setup lang="ts">
   import { h, reactive, ref } from 'vue'
-  import DOMPurify from 'dompurify'
   import { ElButton, ElTag } from 'element-plus'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchMyNoticePage, fetchReadNotice } from '@/api/system-manage'
@@ -58,7 +56,6 @@
   const category = ref('')
   const viewVisible = ref(false)
   const current = reactive<any>({ title: '', content: '', category: '', releaseTime: '' })
-  const safeContent = computed(() => DOMPurify.sanitize(current.content || ''))
 
   const {
     columns,
