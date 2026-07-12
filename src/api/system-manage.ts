@@ -331,11 +331,64 @@ export function fetchFlowStartBy(flowCode: string, businessId: string) {
 export function fetchFlowMyTodo() {
   return request.get<any[]>({ url: '/api/system/flow/my-todo' })
 }
-export function fetchFlowHandle(taskId: number | string) {
-  return request.post<string>({ url: `/api/system/flow/handle/${taskId}` })
+export function fetchFlowMyCopy() {
+  return request.get<any[]>({ url: '/api/system/flow/my-copy' })
 }
-export function fetchFlowReject(taskId: number | string) {
-  return request.post<string>({ url: `/api/system/flow/reject/${taskId}` })
+export function fetchFlowHandle(taskId: number | string, message?: string) {
+  return request.post<string>({ url: `/api/system/flow/task/handle/${taskId}`, data: { message } })
+}
+/** 退回上一步（修正后语义：退回而非终止作废） */
+export function fetchFlowReject(taskId: number | string, message?: string) {
+  return request.post<string>({ url: `/api/system/flow/task/reject/${taskId}`, data: { message } })
+}
+/** 退回指定历史节点 */
+export function fetchFlowRejectNode(taskId: number | string, nodeCode: string, message?: string) {
+  return request.post<string>({
+    url: `/api/system/flow/task/reject-node/${taskId}`,
+    data: { nodeCode, message }
+  })
+}
+/** 撤回（发起人） */
+export function fetchFlowRevoke(instanceId: number | string, message?: string) {
+  return request.post<string>({
+    url: `/api/system/flow/task/revoke/${instanceId}`,
+    data: { message }
+  })
+}
+/** 作废（终止实例） */
+export function fetchFlowTerminate(taskId: number | string, message?: string) {
+  return request.post<string>({
+    url: `/api/system/flow/task/terminate/${taskId}`,
+    data: { message }
+  })
+}
+/** 转办/委派/加签/减签 单入口 */
+export function fetchFlowOperation(
+  taskId: number | string,
+  op: string,
+  handlers: (number | string)[],
+  message?: string
+) {
+  return request.post<void>({
+    url: `/api/system/flow/task/operation/${taskId}`,
+    data: { op, handlers: handlers.map(String), message }
+  })
+}
+/** 抄送 */
+export function fetchFlowCopy(taskId: number | string, userIds: (number | string)[]) {
+  return request.post<void>({
+    url: `/api/system/flow/task/copy/${taskId}`,
+    data: { userIds: userIds.map(String) }
+  })
+}
+/** 可退回的历史审批节点 */
+export function fetchFlowBackNodes(instanceId: number | string) {
+  return request.get<any[]>({ url: '/api/system/flow/back-nodes', params: { instanceId } })
+}
+export function fetchFlowUserSelect() {
+  return request.get<Array<{ label: string; value: number | string }>>({
+    url: '/api/system/user/select'
+  })
 }
 export function fetchFlowHistory(instanceId: number | string) {
   return request.get<any[]>({ url: '/api/system/flow/history', params: { instanceId } })
