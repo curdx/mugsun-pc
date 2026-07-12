@@ -284,6 +284,30 @@ export function fetchOnlineRemove(tableId: number | string, ids: (number | strin
   })
 }
 
+// 动态建表 / AI 辅助建模（data:{} 保 params 留在 query，供 @RequestParam 绑定）
+export function fetchDdlPreview(tableId: number | string, force = false) {
+  return request.get<string[]>({ url: '/api/system/gen/ddl/preview', params: { tableId, force } })
+}
+export function fetchDdlCreate(tableId: number | string) {
+  return request.post<void>({ url: '/api/system/gen/ddl/create', params: { tableId }, data: {} })
+}
+export function fetchDdlSync(tableId: number | string, force = false) {
+  return request.post<void>({
+    url: '/api/system/gen/ddl/sync',
+    params: { tableId, force },
+    data: {}
+  })
+}
+export function fetchAiDraft(description: string) {
+  return request.post<{ table: any; columns: any[] }>({
+    url: '/api/system/gen/ai/draft',
+    data: { description }
+  })
+}
+export function fetchAiConfirm(data: { table: any; columns: any[]; build: boolean }) {
+  return request.post<number | string>({ url: '/api/system/gen/ai/confirm', data })
+}
+
 // ===== 工作流治理 =====
 export function fetchFlowDefinitions() {
   return request.get<any[]>({ url: '/api/system/flow/definitions' })

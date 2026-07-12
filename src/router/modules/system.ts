@@ -186,6 +186,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'gen-modeling',
+      name: 'GenModeling',
+      component: '/system/gen-modeling',
+      meta: {
+        title: '动态建表',
+        icon: 'ri:database-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER']
+      }
+    },
+    {
       path: 'form-designer',
       name: 'FormDesigner',
       component: '/system/form-designer',
