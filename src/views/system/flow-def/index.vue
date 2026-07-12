@@ -51,16 +51,63 @@
       <div class="flow-diagram">
         <div class="flow-node flow-node--start">开始</div>
         <template v-for="(node, idx) in design.nodes" :key="idx">
-          <span class="flow-arrow">→</span>
+          <ArtSvgIcon class="flow-arrow" icon="ri:arrow-right-line" />
           <div class="flow-node flow-node--task">
             <ElInput v-model="node.name" size="small" placeholder="节点名称" class="node-input" />
-            <ElSelect v-model="node.role" size="small" placeholder="审批角色" class="node-input">
-              <ElOption v-for="r in roles" :key="r.value" :label="r.label" :value="r.value" />
-            </ElSelect>
-            <ElButton link type="danger" size="small" @click="removeNode(idx)">删除</ElButton>
+            <div v-for="(c, ci) in node.candidates" :key="ci" class="cand-row">
+              <ElSelect v-model="c.type" size="small" class="cand-type" @change="c.value = ''">
+                <ElOption label="角色" value="role" />
+                <ElOption label="部门" value="dept" />
+                <ElOption label="指定用户" value="user" />
+                <ElOption label="发起人本人" value="initiator" />
+                <ElOption label="部门负责人" value="deptLeader" />
+              </ElSelect>
+              <ElSelect
+                v-if="c.type === 'role'"
+                v-model="c.value"
+                size="small"
+                placeholder="角色"
+                class="cand-val"
+              >
+                <ElOption v-for="r in roles" :key="r.value" :label="r.label" :value="r.value" />
+              </ElSelect>
+              <ElSelect
+                v-else-if="c.type === 'dept'"
+                v-model="c.value"
+                size="small"
+                placeholder="部门"
+                class="cand-val"
+              >
+                <ElOption v-for="d in depts" :key="d.value" :label="d.label" :value="d.value" />
+              </ElSelect>
+              <ElSelect
+                v-else-if="c.type === 'user'"
+                v-model="c.value"
+                size="small"
+                filterable
+                placeholder="用户"
+                class="cand-val"
+              >
+                <ElOption v-for="u in users" :key="u.value" :label="u.label" :value="u.value" />
+              </ElSelect>
+              <ElButton
+                v-if="node.candidates.length > 1"
+                link
+                type="danger"
+                size="small"
+                @click="node.candidates.splice(ci, 1)"
+                >×</ElButton
+              >
+            </div>
+            <div class="node-ops">
+              <ElButton link type="primary" size="small" @click="addCandidate(node)"
+                >+候选人</ElButton
+              >
+              <ElButton link type="danger" size="small" @click="removeNode(idx)">删除节点</ElButton>
+            </div>
           </div>
         </template>
-        <span class="flow-arrow">→</span>
+        <ArtSvgIcon class="flow-arrow" icon="ri:arrow-right-line" />
         <div class="flow-node flow-node--end">结束</div>
       </div>
 
@@ -79,20 +126,33 @@
     fetchFlowDeploy,
     fetchFlowStart,
     fetchFlowStartBy,
-    fetchFlowDesign
+    fetchFlowDesign,
+    fetchDeptSelect,
+    fetchFlowUserSelect
   } from '@/api/system-manage'
   import { fetchRoleCodeSelect } from '@/api/role'
   import { ElMessage, ElMessageBox } from 'element-plus'
 
   defineOptions({ name: 'FlowDef' })
 
+  interface Candidate {
+    type: string
+    value: string
+  }
+  interface DesignNode {
+    name: string
+    candidates: Candidate[]
+  }
+
   const tableData = ref<any[]>([])
   const roles = ref<any[]>([])
+  const depts = ref<any[]>([])
+  const users = ref<any[]>([])
   const designerVisible = ref(false)
   const design = reactive<{
     flowCode: string
     flowName: string
-    nodes: Array<{ name: string; role: string }>
+    nodes: DesignNode[]
   }>({
     flowCode: '',
     flowName: '',
@@ -106,6 +166,8 @@
   onMounted(async () => {
     await loadData()
     roles.value = (await fetchRoleCodeSelect()) || []
+    depts.value = (await fetchDeptSelect()) || []
+    users.value = (await fetchFlowUserSelect()) || []
   })
 
   const deploy = async (): Promise<void> => {
@@ -128,21 +190,37 @@
     ElMessage.success('已发起，可在待办工作台处理')
   }
 
+  const newNode = (name: string): DesignNode => ({
+    name,
+    candidates: [{ type: 'role', value: 'admin' }]
+  })
+
   const openDesigner = (): void => {
     Object.assign(design, {
       flowCode: '',
       flowName: '',
-      nodes: [{ name: '部门审批', role: 'admin' }]
+      nodes: [newNode('部门审批')]
     })
     designerVisible.value = true
   }
 
   const addNode = (): void => {
-    design.nodes.push({ name: '审批节点', role: roles.value[0]?.value ?? 'admin' })
+    design.nodes.push(newNode('审批节点'))
   }
 
   const removeNode = (idx: number): void => {
     design.nodes.splice(idx, 1)
+  }
+
+  const addCandidate = (node: DesignNode): void => {
+    node.candidates.push({ type: 'role', value: '' })
+  }
+
+  // 单个候选人 → storageId 前缀 token
+  const candidateToken = (c: Candidate): string => {
+    if (c.type === 'initiator') return 'initiator'
+    if (c.type === 'deptLeader') return 'deptLeader'
+    return c.value ? `${c.type}:${c.value}` : ''
   }
 
   const submitDesign = async (): Promise<void> => {
@@ -154,11 +232,15 @@
       ElMessage.warning('至少添加一个审批节点')
       return
     }
-    await fetchFlowDesign({
-      flowCode: design.flowCode,
-      flowName: design.flowName,
-      nodes: design.nodes
-    })
+    const nodes = design.nodes.map((n) => ({
+      name: n.name,
+      candidates: n.candidates.map(candidateToken).filter(Boolean)
+    }))
+    if (nodes.some((n) => n.candidates.length === 0)) {
+      ElMessage.warning('每个节点需选择候选人')
+      return
+    }
+    await fetchFlowDesign({ flowCode: design.flowCode, flowName: design.flowName, nodes })
     ElMessage.success('流程已部署')
     designerVisible.value = false
     loadData()
@@ -208,6 +290,26 @@
 
   .node-input {
     width: 150px;
+  }
+
+  .cand-row {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .cand-type {
+    width: 96px;
+  }
+
+  .cand-val {
+    width: 118px;
+  }
+
+  .node-ops {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
   }
 
   .flow-arrow {
