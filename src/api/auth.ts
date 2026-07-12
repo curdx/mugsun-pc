@@ -35,6 +35,13 @@ export function fetchCaptcha() {
   })
 }
 
+/** SM2 传输公钥（登录/改密/注册前取，用于前端加密密码；gmEnabled=false 时明文传输） */
+export function fetchSm2PublicKey() {
+  return request.get<{ gmEnabled: boolean; publicKey: string | null }>({
+    url: '/api/auth/sm2-public-key'
+  })
+}
+
 /**
  * 获取用户信息
  * @returns 用户信息

@@ -158,6 +158,7 @@
   import { useI18n } from 'vue-i18n'
   import { HttpError } from '@/utils/http/error'
   import { fetchLogin, fetchCaptcha, fetchTwoFactor, fetchSmsCode, fetchSmsLogin } from '@/api/auth'
+  import { encryptPassword } from '@/utils/gm'
   import { fetchSocialRender } from '@/api/auth'
   import {
     ElNotification,
@@ -319,7 +320,7 @@
 
       const resp = await fetchLogin({
         username,
-        password,
+        password: await encryptPassword(password),
         captchaUuid,
         captchaCode
       })

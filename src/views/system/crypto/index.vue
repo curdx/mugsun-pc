@@ -49,6 +49,25 @@
   const decrypted = ref('')
   const loading = ref(false)
 
+  const toHex = (bytes: Uint8Array): string =>
+    Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('')
+
+  // SM4-CBC 加密：随机 16 字节 IV，输出 Hex(IV)‖Hex(密文)，与后端 ApiCryptoService 跨库互通
+  const encryptCbc = (plain: string): string => {
+    const iv = crypto.getRandomValues(new Uint8Array(16))
+    const ivHex = toHex(iv)
+    const cipher = sm4.encrypt(plain, apiKey, { mode: 'cbc', iv: ivHex })
+    return ivHex + cipher
+  }
+  // SM4-CBC 解密：拆前 32 hex 为 IV，其余为密文
+  const decryptCbc = (data: string): string => {
+    const ivHex = data.slice(0, 32)
+    const cipher = data.slice(32)
+    return sm4.decrypt(cipher, apiKey, { mode: 'cbc', iv: ivHex })
+  }
+
   const handleSend = async () => {
     if (!inputText.value) {
       ElMessage.warning('请输入文本')
@@ -57,7 +76,7 @@
     loading.value = true
     try {
       const plainJson = JSON.stringify({ text: inputText.value })
-      const encryptData = sm4.encrypt(plainJson, apiKey)
+      const encryptData = encryptCbc(plainJson)
       requestCipher.value = encryptData
       responseCipher.value = ''
       decrypted.value = ''
@@ -70,7 +89,7 @@
       const json = await resp.json()
       if (json.dataType === 'ENCRYPT') {
         responseCipher.value = json.data
-        decrypted.value = sm4.decrypt(json.data, apiKey)
+        decrypted.value = decryptCbc(json.data)
       } else {
         decrypted.value = JSON.stringify(json.data)
       }
