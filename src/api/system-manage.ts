@@ -322,6 +322,29 @@ export function fetchFlowStart(businessId: string) {
 export function fetchFlowDesign(data: Record<string, any>) {
   return request.post<number>({ url: '/api/system/flow/design', data })
 }
+/** 图形流程部署：递归节点树（条件分支/并行/会签）翻译并发布 */
+export function fetchFlowDesignGraph(data: Record<string, any>) {
+  return request.post<number>({ url: '/api/system/flow/design-graph', data })
+}
+/** 定义管理：发布/取消发布/启用/停用/复制新版本/删除 */
+export function fetchFlowDefPublish(id: number | string) {
+  return request.post<void>({ url: `/api/system/flow/definition/publish/${id}` })
+}
+export function fetchFlowDefUnpublish(id: number | string) {
+  return request.post<void>({ url: `/api/system/flow/definition/unpublish/${id}` })
+}
+export function fetchFlowDefActive(id: number | string) {
+  return request.post<void>({ url: `/api/system/flow/definition/active/${id}` })
+}
+export function fetchFlowDefSuspend(id: number | string) {
+  return request.post<void>({ url: `/api/system/flow/definition/suspend/${id}` })
+}
+export function fetchFlowDefCopy(id: number | string) {
+  return request.post<void>({ url: `/api/system/flow/definition/copy/${id}` })
+}
+export function fetchFlowDefRemove(ids: (number | string)[]) {
+  return request.post<void>({ url: '/api/system/flow/definition/remove', data: ids.map(String) })
+}
 /** 发起指定流程码实例；可选发起人自选办理人 handlers + 发起业务数据 variable */
 export function fetchFlowStartBy(
   flowCode: string,

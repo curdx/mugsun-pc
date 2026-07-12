@@ -241,6 +241,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'flow-graph',
+      name: 'FlowGraph',
+      component: '/system/flow-graph',
+      meta: {
+        title: '流程设计',
+        icon: 'ri:node-tree',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'job',
       name: 'Job',
       component: '/system/job',
