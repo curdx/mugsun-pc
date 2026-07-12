@@ -227,7 +227,7 @@
       loading.value = false
     }
   }
-  const onTabChange = (name: string): void => {
+  const onTabChange = (name: string | number): void => {
     if (name === 'copy') loadCopy()
     else loadTodo()
   }

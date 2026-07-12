@@ -230,6 +230,17 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'flow-center',
+      name: 'FlowCenter',
+      component: '/system/flow-center',
+      meta: {
+        title: '审批中心',
+        icon: 'ri:inbox-archive-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'job',
       name: 'Job',
       component: '/system/job',

@@ -322,10 +322,36 @@ export function fetchFlowStart(businessId: string) {
 export function fetchFlowDesign(data: Record<string, any>) {
   return request.post<number>({ url: '/api/system/flow/design', data })
 }
-/** 发起指定流程码实例 */
-export function fetchFlowStartBy(flowCode: string, businessId: string) {
+/** 发起指定流程码实例；可选发起人自选办理人 handlers + 发起业务数据 variable */
+export function fetchFlowStartBy(
+  flowCode: string,
+  businessId: string,
+  param?: { handlers?: string[]; variable?: Record<string, any> }
+) {
   return request.post<string>({
-    url: `/api/system/flow/start-by/${encodeURIComponent(flowCode)}/${encodeURIComponent(businessId)}`
+    url: `/api/system/flow/start-by/${encodeURIComponent(flowCode)}/${encodeURIComponent(businessId)}`,
+    data: param ?? {}
+  })
+}
+/** 发起表单：流程发起节点绑定表单（发起页填业务数据） */
+export function fetchFlowStartForm(flowCode: string) {
+  return request.get<Record<string, any>>({
+    url: '/api/system/flow/form/start',
+    params: { flowCode }
+  })
+}
+/** 办理表单：任务节点绑定表单 + 已填数据 + 字段级权限 */
+export function fetchFlowTaskForm(taskId: number | string) {
+  return request.get<Record<string, any>>({
+    url: '/api/system/flow/form/task',
+    params: { taskId }
+  })
+}
+/** 查看表单：实例业务数据只读回显 */
+export function fetchFlowInstanceForm(instanceId: number | string) {
+  return request.get<Record<string, any>>({
+    url: '/api/system/flow/form/instance',
+    params: { instanceId }
   })
 }
 export function fetchFlowMyTodo() {
@@ -334,8 +360,35 @@ export function fetchFlowMyTodo() {
 export function fetchFlowMyCopy() {
   return request.get<any[]>({ url: '/api/system/flow/my-copy' })
 }
-export function fetchFlowHandle(taskId: number | string, message?: string) {
-  return request.post<string>({ url: `/api/system/flow/task/handle/${taskId}`, data: { message } })
+/** 审批中心·我发起 */
+export function fetchFlowMyStarted() {
+  return request.get<any[]>({ url: '/api/system/flow/my-started' })
+}
+/** 审批中心·已办 */
+export function fetchFlowMyDone() {
+  return request.get<any[]>({ url: '/api/system/flow/my-done' })
+}
+/** 流程图进度：节点+状态 */
+export function fetchFlowProgress(instanceId: number | string) {
+  return request.get<any[]>({ url: '/api/system/flow/progress', params: { instanceId } })
+}
+/** 下一节点审批人预测 */
+export function fetchFlowNextApprovers(taskId: number | string) {
+  return request.get<any[]>({ url: '/api/system/flow/next-approvers', params: { taskId } })
+}
+/** 通用审批弹窗按钮 buttonList */
+export function fetchFlowTaskButtons(taskId: number | string) {
+  return request.get<string[]>({ url: '/api/system/flow/task-buttons', params: { taskId } })
+}
+export function fetchFlowHandle(
+  taskId: number | string,
+  message?: string,
+  variable?: Record<string, any>
+) {
+  return request.post<string>({
+    url: `/api/system/flow/task/handle/${taskId}`,
+    data: { message, variable }
+  })
 }
 /** 退回上一步（修正后语义：退回而非终止作废） */
 export function fetchFlowReject(taskId: number | string, message?: string) {
