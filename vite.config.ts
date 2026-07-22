@@ -30,6 +30,8 @@ export default ({ mode }: { mode: string }) => {
         '/api': {
           target: VITE_API_PROXY_URL,
           changeOrigin: true,
+          // 支持 WebSocket 代理（消息推送长连接）
+          ws: true,
           rewrite: (path) => path.replace(/^\/api/, '')
         }
       },

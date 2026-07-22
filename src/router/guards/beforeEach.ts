@@ -46,6 +46,7 @@ import { setPageTitle } from '@/utils/router'
 import { RoutesAlias } from '../routesAlias'
 import { staticRoutes } from '../routes/staticRoutes'
 import { loadingService } from '@/utils/ui'
+import { connectMessageSocket } from '@/utils/socket'
 import { useCommon } from '@/hooks/core/useCommon'
 import { useWorktabStore } from '@/store/modules/worktab'
 import { fetchGetUserInfo } from '@/api/auth'
@@ -154,6 +155,11 @@ async function handleRouteGuard(
   // 1. 检查登录状态
   if (!handleLoginStatus(to, userStore, next)) {
     return
+  }
+
+  // 已登录：确保消息推送连接已建立（幂等，重复调用无副作用）
+  if (userStore.isLogin) {
+    connectMessageSocket()
   }
 
   // 2. 检查路由初始化是否已失败（防止死循环）

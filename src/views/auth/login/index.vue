@@ -160,6 +160,7 @@
   import { fetchLogin, fetchCaptcha, fetchTwoFactor, fetchSmsCode, fetchSmsLogin } from '@/api/auth'
   import { encryptPassword } from '@/utils/gm'
   import { fetchSocialRender } from '@/api/auth'
+  import { connectMessageSocket } from '@/utils/socket'
   import {
     ElNotification,
     ElMessage,
@@ -222,6 +223,8 @@
     if (!token) throw new Error('Login failed - no token received')
     userStore.setToken(token, refreshToken)
     userStore.setLoginStatus(true)
+    // 建立消息推送长连接
+    connectMessageSocket()
     showLoginSuccessNotice()
     const redirect = route.query.redirect as string
     router.push(redirect || '/')
