@@ -158,6 +158,22 @@ export function fetchUploadFile(file: File) {
   form.append('file', file)
   return request.post<any>({ url: '/api/system/file/upload', data: form })
 }
+/** 直传签发回执（supported=false 表示当前平台不支持预签名，回退 multipart） */
+export interface PresignedPutResult {
+  supported: boolean
+  uploadUrl?: string
+  headers?: Record<string, string>
+  ticket?: string
+  expiresIn?: number
+}
+/** 两段式直传·签发 PUT 预签名（一次性 ticket 凭证） */
+export function fetchPresignedPut(data: { filename: string; access?: string }) {
+  return request.post<PresignedPutResult>({ url: '/api/system/file/presigned-put', data })
+}
+/** 两段式直传·回填登记（ticket 一次性，size 客户端上报展示值） */
+export function fetchCreateAttach(data: { ticket: string; size?: number }) {
+  return request.post<any>({ url: '/api/system/file/create', data })
+}
 export function fetchRemoveAttach(ids: (number | string)[] | number | string) {
   return request.post<void>({
     url: '/api/system/file/remove',

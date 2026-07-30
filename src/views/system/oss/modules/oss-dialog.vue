@@ -34,7 +34,11 @@
           <ElInput v-model="formData.accessKey" placeholder="访问密钥" />
         </ElFormItem>
         <ElFormItem label="SecretKey">
-          <ElInput v-model="formData.secretKey" placeholder="密钥" show-password />
+          <ElInput
+            v-model="formData.secretKey"
+            :placeholder="type === 'edit' ? '留空则不修改密钥（密文存储，回显不可见）' : '密钥'"
+            show-password
+          />
         </ElFormItem>
       </template>
       <ElFormItem label="访问域名">
