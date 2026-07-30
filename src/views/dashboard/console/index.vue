@@ -5,7 +5,9 @@
     <ElRow :gutter="16">
       <ElCol v-for="s in statTiles" :key="s.key" :xs="12" :sm="12" :md="6">
         <div class="art-card stat-tile" @click="s.path && go(s.path)">
-          <div class="stat-icon" :style="{ background: s.bg }">{{ s.icon }}</div>
+          <div class="stat-icon" :style="{ background: s.bg }">
+            <ArtSvgIcon :icon="s.icon" />
+          </div>
           <div class="stat-body">
             <div class="stat-count">{{ s.count }}</div>
             <div class="stat-label">{{ s.label }}</div>
@@ -183,7 +185,7 @@
       count: overview.userCount,
       path: '/system/user',
       bg: '#e8f3ff',
-      icon: '👤'
+      icon: 'ri:user-3-line'
     },
     {
       key: 'dept',
@@ -191,7 +193,7 @@
       count: overview.deptCount,
       path: '/system/dept',
       bg: '#e8fff3',
-      icon: '🏢'
+      icon: 'ri:building-line'
     },
     {
       key: 'role',
@@ -199,7 +201,7 @@
       count: overview.roleCount,
       path: '/system/role',
       bg: '#fff5e8',
-      icon: '🔑'
+      icon: 'ri:key-2-line'
     },
     {
       key: 'todo',
@@ -207,7 +209,7 @@
       count: overview.todoCount,
       path: '/system/flow-todo',
       bg: '#ffe8ec',
-      icon: '📋'
+      icon: 'ri:file-list-3-line'
     }
   ])
 

@@ -34,7 +34,7 @@
           >
             <div class="change-line">
               <span class="old">{{ c.old || '空' }}</span>
-              <span class="arrow">→</span>
+              <ArtSvgIcon class="arrow" icon="ri:arrow-right-line" />
               <span class="new">{{ c.new || '空' }}</span>
             </div>
           </ElTimelineItem>
