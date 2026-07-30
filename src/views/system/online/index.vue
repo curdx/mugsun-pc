@@ -17,6 +17,8 @@
         <ElTableColumn prop="username" label="账号" min-width="120" />
         <ElTableColumn prop="nickname" label="昵称" min-width="140" />
         <ElTableColumn prop="deviceType" label="设备" width="100" />
+        <ElTableColumn prop="ip" label="登录 IP" min-width="130" />
+        <ElTableColumn prop="userAgent" label="浏览器 UA" min-width="220" show-overflow-tooltip />
         <ElTableColumn prop="tokenMask" label="令牌" min-width="160" />
         <ElTableColumn prop="loginTime" label="登录时间" min-width="180" />
         <ElTableColumn label="操作" width="120" fixed="right">

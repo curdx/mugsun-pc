@@ -185,6 +185,40 @@ export function fetchRemoveAttach(ids: (number | string)[] | number | string) {
 export function fetchOperLogPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/oper-log/page', params })
 }
+/** 审计完整性验签：重算哈希链 + SM2 验签，定位首个被篡改记录（limit>0 只校最近 N 条） */
+export function fetchOperLogVerify(limit?: number) {
+  return request.get<any>({ url: '/api/system/oper-log/verify', params: { limit } })
+}
+
+// ===== 访问日志 =====
+export function fetchApiLogPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/api-log/page', params })
+}
+
+// ===== 错误日志 =====
+export function fetchErrorLogPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/error-log/page', params })
+}
+export function fetchErrorLogDetail(id: number | string) {
+  return request.get<any>({ url: '/api/system/error-log/detail', params: { id } })
+}
+/** 认领处理：status 1 已处理 / 2 已忽略，附处理备注 */
+export function fetchHandleErrorLog(data: { id: number | string; status: number; note?: string }) {
+  return request.post<void>({ url: '/api/system/error-log/handle', data })
+}
+export function fetchRemoveErrorLog(id: number | string) {
+  return request.del<void>({ url: '/api/system/error-log/remove', params: { id } })
+}
+
+// ===== 服务监控 =====
+/** 拉取 actuator 指标明细（经 /api 代理转发；端点受 sys:monitor:list 鉴权，请求头自动携带 token） */
+export function fetchActuatorMetric(name: string) {
+  return request.get<any>({ url: `/api/actuator/metrics/${name}` })
+}
+/** 在线数据库文档 markdown（在线查看 + 下载） */
+export function fetchDbDoc() {
+  return request.get<string>({ url: '/api/system/monitor/db-doc' })
+}
 
 // ===== 数据变更记录 =====
 export function fetchDataAuditPage(params: Record<string, any>) {

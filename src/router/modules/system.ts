@@ -329,6 +329,39 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'api-log',
+      name: 'ApiLog',
+      component: '/system/api-log',
+      meta: {
+        title: '访问日志',
+        icon: 'ri:global-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'error-log',
+      name: 'ErrorLog',
+      component: '/system/error-log',
+      meta: {
+        title: '错误日志',
+        icon: 'ri:error-warning-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'monitor',
+      name: 'ServerMonitor',
+      component: '/system/monitor',
+      meta: {
+        title: '服务监控',
+        icon: 'ri:line-chart-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'data-audit',
       name: 'DataAudit',
       component: '/system/data-audit',

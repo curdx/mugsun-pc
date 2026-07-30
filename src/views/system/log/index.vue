@@ -2,7 +2,13 @@
 <template>
   <div class="log-page art-full-height">
     <ElCard class="art-table-card">
-      <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData" />
+      <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
+        <template #left>
+          <ElButton v-perm="'sys:oper-log:verify'" :loading="verifyLoading" @click="verify" v-ripple
+            >完整性验签</ElButton
+          >
+        </template>
+      </ArtTableHeader>
 
       <ArtTable
         :loading="loading"
@@ -13,6 +19,24 @@
         @pagination:current-change="handleCurrentChange"
       >
       </ArtTable>
+
+      <ElDialog v-model="verifyVisible" title="审计完整性验签" width="480px" align-center>
+        <ElAlert
+          :type="verifyResult.valid ? 'success' : 'error'"
+          :title="verifyResult.valid ? verifyResult.message : '检测到篡改'"
+          :closable="false"
+          show-icon
+        />
+        <ElDescriptions v-if="!verifyResult.valid" :column="1" border class="verify-detail">
+          <ElDescriptionsItem label="首个被篡改记录">{{
+            verifyResult.tamperedId
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="原因">{{ verifyResult.reason }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="此前已验签"
+            >{{ verifyResult.verifiedBefore }} 条</ElDescriptionsItem
+          >
+        </ElDescriptions>
+      </ElDialog>
 
       <ElDialog v-model="detailVisible" title="日志详情" width="640px" align-center>
         <ElDescriptions :column="1" border>
@@ -43,13 +67,16 @@
   import { h, ref } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
-  import { fetchOperLogPage } from '@/api/system-manage'
-  import { ElTag } from 'element-plus'
+  import { fetchOperLogPage, fetchOperLogVerify } from '@/api/system-manage'
+  import { ElMessage, ElTag } from 'element-plus'
 
   defineOptions({ name: 'OperLog' })
 
   const detailVisible = ref(false)
   const current = ref<Record<string, any>>({})
+  const verifyVisible = ref(false)
+  const verifyLoading = ref(false)
+  const verifyResult = ref<Record<string, any>>({})
 
   const {
     columns,
@@ -106,6 +133,20 @@
     current.value = row
     detailVisible.value = true
   }
+
+  /** 审计完整性验签：全量校验（不传 limit），检出篡改精确定位首个被篡改记录 */
+  const verify = async (): Promise<void> => {
+    verifyLoading.value = true
+    try {
+      verifyResult.value = (await fetchOperLogVerify()) ?? {}
+      verifyVisible.value = true
+      if (verifyResult.value.valid) {
+        ElMessage.success(verifyResult.value.message || '审计链完整')
+      }
+    } finally {
+      verifyLoading.value = false
+    }
+  }
 </script>
 
 <style scoped>
@@ -114,5 +155,9 @@
     overflow: auto;
     word-break: break-all;
     white-space: pre-wrap;
+  }
+
+  .verify-detail {
+    margin-top: 12px;
   }
 </style>

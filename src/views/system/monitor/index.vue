@@ -1,0 +1,200 @@
+<!-- 服务监控：关键指标卡片（数据源 /actuator/metrics，经 /api 代理，端点受 sys:monitor:list 鉴权）+ 在线数据库文档 -->
+<template>
+  <div class="monitor-page art-full-height">
+    <ElCard class="art-table-card">
+      <div class="monitor-toolbar">
+        <span class="monitor-title">服务监控</span>
+        <div>
+          <ElButton v-perm="'sys:monitor:db-doc'" :loading="docLoading" @click="openDbDoc" v-ripple
+            >数据库文档</ElButton
+          >
+          <ElButton :loading="loading" @click="loadAll" v-ripple>刷新</ElButton>
+        </div>
+      </div>
+
+      <div class="monitor-grid" v-loading="loading">
+        <ElCard v-for="card in cards" :key="card.title" shadow="never" class="monitor-card">
+          <div class="monitor-card-title">{{ card.title }}</div>
+          <div class="monitor-card-value">{{ card.value }}</div>
+          <ElProgress
+            v-if="card.percent !== undefined"
+            :percentage="card.percent"
+            :stroke-width="8"
+            :status="card.percent > 90 ? 'exception' : undefined"
+          />
+          <div class="monitor-card-sub">{{ card.sub }}</div>
+        </ElCard>
+      </div>
+
+      <ElDialog v-model="docVisible" title="数据库文档" width="820px" align-center>
+        <div class="monitor-docbar">
+          <ElButton size="small" type="primary" @click="downloadDoc" v-ripple
+            >下载 markdown</ElButton
+          >
+        </div>
+        <div class="monitor-doc">{{ dbDoc }}</div>
+      </ElDialog>
+    </ElCard>
+  </div>
+</template>
+
+<script setup lang="ts">
+  import { onMounted, ref } from 'vue'
+  import { ElMessage } from 'element-plus'
+  import { fetchActuatorMetric, fetchDbDoc } from '@/api/system-manage'
+
+  defineOptions({ name: 'ServerMonitor' })
+
+  interface MetricCard {
+    title: string
+    value: string
+    sub: string
+    percent?: number
+  }
+
+  const loading = ref(false)
+  const cards = ref<MetricCard[]>([])
+
+  const docVisible = ref(false)
+  const docLoading = ref(false)
+  const dbDoc = ref('')
+
+  /** 指标 measurements 中取指定统计量（缺省第一个） */
+  const measure = (metric: any, statistic?: string): number => {
+    const list = metric?.measurements ?? []
+    const hit = statistic ? list.find((m: any) => m.statistic === statistic) : list[0]
+    return hit?.value ?? 0
+  }
+
+  const loadAll = async (): Promise<void> => {
+    loading.value = true
+    try {
+      const [cpuCount, cpuUsage, memUsed, memMax, threads, uptime, httpReq] = await Promise.all([
+        fetchActuatorMetric('system.cpu.count'),
+        fetchActuatorMetric('process.cpu.usage'),
+        fetchActuatorMetric('jvm.memory.used'),
+        fetchActuatorMetric('jvm.memory.max'),
+        fetchActuatorMetric('jvm.threads.live'),
+        fetchActuatorMetric('process.uptime'),
+        fetchActuatorMetric('http.server.requests')
+      ])
+      const used = measure(memUsed)
+      const max = measure(memMax)
+      const cpu = measure(cpuUsage)
+      const uptimeSec = measure(uptime)
+      const hours = Math.floor(uptimeSec / 3600)
+      const minutes = Math.floor((uptimeSec % 3600) / 60)
+      cards.value = [
+        {
+          title: 'JVM 内存',
+          value: `${(used / 1048576).toFixed(0)} MB`,
+          sub: `上限 ${(max / 1048576).toFixed(0)} MB`,
+          percent: max > 0 ? Math.min(100, Math.round((used / max) * 100)) : 0
+        },
+        {
+          title: '进程 CPU',
+          value: `${(cpu * 100).toFixed(1)}%`,
+          sub: `系统核数 ${measure(cpuCount)}`,
+          percent: Math.min(100, Math.round(cpu * 100))
+        },
+        {
+          title: 'JVM 线程',
+          value: String(measure(threads)),
+          sub: '活跃线程数'
+        },
+        {
+          title: '运行时长',
+          value: `${hours}h ${minutes}m`,
+          sub: '进程启动至今'
+        },
+        {
+          title: 'HTTP 请求',
+          value: String(measure(httpReq, 'COUNT')),
+          sub: `累计总耗时 ${measure(httpReq, 'TOTAL_TIME').toFixed(1)}s / 单请求最大 ${measure(
+            httpReq,
+            'MAX'
+          ).toFixed(2)}s`
+        }
+      ]
+    } catch {
+      ElMessage.error('监控指标拉取失败（需 sys:monitor:list 权限）')
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const openDbDoc = async (): Promise<void> => {
+    docLoading.value = true
+    try {
+      dbDoc.value = (await fetchDbDoc()) ?? ''
+      docVisible.value = true
+    } finally {
+      docLoading.value = false
+    }
+  }
+
+  const downloadDoc = (): void => {
+    const blob = new Blob([dbDoc.value], { type: 'text/markdown;charset=utf-8' })
+    const a = document.createElement('a')
+    a.href = URL.createObjectURL(blob)
+    a.download = `数据库文档-${new Date().toISOString().slice(0, 10)}.md`
+    a.click()
+    URL.revokeObjectURL(a.href)
+  }
+
+  onMounted(loadAll)
+</script>
+
+<style scoped>
+  .monitor-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .monitor-title {
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .monitor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .monitor-card-title {
+    font-size: 13px;
+    color: var(--el-text-color-secondary);
+  }
+
+  .monitor-card-value {
+    margin: 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .monitor-card-sub {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+  }
+
+  .monitor-docbar {
+    margin-bottom: 12px;
+    text-align: right;
+  }
+
+  .monitor-doc {
+    max-height: 60vh;
+    padding: 12px;
+    overflow: auto;
+    font-family: monospace;
+    font-size: 12px;
+    word-break: break-all;
+    white-space: pre-wrap;
+    background: var(--el-fill-color-light);
+    border-radius: 6px;
+  }
+</style>
