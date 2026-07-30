@@ -44,6 +44,8 @@ let unauthorizedTimer: NodeJS.Timeout | null = null
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
   showErrorMessage?: boolean
   showSuccessMessage?: boolean
+  /** R 信封校验旁路：true 时响应拦截器跳过 code 校验、request 原样返回响应体（actuator 等裸 JSON 端点用） */
+  skipEnvelope?: boolean
 }
 
 /** 下载配置：filename 为解析不到 Content-Disposition 时的兜底文件名 */
@@ -133,6 +135,8 @@ axiosInstance.interceptors.response.use(
   (response: AxiosResponse<BaseResponse>) => {
     // 二进制下载响应跳过业务码校验，交由 download() 处理（blob 内可能是 JSON 错误）
     if (response.config.responseType === 'blob') return response
+    // 信封旁路：裸 JSON 端点（actuator/metrics 等无 R 信封）原样放行
+    if ((response.config as ExtendedAxiosRequestConfig).skipEnvelope) return response
     const { code, msg } = response.data
     if (code === ApiStatus.success) return response
     if (code === ApiStatus.unauthorized) handleUnauthorizedError(msg)
@@ -218,7 +222,8 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
       if (config.showSuccessMessage && res.data.msg) {
         showSuccess(res.data.msg)
       }
-      return res.data.data as T
+      // 信封旁路时响应体即数据（无 R 信封可拆）
+      return (config.skipEnvelope ? res.data : res.data.data) as T
     } catch (error) {
       // 取消（路由中断 / 去重）静默：不弹提示、不脏回填
       if (isCancelError(error)) {

@@ -211,9 +211,9 @@ export function fetchRemoveErrorLog(id: number | string) {
 }
 
 // ===== 服务监控 =====
-/** 拉取 actuator 指标明细（经 /api 代理转发；端点受 sys:monitor:list 鉴权，请求头自动携带 token） */
+/** 拉取 actuator 指标明细（经 /api 代理转发；端点受 sys:monitor:list 鉴权，请求头自动携带 token；裸 micrometer JSON 无 R 信封，走 skipEnvelope 旁路） */
 export function fetchActuatorMetric(name: string) {
-  return request.get<any>({ url: `/api/actuator/metrics/${name}` })
+  return request.get<any>({ url: `/api/actuator/metrics/${name}`, skipEnvelope: true })
 }
 /** 在线数据库文档 markdown（在线查看 + 下载） */
 export function fetchDbDoc() {
