@@ -27,7 +27,7 @@
         <ElInput
           v-model="formData.password"
           type="password"
-          placeholder="默认 123456"
+          placeholder="留空则为初始密码"
           show-password
         />
       </ElFormItem>

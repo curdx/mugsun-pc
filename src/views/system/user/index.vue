@@ -79,13 +79,13 @@
   }
 
   const resetPwd = (row: any): void => {
-    ElMessageBox.confirm(`确定重置用户"${row.username}"的密码为 123456 吗？`, '重置密码', {
+    ElMessageBox.confirm(`确定重置用户"${row.username}"的密码为初始密码吗？`, '重置密码', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
     }).then(async () => {
       await resetUserPassword([row.id])
-      ElMessage.success('密码已重置为 123456')
+      ElMessage.success('密码已重置为初始密码')
     })
   }
 
