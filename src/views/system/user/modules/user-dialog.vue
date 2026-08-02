@@ -46,6 +46,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
+  import { fetchUserDetail } from '@/api/user'
 
   interface Props {
     visible: boolean
@@ -79,12 +80,16 @@
   })
 
   const rules: FormRules = {
-    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
+    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+    phone: [{ pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }],
+    idCard: [
+      { pattern: /(^\d{15}$)|(^\d{17}[\dXx]$)/, message: '身份证号格式不正确', trigger: 'blur' }
+    ]
   }
 
   watch(
     () => [props.visible, props.userData],
-    ([visible]) => {
+    async ([visible]) => {
       if (visible) {
         Object.assign(
           formData,
@@ -99,6 +104,18 @@
           },
           props.userData || {}
         )
+        // 编辑态以 detail 回显（后端按角色裁决 明文/脱敏/不可见），分页行值可能是密文形态，直接回显回写会二次加密毁数据
+        if (props.type === 'edit' && props.userData?.id) {
+          try {
+            const detail = await fetchUserDetail(props.userData.id)
+            if (detail) {
+              formData.phone = detail.phone ?? ''
+              formData.idCard = detail.idCard ?? ''
+            }
+          } catch (e) {
+            console.error('[UserDialog] fetch detail failed:', e)
+          }
+        }
         nextTick(() => formRef.value?.clearValidate())
       }
     },

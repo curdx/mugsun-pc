@@ -86,6 +86,7 @@
   import { useUserStore } from '@/store/modules/user'
   import { fetchUpdateInfo, fetchUpdatePassword } from '@/api/system-manage'
   import { fetchSocialRender, fetchSocialUnbind } from '@/api/auth'
+  import { encryptPassword } from '@/utils/gm'
   import { ElMessage } from 'element-plus'
 
   defineOptions({ name: 'UserCenter' })
@@ -135,13 +136,17 @@
     await pwdRef.value.validate(async (valid) => {
       if (!valid) return
       await fetchUpdatePassword({
-        oldPassword: pwdForm.oldPassword,
-        newPassword: pwdForm.newPassword
+        oldPassword: await encryptPassword(pwdForm.oldPassword),
+        newPassword: await encryptPassword(pwdForm.newPassword)
       })
-      ElMessage.success('密码已修改')
+      ElMessage.success('密码已修改，请重新登录')
       pwdForm.oldPassword = ''
       pwdForm.newPassword = ''
       pwdForm.confirmPassword = ''
+      // 后端改密即全端下线，前端同步清理并回登录页
+      setTimeout(() => {
+        userStore.logOut()
+      }, 800)
     })
   }
 

@@ -99,7 +99,14 @@
               v-else-if="col.htmlType === 'select'"
               v-model="form[col.columnName]"
               style="width: 100%"
-            />
+            >
+              <ElOption
+                v-for="opt in dictOptions(col.dictType)"
+                :key="opt.value"
+                :label="opt.label"
+                :value="opt.value"
+              />
+            </ElSelect>
             <ElInput v-else v-model="form[col.columnName]" />
           </ElFormItem>
         </ElForm>
@@ -123,8 +130,11 @@
     fetchOnlineSave,
     fetchOnlineRemove
   } from '@/api/system-manage'
+  import { useDictStore } from '@/store/modules/dict'
 
   defineOptions({ name: 'OnlineForm' })
+
+  const dictStore = useDictStore()
 
   const forms = ref<any[]>([])
   const tableId = ref<any>(null)
@@ -140,11 +150,21 @@
   const queryColumns = computed(() => columns.value.filter((c) => isOne(c.isQuery)))
   const listColumns = computed(() => columns.value.filter((c) => isOne(c.isList)))
   const formColumns = computed(() => columns.value.filter((c) => isOne(c.isEdit)))
+  // select 控件字典项（无 dictType 时为空数组，select 无可选项）
+  const dictOptions = (dictType?: string): Array<{ label: string; value: any }> =>
+    dictType
+      ? dictStore.getItems(dictType).map((it: any) => ({ label: it.dictValue, value: it.dictKey }))
+      : []
 
   // 切换表单：重取元数据（改配置即时生效、零发布）
   const onSelect = async (): Promise<void> => {
     const meta = await fetchOnlineMeta(tableId.value)
     columns.value = meta?.columns || []
+    // select 控件按元数据 dictType 拉取字典项（按需加载，store 并发去重）
+    const dictCodes = columns.value
+      .filter((c) => c.htmlType === 'select' && c.dictType)
+      .map((c) => c.dictType)
+    if (dictCodes.length) dictStore.ensure(dictCodes)
     Object.keys(query).forEach((k) => delete query[k])
     pagination.current = 1
     await load()

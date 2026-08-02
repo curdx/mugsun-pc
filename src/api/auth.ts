@@ -52,12 +52,14 @@ export function fetchGetUserInfo() {
   })
 }
 
-/** 自助注册 */
+/** 自助注册（密码 SM2 传输，图形验证码防批量注册） */
 export function fetchRegister(data: {
   username: string
   password: string
   nickname?: string
   phone?: string
+  captchaUuid: string
+  captchaCode: string
 }) {
   return request.post<null>({ url: '/api/auth/register', data })
 }
@@ -67,8 +69,13 @@ export function fetchSmsCode(phone: string) {
   return request.post<{ code?: string }>({ url: '/api/auth/sms-code', data: { phone } })
 }
 
-/** 短信登录：校验验证码换 token */
-export function fetchSmsLogin(data: { phone: string; code: string }) {
+/** 短信登录：校验验证码换 token（图形验证码前置，与账号登录同口径） */
+export function fetchSmsLogin(data: {
+  phone: string
+  code: string
+  captchaUuid: string
+  captchaCode: string
+}) {
   return request.post<Api.Auth.LoginResponse>({ url: '/api/auth/sms-login', data })
 }
 

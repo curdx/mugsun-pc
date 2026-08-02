@@ -50,7 +50,10 @@
   const username = ref('')
   const loading = ref(false)
 
-  const register = async () => {}
+  const register = async () => {
+    // 找回流程暂未开放（需先接实名核验通道），明确反馈替代空函数死胡同
+    ElMessage.info('找回密码暂未开放，请联系管理员重置')
+  }
 
   const toLogin = () => {
     router.push({ name: 'Login' })

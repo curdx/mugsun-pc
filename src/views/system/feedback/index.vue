@@ -46,10 +46,15 @@
           label: '附件',
           width: 160,
           formatter: (row: any) =>
-            row.attachUrl
+            row.attachUrl && /^https?:\/\//i.test(row.attachUrl)
               ? h(
                   'a',
-                  { href: row.attachUrl, target: '_blank', class: 'text-theme' },
+                  {
+                    href: row.attachUrl,
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                    class: 'text-theme'
+                  },
                   row.attachName || '查看附件'
                 )
               : '—'

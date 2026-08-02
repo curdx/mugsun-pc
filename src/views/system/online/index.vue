@@ -56,7 +56,11 @@
     ElMessageBox.confirm(`确定将「${row.nickname}」的该终端强制下线吗？`, '强制下线', {
       type: 'warning'
     }).then(async () => {
-      await fetchKickoutOnline(row.tokenValue)
+      await fetchKickoutOnline({
+        loginId: row.loginId,
+        deviceType: row.deviceType,
+        tokenMask: row.tokenMask
+      })
       ElMessage.success('已强制下线')
       loadData()
     })

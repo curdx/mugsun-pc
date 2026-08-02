@@ -574,9 +574,13 @@ export function fetchLoginLogPage(params: Record<string, any>) {
 export function fetchOnlineList() {
   return request.get<any[]>({ url: '/api/system/online/list' })
 }
-/** 强制下线：按 tokenValue 踢单端 */
-export function fetchKickoutOnline(tokenValue: string) {
-  return request.post<void>({ url: '/api/system/online/kickout', data: { tokenValue } })
+/** 强制下线：按 loginId+deviceType(+tokenMask) 踢单端（服务端解析真实 token，前端不持明文） */
+export function fetchKickoutOnline(data: {
+  loginId: string
+  deviceType?: string
+  tokenMask?: string
+}) {
+  return request.post<void>({ url: '/api/system/online/kickout', data })
 }
 
 // ===== API 密钥 =====

@@ -73,13 +73,34 @@
     set: (value) => emit('update:visible', value)
   })
 
-  // 上级菜单选项：菜单树扁平化（按层级缩进）
+  // 上级菜单选项：菜单树扁平化（按层级缩进）；编辑态剔除自身及全部后代（防父级成环致子树蒸发）
   const menuOptions = computed(() => {
+    const selfId = formData.id
+    const exclude = new Set<any>()
+    if (selfId != null) {
+      const mark = (nodes: any[]) => {
+        ;(nodes || []).forEach((node) => {
+          if (node.id === selfId) {
+            const all = (ns: any[]) =>
+              ns.forEach((n) => {
+                exclude.add(n.id)
+                if (n.children?.length) all(n.children)
+              })
+            all([node])
+          } else if (node.children?.length) {
+            mark(node.children)
+          }
+        })
+      }
+      mark(props.menuTree || [])
+    }
     const out: Array<{ label: string; value: any }> = []
     const walk = (nodes: any[], prefix: string) => {
       ;(nodes || []).forEach((node) => {
-        out.push({ label: prefix + node.menuName, value: node.id })
-        if (node.children?.length) walk(node.children, prefix + '　')
+        if (!exclude.has(node.id)) {
+          out.push({ label: prefix + node.menuName, value: node.id })
+          if (node.children?.length) walk(node.children, prefix + '　')
+        }
       })
     }
     walk(props.menuTree || [], '')

@@ -53,8 +53,27 @@
                 class="custom-height"
                 v-model.trim="formData.phone"
                 placeholder="请输入手机号（选填，可用于短信登录）"
-                @keyup.enter="register"
+                maxlength="11"
               />
+            </ElFormItem>
+
+            <ElFormItem prop="captchaCode">
+              <div class="flex w-full gap-2">
+                <ElInput
+                  class="custom-height"
+                  v-model.trim="formData.captchaCode"
+                  placeholder="请输入图形验证码"
+                  maxlength="4"
+                  @keyup.enter="register"
+                />
+                <img
+                  v-if="captchaImage"
+                  :src="captchaImage"
+                  class="captcha-img"
+                  alt="验证码"
+                  @click="loadCaptcha"
+                />
+              </div>
             </ElFormItem>
 
             <ElFormItem prop="agreement">
@@ -96,7 +115,8 @@
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
-  import { fetchRegister } from '@/api/auth'
+  import { fetchRegister, fetchCaptcha } from '@/api/auth'
+  import { encryptPassword } from '@/utils/gm'
 
   defineOptions({ name: 'Register' })
 
@@ -105,6 +125,7 @@
     password: string
     confirmPassword: string
     phone: string
+    captchaCode: string
     agreement: boolean
   }
 
@@ -129,8 +150,24 @@
     password: '',
     confirmPassword: '',
     phone: '',
+    captchaCode: '',
     agreement: false
   })
+
+  // 图形验证码（防批量注册，与登录同机制）
+  const captchaImage = ref('')
+  const captchaUuid = ref('')
+  const loadCaptcha = async () => {
+    try {
+      const data = await fetchCaptcha()
+      captchaImage.value = data.captchaImage
+      captchaUuid.value = data.captchaUuid
+      formData.captchaCode = ''
+    } catch (error) {
+      console.error('[Register] load captcha failed:', error)
+    }
+  }
+  onMounted(loadCaptcha)
 
   /**
    * 验证密码
@@ -198,6 +235,8 @@
       { min: PASSWORD_MIN_LENGTH, message: t('register.rule.passwordLength'), trigger: 'blur' }
     ],
     confirmPassword: [{ required: true, validator: validateConfirmPassword, trigger: 'blur' }],
+    phone: [{ pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }],
+    captchaCode: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
     agreement: [{ validator: validateAgreement, trigger: 'change' }]
   }))
 
@@ -213,15 +252,18 @@
       loading.value = true
       await fetchRegister({
         username: formData.username,
-        password: formData.password,
+        password: await encryptPassword(formData.password),
         nickname: formData.username,
-        phone: formData.phone || undefined
+        phone: formData.phone || undefined,
+        captchaUuid: captchaUuid.value,
+        captchaCode: formData.captchaCode
       })
       ElMessage.success('注册成功，请登录')
       loading.value = false
       router.push({ name: 'Login' })
     } catch (error) {
       console.error('注册失败:', error)
+      loadCaptcha()
       loading.value = false
     }
   }

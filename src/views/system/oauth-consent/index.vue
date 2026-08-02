@@ -80,12 +80,15 @@
     }
   })
 
+  /** 跳转协议白名单：仅 http(s)（防 javascript: 伪协议经 location.href 在本源执行脚本） */
+  const safeRedirect = (uri: string): string | null => (/^https?:\/\//i.test(uri) ? uri : null)
+
   const approve = async () => {
     submitting.value = true
     try {
       const p = q()
       const resp = await fetchOauthAuthorizeConfirm(p)
-      const redirect = p.redirectUri
+      const redirect = safeRedirect(p.redirectUri || '')
       if (redirect) {
         const sep = redirect.includes('?') ? '&' : '?'
         const statePart = p.state ? `&state=${encodeURIComponent(p.state)}` : ''
@@ -103,10 +106,11 @@
 
   const deny = () => {
     const { redirectUri, state } = q()
-    if (redirectUri) {
-      const sep = redirectUri.includes('?') ? '&' : '?'
+    const safe = safeRedirect(redirectUri || '')
+    if (safe) {
+      const sep = safe.includes('?') ? '&' : '?'
       const statePart = state ? `&state=${encodeURIComponent(state)}` : ''
-      window.location.href = `${redirectUri}${sep}error=access_denied${statePart}`
+      window.location.href = `${safe}${sep}error=access_denied${statePart}`
     } else {
       router.push('/')
     }

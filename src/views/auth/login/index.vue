@@ -119,6 +119,23 @@
                 </ElButton>
               </div>
             </ElFormItem>
+            <ElFormItem prop="captchaCode">
+              <div class="flex w-full gap-2">
+                <ElInput
+                  class="custom-height"
+                  placeholder="请输入图形验证码"
+                  v-model.trim="smsForm.captchaCode"
+                  maxlength="4"
+                />
+                <img
+                  v-if="captchaImage"
+                  :src="captchaImage"
+                  class="captcha-img"
+                  alt="验证码"
+                  @click="loadCaptcha"
+                />
+              </div>
+            </ElFormItem>
 
             <div style="margin-top: 30px">
               <ElButton
@@ -133,7 +150,7 @@
             </div>
           </ElForm>
 
-          <div class="social-login">
+          <div class="social-login" v-if="showMockSocial">
             <ElDivider>第三方登录</ElDivider>
             <ElButton class="w-full custom-height" @click="handleSocialLogin('mock')" v-ripple>
               模拟第三方登录
@@ -185,6 +202,8 @@
 
   const systemName = AppConfig.systemInfo.name
   const formRef = ref<FormInstance>()
+  // mock 社交登录按钮仅 dev 展示（mock 来源身份固定，生产构建绝不出现）
+  const showMockSocial = import.meta.env.DEV
 
   const captchaImage = ref('')
 
@@ -207,16 +226,23 @@
   // ===== 短信登录 =====
   const loginType = ref<'account' | 'sms'>('account')
   const smsFormRef = ref<FormInstance>()
-  const smsForm = reactive({ phone: '', code: '' })
+  const smsForm = reactive({ phone: '', code: '', captchaCode: '' })
   const smsRules = computed<FormRules>(() => ({
     phone: [
       { required: true, message: '请输入手机号', trigger: 'blur' },
       { pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }
     ],
-    code: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }]
+    code: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }],
+    captchaCode: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }]
   }))
   const smsCountdown = ref(0)
   let smsTimer: ReturnType<typeof setInterval> | null = null
+
+  // 切换登录方式刷新图形验证码（一次性即焚，两 Tab 共用同一 captcha 状态）
+  watch(loginType, () => {
+    loadCaptcha()
+    smsForm.captchaCode = ''
+  })
 
   // 存储 token 并跳转（账号/短信登录共用）
   const applyToken = (token?: string, refreshToken?: string) => {
@@ -274,9 +300,17 @@
       const valid = await smsFormRef.value.validate()
       if (!valid) return
       loading.value = true
-      const resp = await fetchSmsLogin({ phone: smsForm.phone, code: smsForm.code })
+      const resp = await fetchSmsLogin({
+        phone: smsForm.phone,
+        code: smsForm.code,
+        captchaUuid: formData.captchaUuid,
+        captchaCode: smsForm.captchaCode
+      })
       applyToken(resp.token, resp.refreshToken)
     } catch (error) {
+      // 失败刷新图形验证码（答案已在后端消费）
+      loadCaptcha()
+      smsForm.captchaCode = ''
       if (!(error instanceof HttpError)) {
         console.error('[Login] sms login error:', error)
       }
@@ -302,8 +336,11 @@
   }
 
   onMounted(() => {
-    formData.username = 'admin'
-    formData.password = '123456'
+    // 仅开发环境预填演示账号（生产构建绝不携带默认凭据）
+    if (import.meta.env.DEV) {
+      formData.username = 'admin'
+      formData.password = '123456'
+    }
     loadCaptcha()
   })
 

@@ -2,12 +2,16 @@
 import { sm2 } from 'sm-crypto'
 import { fetchSm2PublicKey } from '@/api/auth'
 
-let cache: { gmEnabled: boolean; publicKey: string | null } | null = null
+let cache: { gmEnabled: boolean; publicKey: string | null; at: number } | null = null
 
-/** 取国密配置（公钥 + 开关），进程内缓存 */
+/** 公钥缓存 TTL：后端未配固定密钥时重启即换钥，缓存带时限避免长期持旧钥 */
+const CACHE_TTL = 10 * 60 * 1000
+
+/** 取国密配置（公钥 + 开关），进程内限时缓存 */
 async function gmConfig(): Promise<{ gmEnabled: boolean; publicKey: string | null }> {
-  if (!cache) {
-    cache = await fetchSm2PublicKey()
+  if (!cache || Date.now() - cache.at > CACHE_TTL) {
+    const cfg = await fetchSm2PublicKey()
+    cache = { ...cfg, at: Date.now() }
   }
   return cache
 }
