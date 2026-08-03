@@ -66,6 +66,8 @@ declare namespace Api {
     interface LoginParams {
       username: string
       password: string
+      /** 租户编号（多租户登录；缺省平台租户） */
+      tenantId?: string
       captchaUuid?: string
       captchaCode?: string
     }

@@ -43,6 +43,16 @@
               />
             </ElFormItem>
 
+            <!-- 租户编号（多租户登录；留空为平台租户） -->
+            <ElFormItem prop="tenantId">
+              <ElInput
+                class="custom-height"
+                placeholder="租户编号（留空为平台租户）"
+                v-model.trim="formData.tenantId"
+                maxlength="12"
+              />
+            </ElFormItem>
+
             <!-- 图形验证码 -->
             <ElFormItem prop="captchaCode">
               <div class="flex w-full gap-2">
@@ -210,6 +220,7 @@
   const formData = reactive({
     username: '',
     password: '',
+    tenantId: '',
     captchaUuid: '',
     captchaCode: '',
     rememberPassword: true
@@ -356,11 +367,12 @@
       loading.value = true
 
       // 登录请求
-      const { username, password, captchaUuid, captchaCode } = formData
+      const { username, password, tenantId, captchaUuid, captchaCode } = formData
 
       const resp = await fetchLogin({
         username,
         password: await encryptPassword(password),
+        tenantId: tenantId || undefined,
         captchaUuid,
         captchaCode
       })
