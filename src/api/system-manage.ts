@@ -23,6 +23,10 @@ export function fetchRemoveDept(ids: (number | string)[] | number | string) {
 export function fetchGetPostList(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/post/page', params })
 }
+/** 岗位下拉选项（value=id / label=岗位名） */
+export function fetchPostSelect() {
+  return request.get<Array<{ label: string; value: number }>>({ url: '/api/system/post/select' })
+}
 export function fetchSavePost(data: Record<string, any>) {
   return request.post<void>({ url: '/api/system/post/submit', data })
 }

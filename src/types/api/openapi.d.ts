@@ -4,22 +4,6 @@
  */
 
 export interface paths {
-  '/product/update': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put: operations['update']
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/system/workbench/shortcuts': {
     parameters: {
       query?: never
@@ -141,7 +125,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['update_1']
+    post: operations['update']
     delete?: never
     options?: never
     head?: never
@@ -644,7 +628,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/oauth-client/save': {
+  '/system/online/kickout': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['kickout']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/online-form/save': {
     parameters: {
       query?: never
       header?: never
@@ -654,6 +654,38 @@ export interface paths {
     get?: never
     put?: never
     post: operations['save_1']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/online-form/remove': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['remove_12']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/oauth-client/save': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['save_2']
     delete?: never
     options?: never
     head?: never
@@ -685,7 +717,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_12']
+    post: operations['remove_13']
     delete?: never
     options?: never
     head?: never
@@ -724,7 +756,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/notice/submit': {
+  '/system/notify/template/submit': {
     parameters: {
       query?: never
       header?: never
@@ -740,6 +772,70 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/notify/template/remove': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['remove_14']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/channel/submit': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['submit_13']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/channel/remove': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['remove_15']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notice/submit': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['submit_14']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/notice/remove': {
     parameters: {
       query?: never
@@ -749,7 +845,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_13']
+    post: operations['remove_16']
     delete?: never
     options?: never
     head?: never
@@ -797,7 +893,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_14']
+    post: operations['remove_17']
     delete?: never
     options?: never
     head?: never
@@ -845,7 +941,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_13']
+    post: operations['submit_15']
     delete?: never
     options?: never
     head?: never
@@ -861,7 +957,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_15']
+    post: operations['remove_18']
     delete?: never
     options?: never
     head?: never
@@ -877,7 +973,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_14']
+    post: operations['submit_16']
     delete?: never
     options?: never
     head?: never
@@ -893,7 +989,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_16']
+    post: operations['remove_19']
     delete?: never
     options?: never
     head?: never
@@ -909,7 +1005,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_15']
+    post: operations['submit_17']
     delete?: never
     options?: never
     head?: never
@@ -941,7 +1037,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_17']
+    post: operations['remove_20']
     delete?: never
     options?: never
     head?: never
@@ -957,7 +1053,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['save_2']
+    post: operations['save_3']
     delete?: never
     options?: never
     head?: never
@@ -1140,7 +1236,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/gen/preview': {
+  '/system/gen/sync': {
     parameters: {
       query?: never
       header?: never
@@ -1149,14 +1245,14 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['preview']
+    post: operations['sync']
     delete?: never
     options?: never
     head?: never
     patch?: never
     trace?: never
   }
-  '/system/gen/config/save': {
+  '/system/gen/meta/save': {
     parameters: {
       query?: never
       header?: never
@@ -1165,7 +1261,87 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['saveConfig']
+    post: operations['saveMeta']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/import': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['importTable']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/ddl/sync': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['syncDdl']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/ddl/create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['createTable']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/ai/draft': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['aiDraft']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/ai/confirm': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['aiConfirm']
     delete?: never
     options?: never
     head?: never
@@ -1181,7 +1357,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_16']
+    post: operations['submit_18']
     delete?: never
     options?: never
     head?: never
@@ -1213,7 +1389,119 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_18']
+    post: operations['remove_21']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/task/terminate/{taskId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['terminate']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/task/revoke/{instanceId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['revoke']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/task/reject/{taskId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['reject']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/task/reject-node/{taskId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['rejectNode']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/task/operation/{taskId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['operation']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/task/handle/{taskId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['handle']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/task/copy/{taskId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['copy']
     delete?: never
     options?: never
     head?: never
@@ -1252,38 +1540,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/flow/reject/{taskId}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post: operations['reject']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/system/flow/handle/{taskId}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post: operations['handle']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/system/flow/design': {
     parameters: {
       query?: never
@@ -1300,6 +1556,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/flow/design-graph': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['designGraph']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/flow/deploy': {
     parameters: {
       query?: never
@@ -1310,6 +1582,102 @@ export interface paths {
     get?: never
     put?: never
     post: operations['deploy']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/definition/unpublish/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['unpublishDefinition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/definition/suspend/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['suspendDefinition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/definition/remove': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['removeDefinition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/definition/publish/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['publishDefinition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/definition/copy/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['copyDefinition']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/definition/active/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['activeDefinition']
     delete?: never
     options?: never
     head?: never
@@ -1341,7 +1709,39 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_19']
+    post: operations['remove_22']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/file/presigned-put': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['presignedPut']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/file/create': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['create_1']
     delete?: never
     options?: never
     head?: never
@@ -1357,7 +1757,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_17']
+    post: operations['submit_19']
     delete?: never
     options?: never
     head?: never
@@ -1389,7 +1789,23 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_20']
+    post: operations['remove_23']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/error-log/handle': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['handle_1']
     delete?: never
     options?: never
     head?: never
@@ -1405,7 +1821,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_18']
+    post: operations['submit_20']
     delete?: never
     options?: never
     head?: never
@@ -1421,7 +1837,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_21']
+    post: operations['remove_24']
     delete?: never
     options?: never
     head?: never
@@ -1453,7 +1869,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_19']
+    post: operations['submit_21']
     delete?: never
     options?: never
     head?: never
@@ -1469,7 +1885,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_22']
+    post: operations['remove_25']
     delete?: never
     options?: never
     head?: never
@@ -1485,7 +1901,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_20']
+    post: operations['submit_22']
     delete?: never
     options?: never
     head?: never
@@ -1501,7 +1917,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_23']
+    post: operations['remove_26']
     delete?: never
     options?: never
     head?: never
@@ -1517,7 +1933,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_21']
+    post: operations['submit_23']
     delete?: never
     options?: never
     head?: never
@@ -1533,7 +1949,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_24']
+    post: operations['remove_27']
     delete?: never
     options?: never
     head?: never
@@ -1556,6 +1972,70 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/client/save': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['save_4']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/client/remove': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['remove_28']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/client/enable/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['enable_4']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/client/disable/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['disable_2']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/changelog/submit': {
     parameters: {
       query?: never
@@ -1565,7 +2045,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_22']
+    post: operations['submit_24']
     delete?: never
     options?: never
     head?: never
@@ -1581,7 +2061,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_25']
+    post: operations['remove_29']
     delete?: never
     options?: never
     head?: never
@@ -1597,7 +2077,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_26']
+    post: operations['remove_30']
     delete?: never
     options?: never
     head?: never
@@ -1629,7 +2109,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['remove_27']
+    post: operations['remove_31']
     delete?: never
     options?: never
     head?: never
@@ -1661,7 +2141,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['enable_4']
+    post: operations['enable_5']
     delete?: never
     options?: never
     head?: never
@@ -1677,23 +2157,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['disable_2']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/product/save': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post: operations['save_3']
+    post: operations['disable_3']
     delete?: never
     options?: never
     head?: never
@@ -1732,7 +2196,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/oauth2/authorize': {
+  '/oauth2/revoke': {
     parameters: {
       query?: never
       header?: never
@@ -1741,7 +2205,39 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['authorize']
+    post: operations['revoke_1']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/oauth2/introspect': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['introspect']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/oauth2/authorize/confirm': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['authorizeConfirm']
     delete?: never
     options?: never
     head?: never
@@ -1796,6 +2292,38 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/auth/switch-tenant/{tenantId}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['switchTenant']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/switch-tenant/reset': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['switchTenantReset']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/auth/social/login': {
     parameters: {
       query?: never
@@ -1822,22 +2350,6 @@ export interface paths {
     get?: never
     put?: never
     post: operations['socialBind']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/auth/sms/verify': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post: operations['verify_1']
     delete?: never
     options?: never
     head?: never
@@ -2347,7 +2859,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['preview_1']
+    get: operations['preview']
     put?: never
     post?: never
     delete?: never
@@ -2580,6 +3092,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/oper-log/verify': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['verify_1']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/oper-log/page': {
     parameters: {
       query?: never
@@ -2612,7 +3140,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/oauth-log/page': {
+  '/system/online/list': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['list_4']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/online-form/page': {
     parameters: {
       query?: never
       header?: never
@@ -2628,7 +3172,55 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/oauth-client/page': {
+  '/system/online-form/meta': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['meta']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/online-form/forms': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['forms']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/online-form/detail': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['detail_11']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/oauth-log/page': {
     parameters: {
       query?: never
       header?: never
@@ -2636,6 +3228,118 @@ export interface paths {
       cookie?: never
     }
     get: operations['page_10']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/oauth-client/page': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['page_11']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/template/page': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['page_12']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/template/detail': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['detail_12']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/record/page': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['page_13']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/record/detail': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['detail_13']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/channel/page': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['page_14']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/notify/channel/detail': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['detail_14']
     put?: never
     post?: never
     delete?: never
@@ -2683,7 +3387,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_11']
+    get: operations['page_15']
     put?: never
     post?: never
     delete?: never
@@ -2731,7 +3435,23 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_11']
+    get: operations['detail_15']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/monitor/db-doc': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['dbDoc']
     put?: never
     post?: never
     delete?: never
@@ -2795,7 +3515,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_12']
+    get: operations['page_16']
     put?: never
     post?: never
     delete?: never
@@ -2811,7 +3531,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['list_4']
+    get: operations['list_5']
     put?: never
     post?: never
     delete?: never
@@ -2827,7 +3547,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_12']
+    get: operations['detail_16']
     put?: never
     post?: never
     delete?: never
@@ -2859,7 +3579,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_13']
+    get: operations['detail_17']
     put?: never
     post?: never
     delete?: never
@@ -2875,7 +3595,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_13']
+    get: operations['page_17']
     put?: never
     post?: never
     delete?: never
@@ -2891,7 +3611,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_14']
+    get: operations['detail_18']
     put?: never
     post?: never
     delete?: never
@@ -2907,7 +3627,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_14']
+    get: operations['page_18']
     put?: never
     post?: never
     delete?: never
@@ -2939,7 +3659,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['list_5']
+    get: operations['list_6']
     put?: never
     post?: never
     delete?: never
@@ -3060,6 +3780,86 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/gen/preview-meta': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['previewMeta']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/meta': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['meta_1']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/list': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['list_7']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/download': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['download']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/gen/ddl/preview': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['previewDdl']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/gen/datasource': {
     parameters: {
       query?: never
@@ -3076,38 +3876,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/gen/config': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get: operations['config']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/system/gen/columns': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get: operations['columns']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/system/form/page': {
     parameters: {
       query?: never
@@ -3115,7 +3883,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_15']
+    get: operations['page_19']
     put?: never
     post?: never
     delete?: never
@@ -3131,7 +3899,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_15']
+    get: operations['detail_19']
     put?: never
     post?: never
     delete?: never
@@ -3172,6 +3940,54 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/flow/task-buttons': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['taskButtons']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/progress': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['progress']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/next-approvers': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['nextApprovers']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/flow/my-todo': {
     parameters: {
       query?: never
@@ -3180,6 +3996,54 @@ export interface paths {
       cookie?: never
     }
     get: operations['myTodo']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/my-started': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['myStarted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/my-done': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['myDone']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/my-copy': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['myCopy']
     put?: never
     post?: never
     delete?: never
@@ -3220,6 +4084,54 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/flow/form/task': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['taskForm']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/form/start': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['startForm']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/flow/form/instance': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['instanceForm']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/flow/definitions': {
     parameters: {
       query?: never
@@ -3236,6 +4148,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/flow/back-nodes': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['backNodes']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/file/list': {
     parameters: {
       query?: never
@@ -3243,7 +4171,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['list_6']
+    get: operations['list_8']
     put?: never
     post?: never
     delete?: never
@@ -3259,7 +4187,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['download']
+    get: operations['download_1']
     put?: never
     post?: never
     delete?: never
@@ -3291,7 +4219,39 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_16']
+    get: operations['page_20']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/error-log/page': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['page_21']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/error-log/detail': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['detail_20']
     put?: never
     post?: never
     delete?: never
@@ -3339,7 +4299,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_16']
+    get: operations['detail_21']
     put?: never
     post?: never
     delete?: never
@@ -3387,7 +4347,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_17']
+    get: operations['detail_22']
     put?: never
     post?: never
     delete?: never
@@ -3435,7 +4395,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_18']
+    get: operations['detail_23']
     put?: never
     post?: never
     delete?: never
@@ -3451,7 +4411,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_17']
+    get: operations['page_22']
     put?: never
     post?: never
     delete?: never
@@ -3467,7 +4427,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_19']
+    get: operations['detail_24']
     put?: never
     post?: never
     delete?: never
@@ -3483,7 +4443,23 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_18']
+    get: operations['page_23']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/client/page': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['page_24']
     put?: never
     post?: never
     delete?: never
@@ -3515,7 +4491,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_19']
+    get: operations['page_25']
     put?: never
     post?: never
     delete?: never
@@ -3531,7 +4507,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['detail_20']
+    get: operations['detail_25']
     put?: never
     post?: never
     delete?: never
@@ -3588,6 +4564,38 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/api-log/page': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['page_26']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/api-log/detail': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['detail_26']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/api-key/page': {
     parameters: {
       query?: never
@@ -3595,55 +4603,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_20']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/product/page': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get: operations['page_21']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/product/list': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get: operations['list_7']
-    put?: never
-    post?: never
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-  '/product/getInfo/{id}': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get: operations['getInfo']
+    get: operations['page_27']
     put?: never
     post?: never
     delete?: never
@@ -3716,6 +4676,86 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/oauth2/authorize': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['authorize']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/oauth2/authorize/info': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['authorizeInfo']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/social/render/{source}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['socialRender']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/social/mock-authorize': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['socialMockAuthorize']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/sm2-public-key': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['sm2PublicKey']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/auth/info': {
     parameters: {
       query?: never
@@ -3748,7 +4788,7 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/product/remove/{id}': {
+  '/system/error-log/remove': {
     parameters: {
       query?: never
       header?: never
@@ -3758,7 +4798,23 @@ export interface paths {
     get?: never
     put?: never
     post?: never
-    delete: operations['remove_28']
+    delete: operations['remove_32']
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/social/unbind/{source}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post?: never
+    delete: operations['socialUnbind']
     options?: never
     head?: never
     patch?: never
@@ -3768,20 +4824,6 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
-    Product: {
-      /** Format: int64 */
-      id?: number
-      productName?: string
-      price?: number
-      /** Format: int32 */
-      stock?: number
-      /** Format: date-time */
-      createTime?: string
-      /** Format: date-time */
-      updateTime?: string
-      /** Format: int32 */
-      isDeleted?: number
-    }
     RVoid: {
       /** Format: int32 */
       code?: number
@@ -3809,8 +4851,13 @@ export interface components {
       /** Format: int64 */
       postId?: number
       tenantId?: string
+      email?: string
       phone?: string
       idCard?: string
+      deptName?: string
+      postName?: string
+      roleNames?: string
+      roleIds?: number[]
     }
     StatusParam: {
       /** Format: int64 */
@@ -3840,6 +4887,10 @@ export interface components {
       expireTime?: string
       /** Format: int64 */
       packageId?: number
+      /** Format: int32 */
+      status?: number
+      /** Format: int32 */
+      accountCount?: number
     }
     RString: {
       /** Format: int32 */
@@ -3877,6 +4928,9 @@ export interface components {
       dsUrl?: string
       dsUsername?: string
       dsPassword?: string
+      /** Format: int32 */
+      isolationType?: number
+      schemaName?: string
       /** Format: int32 */
       status?: number
       remark?: string
@@ -3961,6 +5015,7 @@ export interface components {
       sort?: number
       /** Format: int32 */
       dataScope?: number
+      customSql?: string
       tenantId?: string
       deptIds?: number[]
     }
@@ -4082,6 +5137,7 @@ export interface components {
       /** Format: int32 */
       status?: number
       remark?: string
+      tenantId?: string
     }
     RSysOauthClient: {
       /** Format: int32 */
@@ -4090,6 +5146,42 @@ export interface components {
       data?: components['schemas']['SysOauthClient']
       msg?: string
       dataType?: string
+    }
+    SysNotifyTemplate: {
+      /** Format: int64 */
+      id?: number
+      /** Format: date-time */
+      createTime?: string
+      /** Format: date-time */
+      updateTime?: string
+      /** Format: int32 */
+      isDeleted?: number
+      code?: string
+      name?: string
+      subject?: string
+      content?: string
+      requiredParams?: string
+      channels?: string
+      /** Format: int32 */
+      status?: number
+      remark?: string
+    }
+    SysNotifyChannel: {
+      /** Format: int64 */
+      id?: number
+      /** Format: date-time */
+      createTime?: string
+      /** Format: date-time */
+      updateTime?: string
+      /** Format: int32 */
+      isDeleted?: number
+      channel?: string
+      name?: string
+      /** Format: int32 */
+      status?: number
+      config?: string
+      secret?: string
+      remark?: string
     }
     NoticeScopeItem: {
       /** Format: int32 */
@@ -4257,22 +5349,44 @@ export interface components {
       /** Format: int32 */
       sort?: number
     }
-    GenParam: {
-      tableName?: string
-      basePackage?: string
-      tablePrefix?: string
-    }
-    RMapStringString: {
+    GenColumn: {
+      /** Format: int64 */
+      id?: number
+      /** Format: date-time */
+      createTime?: string
+      /** Format: date-time */
+      updateTime?: string
       /** Format: int32 */
-      code?: number
-      success?: boolean
-      data?: {
-        [key: string]: string
-      }
-      msg?: string
-      dataType?: string
+      isDeleted?: number
+      /** Format: int64 */
+      tableId?: number
+      columnName?: string
+      columnNameOld?: string
+      columnComment?: string
+      columnType?: string
+      javaType?: string
+      javaField?: string
+      /** Format: int32 */
+      isPk?: number
+      /** Format: int32 */
+      isIncrement?: number
+      /** Format: int32 */
+      isRequired?: number
+      /** Format: int32 */
+      isInsert?: number
+      /** Format: int32 */
+      isEdit?: number
+      /** Format: int32 */
+      isList?: number
+      /** Format: int32 */
+      isQuery?: number
+      queryType?: string
+      htmlType?: string
+      dictType?: string
+      /** Format: int32 */
+      sort?: number
     }
-    GenConfig: {
+    GenTable: {
       /** Format: int64 */
       id?: number
       /** Format: date-time */
@@ -4282,8 +5396,51 @@ export interface components {
       /** Format: int32 */
       isDeleted?: number
       tableName?: string
+      tableComment?: string
+      entityName?: string
+      moduleName?: string
+      businessName?: string
+      functionName?: string
+      functionAuthor?: string
       basePackage?: string
       tablePrefix?: string
+      genType?: string
+      /** Format: int64 */
+      parentMenuId?: number
+      options?: string
+      tplCategory?: string
+      treeParentField?: string
+      subTableName?: string
+      subJoinField?: string
+    }
+    MetaSaveParam: {
+      table?: components['schemas']['GenTable']
+      columns?: components['schemas']['GenColumn'][]
+    }
+    ImportParam: {
+      tableName?: string
+      moduleName?: string
+      basePackage?: string
+      tablePrefix?: string
+      author?: string
+    }
+    DraftParam: {
+      description?: string
+    }
+    RMapStringObject: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: {
+        [key: string]: unknown
+      }
+      msg?: string
+      dataType?: string
+    }
+    ConfirmParam: {
+      table?: components['schemas']['GenTable']
+      columns?: components['schemas']['GenColumn'][]
+      build?: boolean
     }
     SysForm: {
       /** Format: int64 */
@@ -4302,14 +5459,74 @@ export interface components {
       status?: number
       remark?: string
     }
+    ActionParam: {
+      message?: string
+      variable?: {
+        [key: string]: unknown
+      }
+    }
+    RejectNodeParam: {
+      nodeCode?: string
+      message?: string
+    }
+    OperationParam: {
+      op?: string
+      handlers?: string[]
+      message?: string
+    }
+    CopyParam: {
+      userIds?: string[]
+    }
+    StartParam: {
+      handlers?: string[]
+      variable?: {
+        [key: string]: unknown
+      }
+    }
     FlowDesign: {
       flowCode?: string
       flowName?: string
+      formKey?: string
       nodes?: components['schemas']['FlowDesignNode'][]
     }
     FlowDesignNode: {
       name?: string
+      candidates?: string[]
       role?: string
+      nodeRatio?: string
+      fieldPerms?: {
+        [key: string]: string
+      }
+    }
+    Branch: {
+      name?: string
+      conditions?: components['schemas']['Rule'][]
+      logic?: string
+      childNode?: components['schemas']['TreeNode']
+    }
+    GraphDesign: {
+      flowCode?: string
+      flowName?: string
+      category?: string
+      formKey?: string
+      root?: components['schemas']['TreeNode']
+    }
+    Rule: {
+      field?: string
+      op?: string
+      value?: string
+    }
+    TreeNode: {
+      type?: string
+      name?: string
+      candidates?: string[]
+      role?: string
+      nodeRatio?: string
+      fieldPerms?: {
+        [key: string]: string
+      }
+      branches?: components['schemas']['Branch'][]
+      childNode?: components['schemas']['TreeNode']
     }
     RSysAttach: {
       /** Format: int32 */
@@ -4340,6 +5557,33 @@ export interface components {
       platform?: string
       access?: string
       basePath?: string
+    }
+    PresignedPutParam: {
+      filename?: string
+      access?: string
+    }
+    PresignedPutResult: {
+      supported?: boolean
+      uploadUrl?: string
+      headers?: {
+        [key: string]: string
+      }
+      ticket?: string
+      /** Format: int64 */
+      expiresIn?: number
+    }
+    RPresignedPutResult: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PresignedPutResult']
+      msg?: string
+      dataType?: string
+    }
+    CreateParam: {
+      ticket?: string
+      /** Format: int64 */
+      size?: number
     }
     SysFeedback: {
       /** Format: int64 */
@@ -4447,15 +5691,26 @@ export interface components {
       phone?: string
       remark?: string
     }
-    RMapStringObject: {
+    SysClient: {
+      /** Format: int64 */
+      id?: number
+      /** Format: date-time */
+      createTime?: string
+      /** Format: date-time */
+      updateTime?: string
       /** Format: int32 */
-      code?: number
-      success?: boolean
-      data?: {
-        [key: string]: unknown
-      }
-      msg?: string
-      dataType?: string
+      isDeleted?: number
+      clientId?: string
+      clientName?: string
+      /** Format: int32 */
+      captchaEnabled?: number
+      /** Format: int32 */
+      maxOnline?: number
+      /** Format: int32 */
+      tokenTimeout?: number
+      /** Format: int32 */
+      status?: number
+      remark?: string
     }
     SysChangelog: {
       /** Format: int64 */
@@ -4504,19 +5759,6 @@ export interface components {
       msg?: string
       dataType?: string
     }
-    TokenRequest: {
-      grantType?: string
-      clientId?: string
-      clientSecret?: string
-      scope?: string
-      code?: string
-      redirectUri?: string
-    }
-    AuthorizeRequest: {
-      clientId?: string
-      scope?: string
-      redirectUri?: string
-    }
     UpdatePasswordDTO: {
       oldPassword?: string
       newPassword?: string
@@ -4524,19 +5766,13 @@ export interface components {
     UpdateInfoDTO: {
       nickname?: string
     }
-    RBoolean: {
-      /** Format: int32 */
-      code?: number
-      success?: boolean
-      data?: boolean
-      msg?: string
-      dataType?: string
-    }
     RegisterDTO: {
       username?: string
       password?: string
       nickname?: string
       phone?: string
+      captchaUuid?: string
+      captchaCode?: string
     }
     LoginDTO: {
       tenantId?: string
@@ -4544,6 +5780,7 @@ export interface components {
       password?: string
       captchaUuid?: string
       captchaCode?: string
+      clientId?: string
     }
     RListMapStringObject: {
       /** Format: int32 */
@@ -4966,12 +6203,61 @@ export interface components {
       /** Format: int32 */
       status?: number
       errorMsg?: string
+      tenantId?: string
+      prevHash?: string
+      recordHash?: string
+      sign?: string
     }
     RSysOperLog: {
       /** Format: int32 */
       code?: number
       success?: boolean
       data?: components['schemas']['SysOperLog']
+      msg?: string
+      dataType?: string
+    }
+    PageRow: {
+      records?: components['schemas']['Row'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageRow: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PageRow']
+      msg?: string
+      dataType?: string
+    }
+    RListGenTable: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['GenTable'][]
+      msg?: string
+      dataType?: string
+    }
+    RRow: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: {
+        primaryKeys?: components['schemas']['RowKey'][]
+        updates?: {
+          [key: string]: unknown
+        }
+        insertAttrs?: string[]
+        empty?: boolean
+      } & {
+        [key: string]: unknown
+      }
       msg?: string
       dataType?: string
     }
@@ -5029,6 +6315,117 @@ export interface components {
       code?: number
       success?: boolean
       data?: components['schemas']['PageSysOauthClient']
+      msg?: string
+      dataType?: string
+    }
+    PageSysNotifyTemplate: {
+      records?: components['schemas']['SysNotifyTemplate'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageSysNotifyTemplate: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PageSysNotifyTemplate']
+      msg?: string
+      dataType?: string
+    }
+    RSysNotifyTemplate: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['SysNotifyTemplate']
+      msg?: string
+      dataType?: string
+    }
+    PageSysNotifyRecord: {
+      records?: components['schemas']['SysNotifyRecord'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageSysNotifyRecord: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PageSysNotifyRecord']
+      msg?: string
+      dataType?: string
+    }
+    SysNotifyRecord: {
+      /** Format: int64 */
+      id?: number
+      /** Format: int64 */
+      batchId?: number
+      tenantId?: string
+      templateCode?: string
+      channel?: string
+      /** Format: int64 */
+      receiverId?: number
+      receiverContact?: string
+      subject?: string
+      content?: string
+      contentSummary?: string
+      status?: string
+      errorMsg?: string
+      /** Format: int64 */
+      costMs?: number
+      /** Format: int32 */
+      retryCount?: number
+      /** Format: date-time */
+      nextRetryTime?: string
+      /** Format: date-time */
+      createTime?: string
+      /** Format: date-time */
+      updateTime?: string
+    }
+    RSysNotifyRecord: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['SysNotifyRecord']
+      msg?: string
+      dataType?: string
+    }
+    PageSysNotifyChannel: {
+      records?: components['schemas']['SysNotifyChannel'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageSysNotifyChannel: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PageSysNotifyChannel']
+      msg?: string
+      dataType?: string
+    }
+    RSysNotifyChannel: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['SysNotifyChannel']
       msg?: string
       dataType?: string
     }
@@ -5277,6 +6674,9 @@ export interface components {
       msg?: string
       /** Format: date-time */
       loginTime?: string
+      tenantId?: string
+      userAgent?: string
+      device?: string
     }
     AlarmConfig: {
       /** Format: int32 */
@@ -5443,11 +6843,13 @@ export interface components {
       msg?: string
       dataType?: string
     }
-    RGenConfig: {
+    RMapStringString: {
       /** Format: int32 */
       code?: number
       success?: boolean
-      data?: components['schemas']['GenConfig']
+      data?: {
+        [key: string]: string
+      }
       msg?: string
       dataType?: string
     }
@@ -5523,26 +6925,26 @@ export interface components {
       tenantId?: string
       /** Format: date-time */
       createTime?: string
+      /** Format: int64 */
+      definitionId?: number
+      createBy?: string
+      nodeCode?: string
+      variableMap?: {
+        [key: string]: unknown
+      }
       flowStatus?: string
       nodeName?: string
       /** Format: date-time */
       updateTime?: string
       delFlag?: string
+      updateBy?: string
       flowName?: string
+      businessId?: string
       formCustom?: string
       formPath?: string
-      createBy?: string
-      updateBy?: string
-      nodeCode?: string
-      businessId?: string
-      variableMap?: {
-        [key: string]: unknown
-      }
       defJson?: string
       /** Format: int32 */
       activityStatus?: number
-      /** Format: int64 */
-      definitionId?: number
     }
     RInstance: {
       /** Format: int32 */
@@ -5577,6 +6979,63 @@ export interface components {
       code?: number
       success?: boolean
       data?: components['schemas']['PageSysFeedback']
+      msg?: string
+      dataType?: string
+    }
+    PageSysErrorLog: {
+      records?: components['schemas']['SysErrorLog'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageSysErrorLog: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PageSysErrorLog']
+      msg?: string
+      dataType?: string
+    }
+    SysErrorLog: {
+      /** Format: int64 */
+      id?: number
+      /** Format: date-time */
+      createTime?: string
+      /** Format: date-time */
+      updateTime?: string
+      /** Format: int32 */
+      isDeleted?: number
+      traceId?: string
+      requestUri?: string
+      requestMethod?: string
+      operator?: string
+      tenantId?: string
+      exceptionClass?: string
+      message?: string
+      locationClass?: string
+      locationFile?: string
+      locationMethod?: string
+      /** Format: int32 */
+      locationLine?: number
+      stacktrace?: string
+      /** Format: int32 */
+      status?: number
+      handleUser?: string
+      handleNote?: string
+      /** Format: date-time */
+      handleTime?: string
+    }
+    RSysErrorLog: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['SysErrorLog']
       msg?: string
       dataType?: string
     }
@@ -5692,6 +7151,26 @@ export interface components {
       msg?: string
       dataType?: string
     }
+    PageSysClient: {
+      records?: components['schemas']['SysClient'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageSysClient: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PageSysClient']
+      msg?: string
+      dataType?: string
+    }
     RListSysChangelog: {
       /** Format: int32 */
       code?: number
@@ -5728,6 +7207,61 @@ export interface components {
       msg?: string
       dataType?: string
     }
+    PageSysApiLog: {
+      records?: components['schemas']['SysApiLog'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageSysApiLog: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['PageSysApiLog']
+      msg?: string
+      dataType?: string
+    }
+    SysApiLog: {
+      /** Format: int64 */
+      id?: number
+      /** Format: date-time */
+      createTime?: string
+      /** Format: date-time */
+      updateTime?: string
+      /** Format: int32 */
+      isDeleted?: number
+      traceId?: string
+      title?: string
+      method?: string
+      requestMethod?: string
+      requestUri?: string
+      ip?: string
+      userAgent?: string
+      operator?: string
+      tenantId?: string
+      /** Format: int32 */
+      status?: number
+      /** Format: int64 */
+      duration?: number
+      /** Format: int32 */
+      slow?: number
+      params?: string
+      errorMsg?: string
+    }
+    RSysApiLog: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['SysApiLog']
+      msg?: string
+      dataType?: string
+    }
     PageSysApiKey: {
       records?: components['schemas']['SysApiKey'][]
       /** Format: int64 */
@@ -5747,18 +7281,6 @@ export interface components {
       data?: components['schemas']['PageSysApiKey']
       msg?: string
       dataType?: string
-    }
-    PageProduct: {
-      records?: components['schemas']['Product'][]
-      /** Format: int64 */
-      pageNumber?: number
-      /** Format: int64 */
-      pageSize?: number
-      /** Format: int64 */
-      totalPage?: number
-      /** Format: int64 */
-      totalRow?: number
-      optimizeCountQuery?: boolean
     }
     CaptchaVO: {
       captchaUuid?: string
@@ -5784,30 +7306,6 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
-  update: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['Product']
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': boolean
-        }
-      }
-    }
-  }
   shortcuts: {
     parameters: {
       query?: never
@@ -5996,7 +7494,7 @@ export interface operations {
       }
     }
   }
-  update_1: {
+  update: {
     parameters: {
       query?: never
       header?: never
@@ -6754,7 +8252,87 @@ export interface operations {
       }
     }
   }
+  kickout: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          [key: string]: string
+        }
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
   save_1: {
+    parameters: {
+      query: {
+        tableId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          [key: string]: unknown
+        }
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  remove_12: {
+    parameters: {
+      query: {
+        tableId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': number[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  save_2: {
     parameters: {
       query?: never
       header?: never
@@ -6800,7 +8378,7 @@ export interface operations {
       }
     }
   }
-  remove_12: {
+  remove_13: {
     parameters: {
       query?: never
       header?: never
@@ -6875,6 +8453,102 @@ export interface operations {
     }
     requestBody: {
       content: {
+        'application/json': components['schemas']['SysNotifyTemplate']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  remove_14: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': number[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  submit_13: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SysNotifyChannel']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  remove_15: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': number[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  submit_14: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
         'application/json': components['schemas']['SysNotice']
       }
     }
@@ -6890,7 +8564,7 @@ export interface operations {
       }
     }
   }
-  remove_13: {
+  remove_16: {
     parameters: {
       query?: never
       header?: never
@@ -6960,7 +8634,7 @@ export interface operations {
       }
     }
   }
-  remove_14: {
+  remove_17: {
     parameters: {
       query?: never
       header?: never
@@ -7026,7 +8700,7 @@ export interface operations {
       }
     }
   }
-  submit_13: {
+  submit_15: {
     parameters: {
       query?: never
       header?: never
@@ -7050,7 +8724,7 @@ export interface operations {
       }
     }
   }
-  remove_15: {
+  remove_18: {
     parameters: {
       query?: never
       header?: never
@@ -7074,7 +8748,7 @@ export interface operations {
       }
     }
   }
-  submit_14: {
+  submit_16: {
     parameters: {
       query?: never
       header?: never
@@ -7098,7 +8772,7 @@ export interface operations {
       }
     }
   }
-  remove_16: {
+  remove_19: {
     parameters: {
       query?: never
       header?: never
@@ -7122,7 +8796,7 @@ export interface operations {
       }
     }
   }
-  submit_15: {
+  submit_17: {
     parameters: {
       query?: never
       header?: never
@@ -7172,7 +8846,7 @@ export interface operations {
       }
     }
   }
-  remove_17: {
+  remove_20: {
     parameters: {
       query?: never
       header?: never
@@ -7196,7 +8870,7 @@ export interface operations {
       }
     }
   }
-  save_2: {
+  save_3: {
     parameters: {
       query?: never
       header?: never
@@ -7470,18 +9144,16 @@ export interface operations {
       }
     }
   }
-  preview: {
+  sync: {
     parameters: {
-      query?: never
+      query: {
+        tableId: number
+      }
       header?: never
       path?: never
       cookie?: never
     }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['GenParam']
-      }
-    }
+    requestBody?: never
     responses: {
       /** @description OK */
       200: {
@@ -7489,12 +9161,12 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          '*/*': components['schemas']['RMapStringString']
+          '*/*': components['schemas']['RVoid']
         }
       }
     }
   }
-  saveConfig: {
+  saveMeta: {
     parameters: {
       query?: never
       header?: never
@@ -7503,7 +9175,7 @@ export interface operations {
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['GenConfig']
+        'application/json': components['schemas']['MetaSaveParam']
       }
     }
     responses: {
@@ -7518,7 +9190,124 @@ export interface operations {
       }
     }
   }
-  submit_16: {
+  importTable: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ImportParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RLong']
+        }
+      }
+    }
+  }
+  syncDdl: {
+    parameters: {
+      query: {
+        tableId: number
+        force?: boolean
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  createTable: {
+    parameters: {
+      query: {
+        tableId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  aiDraft: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DraftParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  aiConfirm: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConfirmParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RLong']
+        }
+      }
+    }
+  }
+  submit_18: {
     parameters: {
       query?: never
       header?: never
@@ -7568,7 +9357,7 @@ export interface operations {
       }
     }
   }
-  remove_18: {
+  remove_21: {
     parameters: {
       query?: never
       header?: never
@@ -7578,6 +9367,188 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': number[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  terminate: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        taskId: number
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ActionParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RString']
+        }
+      }
+    }
+  }
+  revoke: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        instanceId: number
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ActionParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RString']
+        }
+      }
+    }
+  }
+  reject: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        taskId: number
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ActionParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RString']
+        }
+      }
+    }
+  }
+  rejectNode: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        taskId: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RejectNodeParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RString']
+        }
+      }
+    }
+  }
+  operation: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        taskId: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['OperationParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  handle: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        taskId: number
+      }
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['ActionParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RString']
+        }
+      }
+    }
+  }
+  copy: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        taskId: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CopyParam']
       }
     }
     responses: {
@@ -7624,7 +9595,11 @@ export interface operations {
       }
       cookie?: never
     }
-    requestBody?: never
+    requestBody?: {
+      content: {
+        'application/json': components['schemas']['StartParam']
+      }
+    }
     responses: {
       /** @description OK */
       200: {
@@ -7633,50 +9608,6 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RLong']
-        }
-      }
-    }
-  }
-  reject: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        taskId: number
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RString']
-        }
-      }
-    }
-  }
-  handle: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        taskId: number
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RString']
         }
       }
     }
@@ -7691,6 +9622,30 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': components['schemas']['FlowDesign']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RLong']
+        }
+      }
+    }
+  }
+  designGraph: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['GraphDesign']
       }
     }
     responses: {
@@ -7725,6 +9680,140 @@ export interface operations {
       }
     }
   }
+  unpublishDefinition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  suspendDefinition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  removeDefinition: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': number[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  publishDefinition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  copyDefinition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  activeDefinition: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
   upload: {
     parameters: {
       query?: {
@@ -7754,7 +9843,7 @@ export interface operations {
       }
     }
   }
-  remove_19: {
+  remove_22: {
     parameters: {
       query?: never
       header?: never
@@ -7778,7 +9867,55 @@ export interface operations {
       }
     }
   }
-  submit_17: {
+  presignedPut: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PresignedPutParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPresignedPutResult']
+        }
+      }
+    }
+  }
+  create_1: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RSysAttach']
+        }
+      }
+    }
+  }
+  submit_19: {
     parameters: {
       query?: never
       header?: never
@@ -7824,7 +9961,7 @@ export interface operations {
       }
     }
   }
-  remove_20: {
+  remove_23: {
     parameters: {
       query?: never
       header?: never
@@ -7848,7 +9985,33 @@ export interface operations {
       }
     }
   }
-  submit_18: {
+  handle_1: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          [key: string]: unknown
+        }
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  submit_20: {
     parameters: {
       query?: never
       header?: never
@@ -7872,7 +10035,7 @@ export interface operations {
       }
     }
   }
-  remove_21: {
+  remove_24: {
     parameters: {
       query?: never
       header?: never
@@ -7920,7 +10083,7 @@ export interface operations {
       }
     }
   }
-  submit_19: {
+  submit_21: {
     parameters: {
       query?: never
       header?: never
@@ -7944,7 +10107,7 @@ export interface operations {
       }
     }
   }
-  remove_22: {
+  remove_25: {
     parameters: {
       query?: never
       header?: never
@@ -7968,7 +10131,7 @@ export interface operations {
       }
     }
   }
-  submit_20: {
+  submit_22: {
     parameters: {
       query?: never
       header?: never
@@ -7992,7 +10155,7 @@ export interface operations {
       }
     }
   }
-  remove_23: {
+  remove_26: {
     parameters: {
       query?: never
       header?: never
@@ -8016,7 +10179,7 @@ export interface operations {
       }
     }
   }
-  submit_21: {
+  submit_23: {
     parameters: {
       query?: never
       header?: never
@@ -8040,7 +10203,7 @@ export interface operations {
       }
     }
   }
-  remove_24: {
+  remove_27: {
     parameters: {
       query?: never
       header?: never
@@ -8090,7 +10253,7 @@ export interface operations {
       }
     }
   }
-  submit_22: {
+  save_4: {
     parameters: {
       query?: never
       header?: never
@@ -8099,7 +10262,7 @@ export interface operations {
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['SysChangelog']
+        'application/json': components['schemas']['SysClient']
       }
     }
     responses: {
@@ -8114,7 +10277,7 @@ export interface operations {
       }
     }
   }
-  remove_25: {
+  remove_28: {
     parameters: {
       query?: never
       header?: never
@@ -8134,100 +10297,6 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RVoid']
-        }
-      }
-    }
-  }
-  remove_26: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': string[]
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RVoid']
-        }
-      }
-    }
-  }
-  verify: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['VerifyParam']
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RMapStringObject']
-        }
-      }
-    }
-  }
-  remove_27: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: number
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RVoid']
-        }
-      }
-    }
-  }
-  generate_1: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['SysApiKey']
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RSysApiKey']
         }
       }
     }
@@ -8276,7 +10345,7 @@ export interface operations {
       }
     }
   }
-  save_3: {
+  submit_24: {
     parameters: {
       query?: never
       header?: never
@@ -8285,7 +10354,7 @@ export interface operations {
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['Product']
+        'application/json': components['schemas']['SysChangelog']
       }
     }
     responses: {
@@ -8295,7 +10364,169 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          '*/*': boolean
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  remove_29: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': number[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  remove_30: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': string[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  verify: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['VerifyParam']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  remove_31: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  generate_1: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SysApiKey']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RSysApiKey']
+        }
+      }
+    }
+  }
+  enable_5: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  disable_3: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
         }
       }
     }
@@ -8329,13 +10560,24 @@ export interface operations {
   token: {
     parameters: {
       query?: never
-      header?: never
+      header?: {
+        Authorization?: string
+      }
       path?: never
       cookie?: never
     }
-    requestBody: {
+    requestBody?: {
       content: {
-        'application/json': components['schemas']['TokenRequest']
+        'application/x-www-form-urlencoded': {
+          grant_type?: string
+          client_id?: string
+          client_secret?: string
+          scope?: string
+          code?: string
+          redirect_uri?: string
+          refresh_token?: string
+          code_verifier?: string
+        }
       }
     }
     responses: {
@@ -8345,12 +10587,78 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          '*/*': components['schemas']['RMapStringObject']
+          '*/*': {
+            [key: string]: unknown
+          }
         }
       }
     }
   }
-  authorize: {
+  revoke_1: {
+    parameters: {
+      query?: never
+      header?: {
+        Authorization?: string
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/x-www-form-urlencoded': {
+          token: string
+          client_id?: string
+          client_secret?: string
+        }
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': {
+            [key: string]: unknown
+          }
+        }
+      }
+    }
+  }
+  introspect: {
+    parameters: {
+      query?: never
+      header?: {
+        Authorization?: string
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: {
+      content: {
+        'application/x-www-form-urlencoded': {
+          token: string
+          client_id?: string
+          client_secret?: string
+        }
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': {
+            [key: string]: unknown
+          }
+        }
+      }
+    }
+  }
+  authorizeConfirm: {
     parameters: {
       query?: never
       header?: never
@@ -8359,7 +10667,9 @@ export interface operations {
     }
     requestBody: {
       content: {
-        'application/json': components['schemas']['AuthorizeRequest']
+        'application/json': {
+          [key: string]: string
+        }
       }
     }
     responses: {
@@ -8448,6 +10758,48 @@ export interface operations {
       }
     }
   }
+  switchTenant: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        tenantId: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  switchTenantReset: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
   socialLogin: {
     parameters: {
       query?: never
@@ -8496,29 +10848,6 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RVoid']
-        }
-      }
-    }
-  }
-  verify_1: {
-    parameters: {
-      query: {
-        phone: string
-        code: string
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RBoolean']
         }
       }
     }
@@ -8732,6 +11061,11 @@ export interface operations {
       query?: {
         pageNum?: number
         pageSize?: number
+        username?: string
+        nickname?: string
+        phone?: string
+        status?: number
+        deptId?: number
       }
       header?: never
       path?: never
@@ -9207,7 +11541,7 @@ export interface operations {
       }
     }
   }
-  preview_1: {
+  preview: {
     parameters: {
       query: {
         id: number
@@ -9527,6 +11861,28 @@ export interface operations {
       }
     }
   }
+  verify_1: {
+    parameters: {
+      query?: {
+        limit?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
   page_8: {
     parameters: {
       query?: {
@@ -9573,7 +11929,119 @@ export interface operations {
       }
     }
   }
+  list_4: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListMapStringObject']
+        }
+      }
+    }
+  }
   page_9: {
+    parameters: {
+      query: {
+        tableId: number
+        pageNum?: number
+        pageSize?: number
+        params: {
+          [key: string]: string
+        }
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPageRow']
+        }
+      }
+    }
+  }
+  meta: {
+    parameters: {
+      query: {
+        tableId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  forms: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListGenTable']
+        }
+      }
+    }
+  }
+  detail_11: {
+    parameters: {
+      query: {
+        tableId: number
+        id: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RRow']
+        }
+      }
+    }
+  }
+  page_10: {
     parameters: {
       query?: {
         pageNum?: number
@@ -9598,7 +12066,7 @@ export interface operations {
       }
     }
   }
-  page_10: {
+  page_11: {
     parameters: {
       query?: {
         pageNum?: number
@@ -9617,6 +12085,145 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RPageSysOauthClient']
+        }
+      }
+    }
+  }
+  page_12: {
+    parameters: {
+      query?: {
+        pageNum?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPageSysNotifyTemplate']
+        }
+      }
+    }
+  }
+  detail_12: {
+    parameters: {
+      query: {
+        id: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RSysNotifyTemplate']
+        }
+      }
+    }
+  }
+  page_13: {
+    parameters: {
+      query?: {
+        pageNum?: number
+        pageSize?: number
+        batchId?: number
+        channel?: string
+        status?: string
+        templateCode?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPageSysNotifyRecord']
+        }
+      }
+    }
+  }
+  detail_13: {
+    parameters: {
+      query: {
+        id: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RSysNotifyRecord']
+        }
+      }
+    }
+  }
+  page_14: {
+    parameters: {
+      query?: {
+        pageNum?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPageSysNotifyChannel']
+        }
+      }
+    }
+  }
+  detail_14: {
+    parameters: {
+      query: {
+        id: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RSysNotifyChannel']
         }
       }
     }
@@ -9665,7 +12272,7 @@ export interface operations {
       }
     }
   }
-  page_11: {
+  page_15: {
     parameters: {
       query?: {
         pageNum?: number
@@ -9733,7 +12340,7 @@ export interface operations {
       }
     }
   }
-  detail_11: {
+  detail_15: {
     parameters: {
       query: {
         id: number
@@ -9751,6 +12358,26 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RSysNotice']
+        }
+      }
+    }
+  }
+  dbDoc: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RString']
         }
       }
     }
@@ -9821,7 +12448,7 @@ export interface operations {
       }
     }
   }
-  page_12: {
+  page_16: {
     parameters: {
       query?: {
         pageNum?: number
@@ -9844,7 +12471,7 @@ export interface operations {
       }
     }
   }
-  list_4: {
+  list_5: {
     parameters: {
       query?: never
       header?: never
@@ -9864,7 +12491,7 @@ export interface operations {
       }
     }
   }
-  detail_12: {
+  detail_16: {
     parameters: {
       query: {
         id: number
@@ -9906,7 +12533,7 @@ export interface operations {
       }
     }
   }
-  detail_13: {
+  detail_17: {
     parameters: {
       query: {
         id: number
@@ -9928,7 +12555,7 @@ export interface operations {
       }
     }
   }
-  page_13: {
+  page_17: {
     parameters: {
       query?: {
         pageNum?: number
@@ -9951,7 +12578,7 @@ export interface operations {
       }
     }
   }
-  detail_14: {
+  detail_18: {
     parameters: {
       query: {
         id: number
@@ -9973,7 +12600,7 @@ export interface operations {
       }
     }
   }
-  page_14: {
+  page_18: {
     parameters: {
       query?: {
         pageNum?: number
@@ -10019,7 +12646,7 @@ export interface operations {
       }
     }
   }
-  list_5: {
+  list_6: {
     parameters: {
       query?: never
       header?: never
@@ -10192,6 +12819,113 @@ export interface operations {
       }
     }
   }
+  previewMeta: {
+    parameters: {
+      query: {
+        tableId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringString']
+        }
+      }
+    }
+  }
+  meta_1: {
+    parameters: {
+      query: {
+        tableId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  list_7: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListGenTable']
+        }
+      }
+    }
+  }
+  download: {
+    parameters: {
+      query: {
+        tableId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  previewDdl: {
+    parameters: {
+      query: {
+        tableId: number
+        force?: boolean
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListString']
+        }
+      }
+    }
+  }
   datasource: {
     parameters: {
       query?: never
@@ -10212,51 +12946,7 @@ export interface operations {
       }
     }
   }
-  config: {
-    parameters: {
-      query: {
-        table: string
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RGenConfig']
-        }
-      }
-    }
-  }
-  columns: {
-    parameters: {
-      query: {
-        table: string
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RMapStringObject']
-        }
-      }
-    }
-  }
-  page_15: {
+  page_19: {
     parameters: {
       query?: {
         pageNum?: number
@@ -10279,7 +12969,7 @@ export interface operations {
       }
     }
   }
-  detail_15: {
+  detail_19: {
     parameters: {
       query: {
         id: number
@@ -10348,7 +13038,133 @@ export interface operations {
       }
     }
   }
+  taskButtons: {
+    parameters: {
+      query: {
+        taskId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListString']
+        }
+      }
+    }
+  }
+  progress: {
+    parameters: {
+      query: {
+        instanceId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListMapStringObject']
+        }
+      }
+    }
+  }
+  nextApprovers: {
+    parameters: {
+      query: {
+        taskId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListMapStringObject']
+        }
+      }
+    }
+  }
   myTodo: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListRow']
+        }
+      }
+    }
+  }
+  myStarted: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListRow']
+        }
+      }
+    }
+  }
+  myDone: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListRow']
+        }
+      }
+    }
+  }
+  myCopy: {
     parameters: {
       query?: never
       header?: never
@@ -10412,6 +13228,72 @@ export interface operations {
       }
     }
   }
+  taskForm: {
+    parameters: {
+      query: {
+        taskId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  startForm: {
+    parameters: {
+      query: {
+        flowCode: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  instanceForm: {
+    parameters: {
+      query: {
+        instanceId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
   definitions: {
     parameters: {
       query?: never
@@ -10432,7 +13314,29 @@ export interface operations {
       }
     }
   }
-  list_6: {
+  backNodes: {
+    parameters: {
+      query: {
+        instanceId: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListRow']
+        }
+      }
+    }
+  }
+  list_8: {
     parameters: {
       query?: never
       header?: never
@@ -10452,7 +13356,7 @@ export interface operations {
       }
     }
   }
-  download: {
+  download_1: {
     parameters: {
       query?: never
       header?: never
@@ -10494,7 +13398,7 @@ export interface operations {
       }
     }
   }
-  page_16: {
+  page_20: {
     parameters: {
       query?: {
         pageNum?: number
@@ -10514,6 +13418,53 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RPageSysFeedback']
+        }
+      }
+    }
+  }
+  page_21: {
+    parameters: {
+      query?: {
+        pageNum?: number
+        pageSize?: number
+        status?: number
+        traceId?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPageSysErrorLog']
+        }
+      }
+    }
+  }
+  detail_20: {
+    parameters: {
+      query: {
+        id: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RSysErrorLog']
         }
       }
     }
@@ -10560,7 +13511,7 @@ export interface operations {
       }
     }
   }
-  detail_16: {
+  detail_21: {
     parameters: {
       query: {
         id: number
@@ -10624,7 +13575,7 @@ export interface operations {
       }
     }
   }
-  detail_17: {
+  detail_22: {
     parameters: {
       query: {
         id: number
@@ -10686,7 +13637,7 @@ export interface operations {
       }
     }
   }
-  detail_18: {
+  detail_23: {
     parameters: {
       query: {
         id: number
@@ -10708,7 +13659,7 @@ export interface operations {
       }
     }
   }
-  page_17: {
+  page_22: {
     parameters: {
       query?: {
         pageNum?: number
@@ -10732,7 +13683,7 @@ export interface operations {
       }
     }
   }
-  detail_19: {
+  detail_24: {
     parameters: {
       query: {
         id: number
@@ -10754,7 +13705,7 @@ export interface operations {
       }
     }
   }
-  page_18: {
+  page_23: {
     parameters: {
       query?: {
         pageNum?: number
@@ -10773,6 +13724,29 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RPageBizCustomer']
+        }
+      }
+    }
+  }
+  page_24: {
+    parameters: {
+      query?: {
+        pageNum?: number
+        pageSize?: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPageSysClient']
         }
       }
     }
@@ -10799,7 +13773,7 @@ export interface operations {
       }
     }
   }
-  page_19: {
+  page_25: {
     parameters: {
       query?: {
         pageNum?: number
@@ -10823,7 +13797,7 @@ export interface operations {
       }
     }
   }
-  detail_20: {
+  detail_25: {
     parameters: {
       query: {
         id: number
@@ -10909,7 +13883,55 @@ export interface operations {
       }
     }
   }
-  page_20: {
+  page_26: {
+    parameters: {
+      query?: {
+        pageNum?: number
+        pageSize?: number
+        slow?: number
+        traceId?: string
+        uri?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RPageSysApiLog']
+        }
+      }
+    }
+  }
+  detail_26: {
+    parameters: {
+      query: {
+        id: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RSysApiLog']
+        }
+      }
+    }
+  }
+  page_27: {
     parameters: {
       query?: {
         pageNum?: number
@@ -10928,70 +13950,6 @@ export interface operations {
         }
         content: {
           '*/*': components['schemas']['RPageSysApiKey']
-        }
-      }
-    }
-  }
-  page_21: {
-    parameters: {
-      query: {
-        page: components['schemas']['PageProduct']
-      }
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['PageProduct']
-        }
-      }
-    }
-  }
-  list_7: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['Product'][]
-        }
-      }
-    }
-  }
-  getInfo: {
-    parameters: {
-      query?: never
-      header?: never
-      path: {
-        id: number
-      }
-      cookie?: never
-    }
-    requestBody?: never
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['Product']
         }
       }
     }
@@ -11076,6 +14034,118 @@ export interface operations {
       }
     }
   }
+  authorize: {
+    parameters: {
+      query: {
+        response_type: string
+        client_id: string
+        redirect_uri?: string
+        scope?: string
+        state?: string
+        code_challenge?: string
+        code_challenge_method?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  authorizeInfo: {
+    parameters: {
+      query: {
+        client_id: string
+        scope?: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  socialRender: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        source: string
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  socialMockAuthorize: {
+    parameters: {
+      query: {
+        redirect_uri: string
+        state: string
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  sm2PublicKey: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
   info: {
     parameters: {
       query?: never
@@ -11116,12 +14186,34 @@ export interface operations {
       }
     }
   }
-  remove_28: {
+  remove_32: {
+    parameters: {
+      query: {
+        id: number
+      }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  socialUnbind: {
     parameters: {
       query?: never
       header?: never
       path: {
-        id: number
+        source: string
       }
       cookie?: never
     }
@@ -11133,7 +14225,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          '*/*': boolean
+          '*/*': components['schemas']['RVoid']
         }
       }
     }

@@ -1,9 +1,9 @@
-<!-- 用户新增/编辑弹窗（对接后端 /system/user/submit） -->
+<!-- 用户新增/编辑弹窗（对接后端 /system/user/submit）：建档可挂 部门/岗位/角色/邮箱 -->
 <template>
   <ElDialog
     v-model="dialogVisible"
     :title="type === 'add' ? '新增用户' : '编辑用户'"
-    width="500px"
+    width="560px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
@@ -16,6 +16,36 @@
       </ElFormItem>
       <ElFormItem label="昵称" prop="nickname">
         <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
+      </ElFormItem>
+      <ElFormItem label="部门" prop="deptId">
+        <ElTreeSelect
+          v-model="formData.deptId"
+          :data="deptTree"
+          :props="{ value: 'id', label: 'deptName', children: 'children' }"
+          check-strictly
+          clearable
+          placeholder="请选择部门"
+          style="width: 100%"
+        />
+      </ElFormItem>
+      <ElFormItem label="岗位" prop="postId">
+        <ElSelect v-model="formData.postId" clearable placeholder="请选择岗位" style="width: 100%">
+          <ElOption v-for="p in postOptions" :key="p.value" :label="p.label" :value="p.value" />
+        </ElSelect>
+      </ElFormItem>
+      <ElFormItem label="角色" prop="roleIds">
+        <ElSelect
+          v-model="formData.roleIds"
+          multiple
+          clearable
+          placeholder="请选择角色（决定菜单与权限）"
+          style="width: 100%"
+        >
+          <ElOption v-for="r in roleOptions" :key="r.value" :label="r.label" :value="r.value" />
+        </ElSelect>
+      </ElFormItem>
+      <ElFormItem label="邮箱" prop="email">
+        <ElInput v-model="formData.email" placeholder="请输入邮箱（接收通知）" />
       </ElFormItem>
       <ElFormItem label="手机号" prop="phone">
         <ElInput v-model="formData.phone" placeholder="请输入手机号（展示脱敏）" />
@@ -47,6 +77,8 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchUserDetail } from '@/api/user'
+  import { fetchDeptTree, fetchPostSelect } from '@/api/system-manage'
+  import { fetchRoleSelect } from '@/api/role'
 
   interface Props {
     visible: boolean
@@ -68,19 +100,29 @@
   })
 
   const formRef = ref<FormInstance>()
+  const deptTree = ref<any[]>([])
+  const postOptions = ref<Array<{ label: string; value: number | string }>>([])
+  const roleOptions = ref<Array<{ label: string; value: number | string }>>([])
 
-  const formData = reactive<Record<string, any>>({
+  const emptyForm = (): Record<string, any> => ({
     id: undefined,
     username: '',
     nickname: '',
     password: '',
+    deptId: undefined,
+    postId: undefined,
+    roleIds: [],
+    email: '',
     phone: '',
     idCard: '',
     status: 1
   })
 
+  const formData = reactive<Record<string, any>>(emptyForm())
+
   const rules: FormRules = {
     username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+    email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }],
     phone: [{ pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }],
     idCard: [
       { pattern: /(^\d{15}$)|(^\d{17}[\dXx]$)/, message: '身份证号格式不正确', trigger: 'blur' }
@@ -91,26 +133,27 @@
     () => [props.visible, props.userData],
     async ([visible]) => {
       if (visible) {
-        Object.assign(
-          formData,
-          {
-            id: undefined,
-            username: '',
-            nickname: '',
-            password: '',
-            phone: '',
-            idCard: '',
-            status: 1
-          },
-          props.userData || {}
-        )
-        // 编辑态以 detail 回显（后端按角色裁决 明文/脱敏/不可见），分页行值可能是密文形态，直接回显回写会二次加密毁数据
+        Object.assign(formData, emptyForm(), props.userData || {})
+        // 组织选项（每次打开拉最新，角色/部门/岗位改动即时可见）
+        const [tree, posts, roles] = await Promise.all([
+          fetchDeptTree(),
+          fetchPostSelect(),
+          fetchRoleSelect()
+        ])
+        deptTree.value = tree || []
+        postOptions.value = posts || []
+        roleOptions.value = roles || []
+        // 编辑态以 detail 回显（后端按角色裁决 明文/脱敏/不可见 + 角色 id 集合），分页行值可能是密文形态，直接回显回写会二次加密毁数据
         if (props.type === 'edit' && props.userData?.id) {
           try {
             const detail = await fetchUserDetail(props.userData.id)
             if (detail) {
               formData.phone = detail.phone ?? ''
               formData.idCard = detail.idCard ?? ''
+              formData.deptId = detail.deptId ?? undefined
+              formData.postId = detail.postId ?? undefined
+              formData.email = detail.email ?? ''
+              formData.roleIds = detail.roleIds || []
             }
           } catch (e) {
             console.error('[UserDialog] fetch detail failed:', e)

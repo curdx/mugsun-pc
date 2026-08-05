@@ -1,6 +1,14 @@
 <!-- 用户管理页面 -->
 <template>
   <div class="user-page art-full-height">
+    <!-- 查询栏：条件实时生效、重置回默认 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
@@ -46,6 +54,7 @@
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { useTableColumnPersist } from '@/hooks/core/useTableColumnPersist'
   import {
@@ -56,6 +65,7 @@
     importUser,
     resetUserPassword
   } from '@/api/user'
+  import { fetchDeptTree } from '@/api/system-manage'
   import UserDialog from './modules/user-dialog.vue'
   import UserRoleDialog from './modules/user-role-dialog.vue'
   import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
@@ -65,6 +75,61 @@
   import type { ColumnOption } from '@/types/component'
 
   defineOptions({ name: 'User' })
+
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    username: '',
+    nickname: '',
+    phone: '',
+    status: undefined as number | undefined,
+    deptId: undefined as number | undefined
+  })
+  const deptTreeData = ref<any[]>([])
+  const searchItems = computed(() => [
+    {
+      key: 'username',
+      label: '用户名',
+      type: 'input',
+      props: { placeholder: '请输入用户名', clearable: true }
+    },
+    {
+      key: 'nickname',
+      label: '昵称',
+      type: 'input',
+      props: { placeholder: '请输入昵称', clearable: true }
+    },
+    {
+      key: 'phone',
+      label: '手机号',
+      type: 'input',
+      props: { placeholder: '请输入手机号', clearable: true }
+    },
+    {
+      key: 'status',
+      label: '状态',
+      type: 'select',
+      props: {
+        placeholder: '请选择状态',
+        clearable: true,
+        options: [
+          { label: '启用', value: 1 },
+          { label: '停用', value: 0 }
+        ]
+      }
+    },
+    {
+      key: 'deptId',
+      label: '部门',
+      type: 'treeselect',
+      props: {
+        data: deptTreeData.value,
+        props: { value: 'id', label: 'deptName', children: 'children' },
+        checkStrictly: true,
+        clearable: true,
+        placeholder: '请选择部门'
+      }
+    }
+  ])
 
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
@@ -115,6 +180,9 @@
     { type: 'index', width: 60, label: '序号' },
     { prop: 'username', label: '用户名', minWidth: 120 },
     { prop: 'nickname', label: '昵称', minWidth: 120 },
+    { prop: 'deptName', label: '部门', minWidth: 120, showOverflowTooltip: true },
+    { prop: 'postName', label: '岗位', minWidth: 110, showOverflowTooltip: true },
+    { prop: 'roleNames', label: '角色', minWidth: 140, showOverflowTooltip: true },
     { prop: 'phone', label: '手机号', minWidth: 130 },
     {
       prop: 'status',
@@ -172,7 +240,10 @@
     handleCurrentChange,
     refreshData,
     setColumns,
-    resetColumns
+    resetColumns,
+    fetchData,
+    replaceSearchParams,
+    resetSearchParams
   } = useTable({
     core: {
       apiFn: fetchUserPage,
@@ -206,6 +277,29 @@
     await resetToDefault()
     ElMessage.success('已恢复默认列')
   }
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (params: Record<string, any>): Promise<void> => {
+    // 替换全部查询参数（防旧条件残留），回到第一页
+    replaceSearchParams({ ...params, pageNum: 1, pageSize: 20 })
+    await fetchData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      username: '',
+      nickname: '',
+      phone: '',
+      status: undefined,
+      deptId: undefined
+    }
+    resetSearchParams()
+    await fetchData()
+  }
+
+  onMounted(async () => {
+    deptTreeData.value = (await fetchDeptTree()) || []
+  })
 
   const showDialog = (type: DialogType, row?: Record<string, any>): void => {
     dialogType.value = type
