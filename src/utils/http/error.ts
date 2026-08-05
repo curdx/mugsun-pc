@@ -155,12 +155,13 @@ export function handleError(error: AxiosError<ErrorResponse>): never {
 /**
  * 显示错误消息
  * @param error 错误对象
- * @param showMessage 是否显示错误消息
+ * @param showMessage 是否显示消息（false = 静默请求：预览/探测类调用，不弹窗也不污染控制台）
  */
 export function showError(error: HttpError, showMessage: boolean = true): void {
-  if (showMessage) {
-    ElMessage.error(error.message)
+  if (!showMessage) {
+    return
   }
+  ElMessage.error(error.message)
   // 记录错误日志
   console.error('[HTTP Error]', error.toLogData())
 }

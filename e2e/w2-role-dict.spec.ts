@@ -94,8 +94,9 @@ test('W2-S2 业务字典页搜索栏：建数→过滤→重置→还原', async
   const nameA = `W2业务字典A${stamp}`
   const nameB = `W2业务字典B${stamp}`
   await page.goto('/#/system/dict-biz')
-  // 业务字典无种子：等工具栏就绪即可
-  await expect(page.getByRole('button', { name: '新增字典' })).toBeVisible({ timeout: 10_000 })
+  // 业务字典无种子：等工具栏就绪即可（字典/业务字典同组件双实例驻留 DOM，全部按可见性定位）
+  const addBtn = page.getByRole('button', { name: '新增字典' }).filter({ visible: true })
+  await expect(addBtn).toBeVisible({ timeout: 10_000 })
 
   // 经 UI 建两个顶级业务字典（真实落库，防依赖不存在的数据）
   const addDict = async (name: string, code: string): Promise<void> => {
@@ -103,9 +104,9 @@ test('W2-S2 业务字典页搜索栏：建数→过滤→重置→还原', async
     const optionsResp = page
       .waitForResponse((r) => r.url().includes('/system/dict-biz/tree'), { timeout: 10_000 })
       .catch(() => null)
-    await page.getByRole('button', { name: '新增字典' }).click()
+    await page.getByRole('button', { name: '新增字典' }).filter({ visible: true }).click()
     await optionsResp
-    const dialog = page.getByRole('dialog')
+    const dialog = page.locator('.el-dialog:visible')
     await dialog.getByPlaceholder('如 sex').fill(code)
     await dialog.getByPlaceholder('如 男').fill(name)
     const submitResp = page.waitForResponse((r) => r.url().includes('/system/dict-biz/submit'))
@@ -115,23 +116,24 @@ test('W2-S2 业务字典页搜索栏：建数→过滤→重置→还原', async
   }
   await addDict(nameA, `w2_biz_a_${stamp}`)
   await addDict(nameB, `w2_biz_b_${stamp}`)
-  await expect(page.getByRole('row', { name: new RegExp(nameA) }).first()).toBeVisible({
+  const bizRows = page.getByRole('row').filter({ visible: true })
+  await expect(bizRows.filter({ hasText: nameA }).first()).toBeVisible({
     timeout: 10_000
   })
-  await expect(page.getByRole('row', { name: new RegExp(nameB) }).first()).toBeVisible()
+  await expect(bizRows.filter({ hasText: nameB }).first()).toBeVisible()
 
   // 名称过滤：A 在、B 不在
-  const nameInput = page.getByPlaceholder('请输入字典名称')
+  const nameInput = page.getByPlaceholder('请输入字典名称').filter({ visible: true })
   await nameInput.fill(nameA)
-  await page.getByRole('button', { name: '查询' }).click()
-  await expect(page.getByRole('row', { name: new RegExp(nameB) })).toHaveCount(0, {
+  await page.getByRole('button', { name: '查询' }).filter({ visible: true }).click()
+  await expect(bizRows.filter({ hasText: nameB })).toHaveCount(0, {
     timeout: 10_000
   })
-  await expect(page.getByRole('row', { name: new RegExp(nameA) }).first()).toBeVisible()
+  await expect(bizRows.filter({ hasText: nameA }).first()).toBeVisible()
 
   // 重置：条件清空、A/B 都回来
-  await page.getByRole('button', { name: '重置' }).click()
-  await expect(page.getByRole('row', { name: new RegExp(nameB) }).first()).toBeVisible({
+  await page.getByRole('button', { name: '重置' }).filter({ visible: true }).click()
+  await expect(bizRows.filter({ hasText: nameB }).first()).toBeVisible({
     timeout: 10_000
   })
   await expect(nameInput).toHaveValue('')

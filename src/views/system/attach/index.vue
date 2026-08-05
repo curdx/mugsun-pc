@@ -93,7 +93,8 @@
     previewObjectUrls.forEach((url) => URL.revokeObjectURL(url))
     previewObjectUrls.clear()
     ;(rows || []).forEach(async (row) => {
-      if (!isImage(row) || row.previewUrl) return
+      // 平台已下线的历史附件（downloadable=false）跳过预览，不制造 404 噪音（下载入口仍在，点击会如实报错）
+      if (!isImage(row) || row.previewUrl || row.downloadable === false) return
       try {
         const blob = await request.request<Blob>({
           url: `/api/system/file/download-stream/${row.id}`,

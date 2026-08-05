@@ -84,10 +84,75 @@ export class MenuProcessor {
 
   /**
    * 处理后端控制模式的菜单
+   * 数据源 /v3/system/menus（当前用户菜单树）；失败或空树回退前端静态路由（防菜单接口故障锁死系统）。
+   * 菜单名对齐静态路由名（按全路径匹配）：租户套餐过滤/menu_keys 与工作台页签身份依赖该命名。
    */
   private async processBackendMenu(): Promise<AppRouteRecord[]> {
-    const list = await fetchGetMenuList()
-    return this.filterEmptyMenus(list)
+    let menuList: AppRouteRecord[] = []
+    try {
+      menuList = (await fetchGetMenuList()) || []
+    } catch (e) {
+      console.error('[MenuProcessor] 后端菜单接口异常，回退前端静态路由', e)
+    }
+    if (menuList.length === 0) {
+      console.warn('[MenuProcessor] 后端菜单为空，回退前端静态路由')
+      return this.processFrontendMenu()
+    }
+
+    this.adoptStaticNames(menuList)
+
+    // 租户套餐过滤（后端 /auth/info 下发 menus；超管/未绑套餐为 null，不限）
+    const userStore = useUserStore()
+    const allowed = (userStore.info as Record<string, any>)?.menus
+    if (Array.isArray(allowed) && allowed.length > 0) {
+      const filtered = this.filterMenuByPackage(menuList, new Set(allowed))
+      // 安全兜底：套餐配置异常导致全空时回退到不过滤，避免锁死无菜单
+      if (filtered.length > 0) {
+        menuList = filtered
+      }
+    }
+    return this.filterEmptyMenus(menuList)
+  }
+
+  /**
+   * 菜单名对齐静态路由（后端返回的派生名 → 静态路由 name）。
+   * 按「父路径拼接」计算全路径与 asyncRoutes 索引匹配；匹配不到保留后端派生名（新生成/外部菜单）。
+   */
+  private adoptStaticNames(menuList: AppRouteRecord[], parentPath = ''): void {
+    const index = this.staticNameIndex()
+    for (const item of menuList) {
+      const fullPath = this.buildFullPath(item.path || '', parentPath)
+      const staticName = index.get(fullPath)
+      if (staticName) {
+        item.name = staticName
+      }
+      if (item.children?.length) {
+        this.adoptStaticNames(item.children, fullPath)
+      }
+    }
+  }
+
+  /** 静态路由 全路径 → name 索引（惰性构建一次） */
+  private _staticNameIndex?: Map<string, string>
+  private staticNameIndex(): Map<string, string> {
+    if (this._staticNameIndex) {
+      return this._staticNameIndex
+    }
+    const index = new Map<string, string>()
+    const walk = (routes: AppRouteRecord[], parentPath = '') => {
+      for (const route of routes) {
+        const fullPath = this.buildFullPath(route.path || '', parentPath)
+        if (route.name) {
+          index.set(fullPath, String(route.name))
+        }
+        if (route.children?.length) {
+          walk(route.children, fullPath)
+        }
+      }
+    }
+    walk(asyncRoutes)
+    this._staticNameIndex = index
+    return index
   }
 
   /**

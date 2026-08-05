@@ -129,11 +129,15 @@ test('W1-R8/R2 自助注册分配默认角色 + 定时任务读接口按权限�
   await page.locator('form button').last().click()
   await expect(page.getByText('注册成功').first()).toBeVisible({ timeout: 10_000 })
 
-  // —— 新用户登录：可见工作台、不可见系统管理 ——
+  // —— 新用户登录：可见工作台与公共菜单、不可见任何管理菜单（W3 后端菜单：系统管理组因公共子项存在） ——
   await login(page, { username, password })
   await expect(page).toHaveURL(/#\/dashboard/)
   await expect(page.getByText('工作台').first()).toBeVisible()
-  await expect(page.getByText('系统管理')).toHaveCount(0)
+  await page.getByText('系统管理', { exact: true }).first().click()
+  await expect(page.getByRole('menuitem', { name: '我的通知' })).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByRole('menuitem', { name: '用户管理' })).toHaveCount(0)
+  await expect(page.getByRole('menuitem', { name: '角色管理' })).toHaveCount(0)
+  await expect(page.getByText('租户运营', { exact: true })).toHaveCount(0)
 
   // —— 该用户调定时任务读接口被拒（修复前任意登录可读） ——
   const userToken = await page.evaluate(
