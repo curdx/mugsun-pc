@@ -1,9 +1,9 @@
-<!-- 动态建表 / AI 辅助建模：元数据 → 物理表 DDL，自然语言候选 → 人工确认 → 建表 -->
+<!-- 动态建表 / 规则建模：元数据 → 物理表 DDL，按格式描述 → 人工确认 → 建表 -->
 <template>
   <div class="art-full-height">
     <ElCard class="art-table-card">
       <ElTabs v-model="activeTab">
-        <ElTabPane label="AI 辅助建模" name="ai">
+        <ElTabPane label="规则建模" name="ai">
           <ElInput
             v-model="nl"
             type="textarea"
@@ -12,7 +12,10 @@
           />
           <div class="modeling-actions">
             <ElButton type="primary" :loading="drafting" @click="genDraft">生成候选</ElButton>
-            <span class="modeling-tip">候选仅供人工确认修改，确认后才建表——绝不自动落库</span>
+            <span class="modeling-tip"
+              >基于规则解析（英文标识符 + 中文含义 +
+              类型词），不支持自由中文描述；候选仅供人工确认修改，确认后才建表——绝不自动落库</span
+            >
           </div>
 
           <div v-if="candidate" class="candidate-box">

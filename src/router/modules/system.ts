@@ -73,6 +73,8 @@ export const systemRoutes: AppRouteRecord = {
         title: '接口加解密',
         icon: 'ri:shield-keyhole-line',
         keepAlive: true,
+        // 接口加密能力在线自检工具：仅开发环境显示，生产构建隐藏菜单
+        isHide: import.meta.env.PROD,
         roles: ['R_SUPER', 'R_ADMIN']
       }
     },

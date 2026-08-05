@@ -17,11 +17,13 @@
 
 <script setup lang="ts">
   import { h } from 'vue'
-  import { ElButton, ElTag, ElMessage, ElMessageBox } from 'element-plus'
+  import { ElButton, ElMessage, ElMessageBox } from 'element-plus'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import request from '@/utils/http'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchFeedbackPage, fetchFeedbackStatus, fetchRemoveFeedback } from '@/api/feedback'
+  import { DICT_CODE } from '@/utils/constants'
 
   defineOptions({ name: 'Feedback' })
 
@@ -66,10 +68,9 @@
           prop: 'status',
           label: '状态',
           width: 100,
+          // 字典运行时驱动：改用 ArtDictTag，不再手写 已处理/未处理 判断
           formatter: (row: any) =>
-            h(ElTag, { type: row.status === 1 ? 'success' : 'info' }, () =>
-              row.status === 1 ? '已处理' : '未处理'
-            )
+            h(ArtDictTag, { code: DICT_CODE.FEEDBACK_STATUS, value: row.status })
         },
         { prop: 'createTime', label: '提交时间', minWidth: 170 },
         {

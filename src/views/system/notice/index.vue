@@ -33,21 +33,16 @@
 <script setup lang="ts">
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchNoticePage, fetchSaveNotice, fetchRemoveNotice } from '@/api/system-manage'
   import NoticeDialog from './modules/notice-dialog.vue'
   import ReadRecordDialog from './modules/read-record-dialog.vue'
   import { ElButton, ElTag, ElMessageBox, ElMessage } from 'element-plus'
+  import { DICT_CODE } from '@/utils/constants'
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'Notice' })
-
-  type TagType = 'primary' | 'success' | 'warning' | 'info' | 'danger'
-  const CATEGORY_MAP: Record<string, { text: string; type: TagType }> = {
-    notice: { text: '通知', type: 'primary' },
-    announcement: { text: '公告', type: 'success' },
-    warning: { text: '预警', type: 'warning' }
-  }
 
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
@@ -75,13 +70,9 @@
           prop: 'category',
           label: '分类',
           width: 100,
-          formatter: (row: any) => {
-            const c = CATEGORY_MAP[row.category] || {
-              text: row.category || '-',
-              type: 'info' as TagType
-            }
-            return h(ElTag, { type: c.type }, () => c.text)
-          }
+          // 字典运行时驱动：改用 ArtDictTag，不再手写 CATEGORY_MAP
+          formatter: (row: any) =>
+            h(ArtDictTag, { code: DICT_CODE.NOTICE_CATEGORY, value: row.category })
         },
         {
           prop: 'isTop',

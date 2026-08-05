@@ -24,7 +24,15 @@ export const DICT_CODE = {
   /** 用户状态：1 正常 / 0 停用 */
   USER_STATUS: 'user_status',
   /** 登录结果：1 成功 / 0 失败 */
-  LOGIN_RESULT: 'login_result'
+  LOGIN_RESULT: 'login_result',
+  /** 通知公告分类：notice 通知 / announcement 公告 / warning 预警 */
+  NOTICE_CATEGORY: 'notice_category',
+  /** 反馈处理状态：0 未处理 / 1 已处理 */
+  FEEDBACK_STATUS: 'feedback_status',
+  /** 流程实例状态：0 待提交 … 13 暂存（对应 warm-flow FlowStatus） */
+  FLOW_STATUS: 'flow_status',
+  /** 错误日志处理状态：0 未处理 / 1 已处理 / 2 已忽略 */
+  ERROR_LOG_STATUS: 'error_log_status'
 } as const
 
 /** 字典码字面量类型 */

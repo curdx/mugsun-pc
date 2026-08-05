@@ -77,25 +77,14 @@
 <script setup lang="ts">
   import { h, reactive, ref } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchErrorLogPage, fetchHandleErrorLog, fetchRemoveErrorLog } from '@/api/system-manage'
   import { hasPerm } from '@/utils/permission'
-  import {
-    ElMessage,
-    ElMessageBox,
-    ElRadio,
-    ElRadioButton,
-    ElRadioGroup,
-    ElTag
-  } from 'element-plus'
+  import { DICT_CODE } from '@/utils/constants'
+  import { ElMessage, ElMessageBox, ElRadio, ElRadioButton, ElRadioGroup } from 'element-plus'
 
   defineOptions({ name: 'ErrorLog' })
-
-  const STATUS_META: Record<number, { label: string; type: 'warning' | 'success' | 'info' }> = {
-    0: { label: '未处理', type: 'warning' },
-    1: { label: '已处理', type: 'success' },
-    2: { label: '已忽略', type: 'info' }
-  }
 
   const detailVisible = ref(false)
   const current = ref<Record<string, any>>({})
@@ -138,10 +127,9 @@
           prop: 'status',
           label: '状态',
           width: 90,
-          formatter: (row: any) => {
-            const meta = STATUS_META[row.status] ?? STATUS_META[0]
-            return h(ElTag, { type: meta.type }, () => meta.label)
-          }
+          // 字典运行时驱动：改用 ArtDictTag，不再手写 STATUS_META
+          formatter: (row: any) =>
+            h(ArtDictTag, { code: DICT_CODE.ERROR_LOG_STATUS, value: row.status })
         },
         { prop: 'createTime', label: '时间', minWidth: 170 },
         {

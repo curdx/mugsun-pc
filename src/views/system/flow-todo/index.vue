@@ -49,7 +49,9 @@
             <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
             <ElTableColumn prop="flowName" label="流程" min-width="120" />
             <ElTableColumn prop="flowStatus" label="状态" width="90">
-              <template #default="{ row }">{{ statusText(row) }}</template>
+              <template #default="{ row }">
+                <ArtDictTag :code="DICT_CODE.FLOW_STATUS" :value="row.flowStatus" />
+              </template>
             </ElTableColumn>
             <ElTableColumn prop="createTime" label="抄送时间" min-width="170" />
             <ElTableColumn label="操作" width="90" fixed="right">
@@ -120,6 +122,9 @@
   import { ref, reactive, computed, onMounted } from 'vue'
   import { ArrowDown } from '@element-plus/icons-vue'
   import { ElMessage } from 'element-plus'
+  import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
+  import { useDictStore } from '@/store/modules/dict'
+  import { DICT_CODE } from '@/utils/constants'
   import {
     fetchFlowMyTodo,
     fetchFlowMyCopy,
@@ -136,6 +141,8 @@
   } from '@/api/system-manage'
 
   defineOptions({ name: 'FlowTodo' })
+
+  const dictStore = useDictStore()
 
   const tab = ref('todo')
   const todo = ref<any[]>([])
@@ -261,25 +268,9 @@
     historyVisible.value = true
   }
 
-  const statusText = (h: any): string => {
-    const map: Record<string, string> = {
-      '0': '待提交',
-      '1': '审批中',
-      '2': '已通过',
-      '3': '自动完成',
-      '4': '已终止',
-      '5': '已作废',
-      '6': '已撤销',
-      '7': '已取回',
-      '8': '已完成',
-      '9': '已退回',
-      '10': '已失效',
-      '11': '已拿回',
-      '12': '已重启',
-      '13': '暂存'
-    }
-    return map[String(h.flowStatus)] || h.skipType || '流转'
-  }
+  // 字典运行时驱动：状态文案取 flow_status 字典（时间线纯文本场景用），不再手写 map
+  const statusText = (h: any): string =>
+    dictStore.getItem(DICT_CODE.FLOW_STATUS, h.flowStatus)?.dictValue || h.skipType || '流转'
 
   const timelineType = (h: any): 'primary' | 'success' | 'warning' | 'danger' => {
     const s = String(h.flowStatus)
@@ -290,6 +281,7 @@
   }
 
   onMounted(async () => {
+    dictStore.ensure([DICT_CODE.FLOW_STATUS])
     users.value = (await fetchFlowUserSelect()) || []
     loadTodo()
   })
