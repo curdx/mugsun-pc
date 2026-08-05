@@ -84,6 +84,33 @@ export function fetchSocialRender(source: string) {
   return request.get<{ authorizeUrl: string }>({ url: `/api/auth/social/render/${source}` })
 }
 
+/** 社交登录来源清单：已配置真实源 + mock 是否允许（登录页/个人中心据此渲染，无源整区隐藏） */
+export function fetchSocialSources() {
+  return request.get<{ sources: string[]; mockEnabled: boolean }>({
+    url: '/api/auth/social/sources'
+  })
+}
+
+/** 忘记密码：发送邮箱重置验证码（图形验证码防爆破；账号不存在也返回成功防枚举） */
+export function fetchForgetCode(data: {
+  username: string
+  tenantId?: string
+  captchaUuid: string
+  captchaCode: string
+}) {
+  return request.post<null>({ url: '/api/auth/forget-code', data })
+}
+
+/** 忘记密码：凭邮箱验证码重置密码（新密码 SM2 传输） */
+export function fetchForgetReset(data: {
+  username: string
+  tenantId?: string
+  code: string
+  newPassword: string
+}) {
+  return request.post<null>({ url: '/api/auth/forget-reset', data })
+}
+
 /** 社交登录：只传 source+code+state，openId 由服务端换取（管理端未绑定会被拒） */
 export function fetchSocialLogin(data: { source: string; code: string; state: string }) {
   return request.post<Api.Auth.LoginResponse>({ url: '/api/auth/social/login', data })

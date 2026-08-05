@@ -160,9 +160,24 @@
             </div>
           </ElForm>
 
-          <div class="social-login" v-if="showMockSocial">
+          <!-- 第三方登录：按 /auth/social/sources 动态渲染（有真实源显示真实按钮、无则整区隐藏；mock 维持 DEV-only） -->
+          <div class="social-login" v-if="showSocialArea">
             <ElDivider>第三方登录</ElDivider>
-            <ElButton class="w-full custom-height" @click="handleSocialLogin('mock')" v-ripple>
+            <ElButton
+              v-for="src in socialSources"
+              :key="src"
+              class="w-full custom-height social-btn"
+              @click="handleSocialLogin(src)"
+              v-ripple
+            >
+              {{ socialLabel(src) }} 登录
+            </ElButton>
+            <ElButton
+              v-if="showMockSocial && socialMockAllowed"
+              class="w-full custom-height social-btn"
+              @click="handleSocialLogin('mock')"
+              v-ripple
+            >
               模拟第三方登录
             </ElButton>
           </div>
@@ -186,7 +201,7 @@
   import { HttpError } from '@/utils/http/error'
   import { fetchLogin, fetchCaptcha, fetchTwoFactor, fetchSmsCode, fetchSmsLogin } from '@/api/auth'
   import { encryptPassword } from '@/utils/gm'
-  import { fetchSocialRender } from '@/api/auth'
+  import { fetchSocialRender, fetchSocialSources } from '@/api/auth'
   import { connectMessageSocket } from '@/utils/socket'
   import {
     ElNotification,
@@ -214,6 +229,32 @@
   const formRef = ref<FormInstance>()
   // mock 社交登录按钮仅 dev 展示（mock 来源身份固定，生产构建绝不出现）
   const showMockSocial = import.meta.env.DEV
+
+  // ===== 第三方登录：按 /auth/social/sources 动态渲染 =====
+  const socialSources = ref<string[]>([])
+  const socialMockAllowed = ref(false)
+  // 有真实源显示真实按钮，无源且 mock 不可用整区隐藏
+  const showSocialArea = computed(
+    () => socialSources.value.length > 0 || (showMockSocial && socialMockAllowed.value)
+  )
+  const SOCIAL_LABELS: Record<string, string> = {
+    github: 'GitHub',
+    gitee: 'Gitee',
+    qq: 'QQ',
+    wechat_open: '微信'
+  }
+  const socialLabel = (source: string) => SOCIAL_LABELS[source] || source
+  const loadSocialSources = async () => {
+    try {
+      const data = await fetchSocialSources()
+      socialSources.value = data.sources || []
+      socialMockAllowed.value = !!data.mockEnabled
+    } catch {
+      // 获取失败按无源处理（整区隐藏，不阻断登录主流程）
+      socialSources.value = []
+      socialMockAllowed.value = false
+    }
+  }
 
   const captchaImage = ref('')
 
@@ -361,6 +402,7 @@
       formData.password = '123456'
     }
     loadCaptcha()
+    loadSocialSources()
   })
 
   // 登录
@@ -463,5 +505,10 @@
   .sms-code-btn {
     flex-shrink: 0;
     width: 125px;
+  }
+
+  /* 第三方登录按钮纵向堆叠：清掉 el-button 相邻左间距，整行独占 */
+  .social-btn {
+    margin: 8px 0 0;
   }
 </style>

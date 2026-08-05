@@ -1,13 +1,29 @@
-<!-- 个人中心：修改昵称与密码 -->
+<!-- 个人中心：头像/昵称/密码维护 + 联系方式展示 + 第三方账号绑定 -->
 <template>
   <div class="user-center-page art-full-height">
     <ElRow :gutter="16">
       <ElCol :xs="24" :md="10">
         <ElCard>
           <template #header>个人信息</template>
+          <div class="uc-avatar-row">
+            <img v-if="info.avatar" :src="info.avatar" class="uc-avatar" alt="头像" />
+            <div v-else class="uc-avatar uc-avatar-fallback">
+              {{ (info.nickName || info.userName || '?').slice(0, 1) }}
+            </div>
+            <ElUpload
+              :auto-upload="false"
+              :show-file-list="false"
+              accept="image/*"
+              :on-change="handleAvatarChange"
+            >
+              <ElButton size="small" :loading="avatarUploading">更换头像</ElButton>
+            </ElUpload>
+          </div>
           <ElDescriptions :column="1" border>
             <ElDescriptionsItem label="账号">{{ info.userName }}</ElDescriptionsItem>
             <ElDescriptionsItem label="昵称">{{ info.nickName }}</ElDescriptionsItem>
+            <ElDescriptionsItem label="邮箱">{{ info.email || '未绑定' }}</ElDescriptionsItem>
+            <ElDescriptionsItem label="手机">{{ info.phone || '未绑定' }}</ElDescriptionsItem>
             <ElDescriptionsItem label="角色">{{
               (info.roles || []).join(', ')
             }}</ElDescriptionsItem>
@@ -65,7 +81,8 @@
           </ElForm>
         </ElCard>
 
-        <ElCard class="uc-form-card">
+        <!-- 第三方账号：mock 来源仅 dev 且后端允许时可见（门控与登录页对齐，生产绝不出现） -->
+        <ElCard class="uc-form-card" v-if="showMockBind">
           <template #header>第三方账号</template>
           <div class="uc-social">
             <span>模拟第三方（mock）</span>
@@ -81,11 +98,16 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, reactive, computed } from 'vue'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import { ref, reactive, computed, onMounted } from 'vue'
+  import type { FormInstance, FormRules, UploadFile } from 'element-plus'
   import { useUserStore } from '@/store/modules/user'
-  import { fetchUpdateInfo, fetchUpdatePassword } from '@/api/system-manage'
-  import { fetchSocialRender, fetchSocialUnbind } from '@/api/auth'
+  import {
+    fetchUpdateInfo,
+    fetchUpdatePassword,
+    fetchUpdateAvatar,
+    uploadAvatarFile
+  } from '@/api/system-manage'
+  import { fetchSocialRender, fetchSocialUnbind, fetchSocialSources } from '@/api/auth'
   import { encryptPassword } from '@/utils/gm'
   import { ElMessage } from 'element-plus'
 
@@ -108,6 +130,38 @@
       userStore.setUserInfo({ ...(userStore.getUserInfo as any), nickName: infoForm.nickname })
       ElMessage.success('昵称已修改')
     })
+  }
+
+  // ===== 头像上传：附件体系公开区 → URL 落 sys_user.avatar =====
+  const avatarUploading = ref(false)
+  const AVATAR_MAX_SIZE = 2 * 1024 * 1024
+
+  const handleAvatarChange = async (uploadFile: UploadFile): Promise<void> => {
+    const raw = uploadFile.raw
+    if (!raw) return
+    if (!raw.type.startsWith('image/')) {
+      ElMessage.warning('仅支持图片文件')
+      return
+    }
+    if (raw.size > AVATAR_MAX_SIZE) {
+      ElMessage.warning('头像大小不能超过 2MB')
+      return
+    }
+    try {
+      avatarUploading.value = true
+      const attach = await uploadAvatarFile(raw)
+      if (!attach?.url) {
+        ElMessage.error('头像上传失败：未返回可访问地址')
+        return
+      }
+      await fetchUpdateAvatar({ avatar: attach.url })
+      userStore.setUserInfo({ ...(userStore.getUserInfo as any), avatar: attach.url })
+      ElMessage.success('头像已更新')
+    } catch (error) {
+      console.error('[UserCenter] upload avatar failed:', error)
+    } finally {
+      avatarUploading.value = false
+    }
   }
 
   const pwdRef = ref<FormInstance>()
@@ -150,6 +204,18 @@
     })
   }
 
+  // ===== 第三方账号：mock 绑定区门控与登录页对齐（DEV 且后端允许 mock） =====
+  const showMockBind = ref(false)
+  onMounted(async () => {
+    if (!import.meta.env.DEV) return
+    try {
+      const data = await fetchSocialSources()
+      showMockBind.value = !!data.mockEnabled
+    } catch {
+      showMockBind.value = false
+    }
+  })
+
   // 绑定第三方账号：取授权地址并跳转，回调页检测到已登录态即执行绑定
   const bindSocial = async (source: string) => {
     try {
@@ -169,5 +235,30 @@
 <style scoped>
   .uc-form-card {
     margin-bottom: 16px;
+  }
+
+  .uc-avatar-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .uc-avatar {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border: 1px solid var(--art-border-color);
+    border-radius: 50%;
+  }
+
+  .uc-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #fff;
+    user-select: none;
+    background: var(--theme-color);
   }
 </style>
