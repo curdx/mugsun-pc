@@ -4,7 +4,13 @@
     <ElCard class="art-table-card" shadow="never">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton type="primary" @click="showDialog('add')" v-ripple>新增记录</ElButton>
+          <ElButton
+            v-perm="'sys:changelog:manage'"
+            type="primary"
+            @click="showDialog('add')"
+            v-ripple
+            >新增记录</ElButton
+          >
         </template>
       </ArtTableHeader>
 
@@ -65,6 +71,7 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtWangEditor from '@/components/core/forms/art-wang-editor/index.vue'
   import { useTable } from '@/hooks/core/useTable'
+  import { hasPerm } from '@/utils/permission'
   import {
     fetchChangelogPage,
     fetchChangelogDetail,
@@ -114,10 +121,15 @@
           label: '操作',
           width: 140,
           fixed: 'right',
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
           formatter: (row: any) =>
             h('div', [
-              h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(ArtButtonTable, { type: 'delete', onClick: () => remove(row) })
+              hasPerm('sys:changelog:manage')
+                ? h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) })
+                : null,
+              hasPerm('sys:changelog:manage')
+                ? h(ArtButtonTable, { type: 'delete', onClick: () => remove(row) })
+                : null
             ])
         }
       ]

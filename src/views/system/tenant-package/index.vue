@@ -11,7 +11,9 @@
     />
     <ElCard class="art-table-card">
       <div class="tpkg-toolbar">
-        <ElButton type="primary" @click="showCreate">新建套餐</ElButton>
+        <ElButton v-perm="'sys:tenant-package:save'" type="primary" @click="showCreate"
+          >新建套餐</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border v-loading="loading">
@@ -30,8 +32,12 @@
         <ElTableColumn prop="remark" label="备注" min-width="160" show-overflow-tooltip />
         <ElTableColumn label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="showEdit(row)">编辑</ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton v-perm="'sys:tenant-package:save'" link type="primary" @click="showEdit(row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:tenant-package:remove'" link type="danger" @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

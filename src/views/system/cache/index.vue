@@ -33,7 +33,13 @@
                   : '键列表（请选择左侧缓存）'
               }}
             </span>
-            <ElButton size="small" type="danger" :disabled="!keys.length" @click="clearGroup">
+            <ElButton
+              v-perm="'sys:cache:manage'"
+              size="small"
+              type="danger"
+              :disabled="!keys.length"
+              @click="clearGroup"
+            >
               清空该组
             </ElButton>
           </div>
@@ -45,7 +51,14 @@
             <ElTableColumn label="操作" width="150">
               <template #default="{ row }">
                 <ElButton link type="primary" size="small" @click="viewKey(row)">查看</ElButton>
-                <ElButton link type="danger" size="small" @click="removeKey(row)">清除</ElButton>
+                <ElButton
+                  v-perm="'sys:cache:manage'"
+                  link
+                  type="danger"
+                  size="small"
+                  @click="removeKey(row)"
+                  >清除</ElButton
+                >
               </template>
             </ElTableColumn>
           </ElTable>

@@ -3,7 +3,9 @@
   <div class="report-page art-full-height">
     <ElCard class="art-table-card">
       <div class="report-toolbar">
-        <ElButton type="primary" @click="showDialog()">新建报表</ElButton>
+        <ElButton v-perm="'sys:report:save'" type="primary" @click="showDialog()"
+          >新建报表</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border v-loading="loading">
@@ -16,8 +18,12 @@
         <ElTableColumn label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <ElButton link type="success" @click="preview(row)">预览</ElButton>
-            <ElButton link type="primary" @click="showDialog(row)">编辑</ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton v-perm="'sys:report:save'" link type="primary" @click="showDialog(row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:report:remove'" link type="danger" @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

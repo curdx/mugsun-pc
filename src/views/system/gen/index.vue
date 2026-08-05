@@ -32,6 +32,7 @@
         <span class="gen-label">作者</span>
         <ElInput v-model="importForm.author" style="width: 100px" placeholder="mugsun" />
         <ElButton
+          v-perm="'sys:gen:import'"
           type="primary"
           :loading="importing"
           :disabled="!importForm.tableName"
@@ -49,10 +50,33 @@
         <ElTableColumn prop="functionName" label="功能" min-width="140" show-overflow-tooltip />
         <ElTableColumn label="操作" width="280" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="primary" size="small" @click="openConfig(row)">配置</ElButton>
-            <ElButton link type="primary" size="small" @click="openPreview(row)">预览</ElButton>
-            <ElButton link type="warning" size="small" @click="doSync(row)">同步</ElButton>
-            <ElButton link type="success" size="small" @click="doDownload(row)">下载</ElButton>
+            <ElButton
+              v-perm="'sys:gen:edit'"
+              link
+              type="primary"
+              size="small"
+              @click="openConfig(row)"
+              >配置</ElButton
+            >
+            <ElButton
+              v-perm="'sys:gen:preview'"
+              link
+              type="primary"
+              size="small"
+              @click="openPreview(row)"
+              >预览</ElButton
+            >
+            <ElButton v-perm="'sys:gen:edit'" link type="warning" size="small" @click="doSync(row)"
+              >同步</ElButton
+            >
+            <ElButton
+              v-perm="'sys:gen:preview'"
+              link
+              type="success"
+              size="small"
+              @click="doDownload(row)"
+              >下载</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>
@@ -173,7 +197,16 @@
     author: 'mugsun'
   })
 
-  const htmlTypes = ['input', 'textarea', 'select', 'number', 'datetime', 'switch']
+  const htmlTypes = [
+    'input',
+    'textarea',
+    'select',
+    'radio',
+    'checkbox',
+    'number',
+    'datetime',
+    'switch'
+  ]
   const codeTabs = [
     { key: 'entity', label: 'Entity' },
     { key: 'mapper', label: 'Mapper' },

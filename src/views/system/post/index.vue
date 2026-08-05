@@ -12,7 +12,7 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton @click="showDialog('add')" v-ripple>新增岗位</ElButton>
+          <ElButton v-perm="'sys:post:save'" @click="showDialog('add')" v-ripple>新增岗位</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -44,6 +44,7 @@
   import { fetchGetPostList, fetchSavePost, fetchRemovePost } from '@/api/system-manage'
   import PostDialog from './modules/post-dialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
+  import { hasPerm } from '@/utils/permission'
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'Post' })
@@ -99,10 +100,15 @@
           label: '操作',
           width: 120,
           fixed: 'right',
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
           formatter: (row: any) =>
             h('div', [
-              h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
+              hasPerm('sys:post:save')
+                ? h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) })
+                : null,
+              hasPerm('sys:post:remove')
+                ? h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
+                : null
             ])
         }
       ]

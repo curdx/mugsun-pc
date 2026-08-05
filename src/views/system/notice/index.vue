@@ -4,7 +4,9 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton @click="showDialog('add')" v-ripple>新增公告</ElButton>
+          <ElButton v-perm="'sys:notice:manage'" @click="showDialog('add')" v-ripple
+            >新增公告</ElButton
+          >
         </template>
       </ArtTableHeader>
 
@@ -40,6 +42,7 @@
   import ReadRecordDialog from './modules/read-record-dialog.vue'
   import { ElButton, ElTag, ElMessageBox, ElMessage } from 'element-plus'
   import { DICT_CODE } from '@/utils/constants'
+  import { hasPerm } from '@/utils/permission'
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'Notice' })
@@ -100,15 +103,22 @@
           label: '操作',
           width: 180,
           fixed: 'right',
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
           formatter: (row: any) =>
             h('div', [
-              h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(
-                ElButton,
-                { size: 'small', link: true, type: 'primary', onClick: () => showRead(row) },
-                () => '阅读记录'
-              ),
-              h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
+              hasPerm('sys:notice:manage')
+                ? h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) })
+                : null,
+              hasPerm('sys:notice:manage')
+                ? h(
+                    ElButton,
+                    { size: 'small', link: true, type: 'primary', onClick: () => showRead(row) },
+                    () => '阅读记录'
+                  )
+                : null,
+              hasPerm('sys:notice:manage')
+                ? h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
+                : null
             ])
         }
       ]

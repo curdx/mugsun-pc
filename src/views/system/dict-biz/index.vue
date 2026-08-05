@@ -1,6 +1,11 @@
 <!-- 业务字典管理页面 -->
 <template>
-  <DictTreeView :tree-api="fetchDictBizTree" :save-api="saveDictBiz" :remove-api="removeDictBiz" />
+  <DictTreeView
+    :tree-api="fetchDictBizTree"
+    :save-api="saveDictBiz"
+    :remove-api="removeDictBiz"
+    perm-prefix="sys:dict-biz"
+  />
 </template>
 
 <script setup lang="ts">

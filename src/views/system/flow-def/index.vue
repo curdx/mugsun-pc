@@ -3,7 +3,9 @@
   <div class="flow-def-page art-full-height">
     <ElCard class="art-table-card">
       <div class="flow-toolbar">
-        <ElButton type="primary" @click="openDesigner">设计流程</ElButton>
+        <ElButton v-perm="'sys:flow:design'" type="primary" @click="openDesigner"
+          >设计流程</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border>
@@ -131,7 +133,9 @@
 
       <template #footer>
         <ElButton @click="designerVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submitDesign">部署流程</ElButton>
+        <ElButton v-perm="'sys:flow:design'" type="primary" @click="submitDesign"
+          >部署流程</ElButton
+        >
       </template>
     </ElDialog>
 

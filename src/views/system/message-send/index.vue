@@ -77,7 +77,9 @@
         </ElFormItem>
 
         <ElFormItem>
-          <ElButton type="primary" :loading="sending" @click="send">发送</ElButton>
+          <ElButton v-perm="'sys:message:manage'" type="primary" :loading="sending" @click="send"
+            >发送</ElButton
+          >
         </ElFormItem>
       </ElForm>
     </ElCard>

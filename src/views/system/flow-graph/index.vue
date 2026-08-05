@@ -3,7 +3,9 @@
   <div class="flow-graph-page art-full-height">
     <ElCard class="art-table-card">
       <div class="fg-toolbar">
-        <ElButton type="primary" @click="openDesigner">图形设计流程</ElButton>
+        <ElButton v-perm="'sys:flow:design-graph'" type="primary" @click="openDesigner"
+          >图形设计流程</ElButton
+        >
         <ElButton :loading="loading" @click="loadDefs">刷新</ElButton>
       </div>
 
@@ -34,14 +36,26 @@
           <template #default="{ row }">
             <ElButton
               v-if="String(row.activityStatus) === '1'"
+              v-perm="'sys:flow:definition'"
               link
               type="warning"
               @click="act('suspend', row)"
               >停用</ElButton
             >
-            <ElButton v-else link type="success" @click="act('active', row)">启用</ElButton>
-            <ElButton link type="primary" @click="act('copy', row)">复制新版本</ElButton>
-            <ElButton link type="danger" @click="act('remove', row)">删除</ElButton>
+            <ElButton
+              v-else
+              v-perm="'sys:flow:definition'"
+              link
+              type="success"
+              @click="act('active', row)"
+              >启用</ElButton
+            >
+            <ElButton v-perm="'sys:flow:definition'" link type="primary" @click="act('copy', row)"
+              >复制新版本</ElButton
+            >
+            <ElButton v-perm="'sys:flow:definition'" link type="danger" @click="act('remove', row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>
@@ -69,7 +83,13 @@
 
       <template #footer>
         <ElButton @click="designerVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="submitDesign">部署流程</ElButton>
+        <ElButton
+          v-perm="'sys:flow:design-graph'"
+          type="primary"
+          :loading="submitting"
+          @click="submitDesign"
+          >部署流程</ElButton
+        >
       </template>
     </ElDialog>
   </div>

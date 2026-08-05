@@ -3,7 +3,7 @@
   <div class="job-page art-full-height">
     <ElCard class="art-table-card">
       <div class="job-toolbar">
-        <ElButton type="primary" @click="showDialog()">新建任务</ElButton>
+        <ElButton v-perm="'sys:job:save'" type="primary" @click="showDialog()">新建任务</ElButton>
       </div>
 
       <ElTable :data="tableData" border v-loading="loading">
@@ -32,13 +32,19 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="320" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="success" @click="run(row)">立即执行</ElButton>
-            <ElButton link type="primary" @click="showDialog(row)">编辑</ElButton>
-            <ElButton link type="warning" @click="toggle(row)">
+            <ElButton v-perm="'sys:job:run'" link type="success" @click="run(row)"
+              >立即执行</ElButton
+            >
+            <ElButton v-perm="'sys:job:save'" link type="primary" @click="showDialog(row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:job:edit'" link type="warning" @click="toggle(row)">
               {{ row.status === 1 ? '停用' : '启用' }}
             </ElButton>
             <ElButton link type="primary" @click="showLogs(row)">日志</ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton v-perm="'sys:job:remove'" link type="danger" @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

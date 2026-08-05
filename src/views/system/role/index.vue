@@ -12,7 +12,7 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton @click="showDialog('add')" v-ripple>新增角色</ElButton>
+          <ElButton v-perm="'sys:role:save'" @click="showDialog('add')" v-ripple>新增角色</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -51,6 +51,7 @@
   import RoleDialog from './modules/role-dialog.vue'
   import RolePermissionDialog from './modules/role-permission-dialog.vue'
   import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
+  import { hasPerm } from '@/utils/permission'
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'Role' })
@@ -127,21 +128,28 @@
           label: '操作',
           width: 180,
           fixed: 'right',
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
           formatter: (row: any) =>
             h('div', [
-              h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) }),
-              h(
-                ElButton,
-                {
-                  link: true,
-                  type: 'primary',
-                  size: 'small',
-                  style: 'margin-left:8px',
-                  onClick: () => showPermission(row)
-                },
-                () => '授权'
-              )
+              hasPerm('sys:role:save')
+                ? h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) })
+                : null,
+              hasPerm('sys:role:remove')
+                ? h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
+                : null,
+              hasPerm('sys:role:grant')
+                ? h(
+                    ElButton,
+                    {
+                      link: true,
+                      type: 'primary',
+                      size: 'small',
+                      style: 'margin-left:8px',
+                      onClick: () => showPermission(row)
+                    },
+                    () => '授权'
+                  )
+                : null
             ])
         }
       ]

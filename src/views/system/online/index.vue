@@ -23,7 +23,14 @@
         <ElTableColumn prop="loginTime" label="登录时间" min-width="180" />
         <ElTableColumn label="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="danger" size="small" @click="kickout(row)">强制下线</ElButton>
+            <ElButton
+              v-perm="'sys:session:kickout'"
+              link
+              type="danger"
+              size="small"
+              @click="kickout(row)"
+              >强制下线</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

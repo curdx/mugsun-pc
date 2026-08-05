@@ -3,7 +3,13 @@
   <div class="mail-template-page art-full-height">
     <ElCard class="art-table-card">
       <div class="mt-toolbar">
-        <ElButton type="primary" @click="showDialog('add')" v-ripple>新增模板</ElButton>
+        <ElButton
+          v-perm="'sys:mail-template:save'"
+          type="primary"
+          @click="showDialog('add')"
+          v-ripple
+          >新增模板</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border>
@@ -20,9 +26,19 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="220">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="showDialog('edit', row)">编辑</ElButton>
-            <ElButton link type="success" @click="sendTest(row)">发送测试</ElButton>
-            <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
+            <ElButton
+              v-perm="'sys:mail-template:save'"
+              link
+              type="primary"
+              @click="showDialog('edit', row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:mail-template:send'" link type="success" @click="sendTest(row)"
+              >发送测试</ElButton
+            >
+            <ElButton v-perm="'sys:mail-template:remove'" link type="danger" @click="deleteRow(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

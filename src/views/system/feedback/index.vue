@@ -24,6 +24,7 @@
   import { useTable } from '@/hooks/core/useTable'
   import { fetchFeedbackPage, fetchFeedbackStatus, fetchRemoveFeedback } from '@/api/feedback'
   import { DICT_CODE } from '@/utils/constants'
+  import { hasPerm } from '@/utils/permission'
 
   defineOptions({ name: 'Feedback' })
 
@@ -78,14 +79,24 @@
           label: '操作',
           width: 160,
           fixed: 'right',
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
           formatter: (row: any) =>
             h('div', [
-              h(
-                ElButton,
-                { link: true, type: 'primary', size: 'small', onClick: () => toggleStatus(row) },
-                () => (row.status === 1 ? '标为未处理' : '标为已处理')
-              ),
-              h(ArtButtonTable, { type: 'delete', onClick: () => remove(row) })
+              hasPerm('sys:feedback:manage')
+                ? h(
+                    ElButton,
+                    {
+                      link: true,
+                      type: 'primary',
+                      size: 'small',
+                      onClick: () => toggleStatus(row)
+                    },
+                    () => (row.status === 1 ? '标为未处理' : '标为已处理')
+                  )
+                : null,
+              hasPerm('sys:feedback:manage')
+                ? h(ArtButtonTable, { type: 'delete', onClick: () => remove(row) })
+                : null
             ])
         }
       ]

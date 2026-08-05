@@ -3,7 +3,7 @@
   <div class="oss-page art-full-height">
     <ElCard class="art-table-card">
       <div class="oss-toolbar">
-        <ElButton @click="showDialog('add')" v-ripple>新增存储</ElButton>
+        <ElButton v-perm="'sys:oss:save'" @click="showDialog('add')" v-ripple>新增存储</ElButton>
       </div>
 
       <ElTable :data="tableData" border>
@@ -28,11 +28,21 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="220">
           <template #default="{ row }">
-            <ElButton link type="primary" :disabled="row.status === 1" @click="enableRow(row)">
+            <ElButton
+              v-perm="'sys:oss:edit'"
+              link
+              type="primary"
+              :disabled="row.status === 1"
+              @click="enableRow(row)"
+            >
               启用
             </ElButton>
-            <ElButton link type="primary" @click="showDialog('edit', row)">编辑</ElButton>
-            <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
+            <ElButton v-perm="'sys:oss:save'" link type="primary" @click="showDialog('edit', row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:oss:remove'" link type="danger" @click="deleteRow(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

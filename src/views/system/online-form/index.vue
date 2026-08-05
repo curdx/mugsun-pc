@@ -20,7 +20,38 @@
         </ElSelect>
         <template v-for="col in queryColumns" :key="col.columnName">
           <span class="online-label">{{ col.columnComment || col.javaField }}</span>
+          <!-- 查询控件按列类型渲染：数值/日期时间/字典下拉/文本 -->
+          <ElInputNumber
+            v-if="col.htmlType === 'number'"
+            v-model="query[col.columnName]"
+            :controls="false"
+            :placeholder="col.columnComment || col.javaField"
+            style="width: 150px"
+          />
+          <ElDatePicker
+            v-else-if="col.htmlType === 'datetime'"
+            v-model="query[col.columnName]"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            :placeholder="col.columnComment || col.javaField"
+            style="width: 190px"
+          />
+          <ElSelect
+            v-else-if="col.htmlType === 'select' && col.dictType"
+            v-model="query[col.columnName]"
+            :placeholder="col.columnComment || col.javaField"
+            style="width: 150px"
+            clearable
+          >
+            <ElOption
+              v-for="opt in dictOptions(col.dictType)"
+              :key="opt.value"
+              :label="opt.label"
+              :value="opt.value"
+            />
+          </ElSelect>
           <ElInput
+            v-else
             v-model="query[col.columnName]"
             :placeholder="col.columnComment || col.javaField"
             style="width: 150px"
@@ -28,7 +59,7 @@
           />
         </template>
         <ElButton v-if="tableId" type="primary" @click="reload">查询</ElButton>
-        <ElButton v-if="tableId" @click="openAdd">新增</ElButton>
+        <ElButton v-if="tableId" v-perm="'sys:online:edit'" @click="openAdd">新增</ElButton>
       </div>
 
       <ElTable :data="rows" border v-loading="loading" style="margin-top: 12px">
@@ -42,8 +73,22 @@
         />
         <ElTableColumn v-if="tableId" label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="primary" size="small" @click="openEdit(row)">编辑</ElButton>
-            <ElButton link type="danger" size="small" @click="remove(row)">删除</ElButton>
+            <ElButton
+              v-perm="'sys:online:edit'"
+              link
+              type="primary"
+              size="small"
+              @click="openEdit(row)"
+              >编辑</ElButton
+            >
+            <ElButton
+              v-perm="'sys:online:edit'"
+              link
+              type="danger"
+              size="small"
+              @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

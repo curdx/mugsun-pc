@@ -11,7 +11,7 @@
     />
     <ElCard class="art-table-card">
       <div class="menu-toolbar">
-        <ElButton @click="showDialog('add')" v-ripple>新增菜单</ElButton>
+        <ElButton v-perm="'sys:menu:save'" @click="showDialog('add')" v-ripple>新增菜单</ElButton>
       </div>
 
       <ElTable :data="treeData" row-key="id" default-expand-all border>
@@ -53,9 +53,15 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="240">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="showDialog('add', row)">新增下级</ElButton>
-            <ElButton link type="primary" @click="showDialog('edit', row)">编辑</ElButton>
-            <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
+            <ElButton v-perm="'sys:menu:save'" link type="primary" @click="showDialog('add', row)"
+              >新增下级</ElButton
+            >
+            <ElButton v-perm="'sys:menu:save'" link type="primary" @click="showDialog('edit', row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:menu:remove'" link type="danger" @click="deleteRow(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

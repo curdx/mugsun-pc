@@ -4,7 +4,9 @@
     <ElCard class="art-table-card">
       <div class="client-toolbar">
         <span class="client-title">登录客户端</span>
-        <ElButton type="primary" @click="openCreate">新增客户端</ElButton>
+        <ElButton v-perm="'sys:client:save'" type="primary" @click="openCreate"
+          >新增客户端</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border v-loading="loading">
@@ -28,8 +30,16 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="220" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="primary" size="small" @click="openEdit(row)">编辑</ElButton>
             <ElButton
+              v-perm="'sys:client:save'"
+              link
+              type="primary"
+              size="small"
+              @click="openEdit(row)"
+              >编辑</ElButton
+            >
+            <ElButton
+              v-perm="'sys:client:edit'"
               link
               :type="row.status === 1 ? 'warning' : 'success'"
               size="small"
@@ -37,7 +47,14 @@
             >
               {{ row.status === 1 ? '停用' : '启用' }}
             </ElButton>
-            <ElButton link type="danger" size="small" @click="remove(row)">删除</ElButton>
+            <ElButton
+              v-perm="'sys:client:remove'"
+              link
+              type="danger"
+              size="small"
+              @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

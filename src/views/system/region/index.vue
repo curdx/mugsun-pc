@@ -3,9 +3,11 @@
   <div class="region-page art-full-height">
     <ElCard class="art-table-card">
       <div class="region-toolbar">
-        <ElButton type="primary" @click="showDialog(null)">新增省级</ElButton>
+        <ElButton v-perm="'sys:region:save'" type="primary" @click="showDialog(null)"
+          >新增省级</ElButton
+        >
         <ElButton @click="doExport">导出</ElButton>
-        <ElButton @click="triggerImport">导入</ElButton>
+        <ElButton v-perm="'sys:region:import'" @click="triggerImport">导入</ElButton>
         <input ref="fileInput" type="file" accept=".xlsx" style="display: none" @change="onFile" />
       </div>
 
@@ -25,10 +27,18 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="200" fixed="right">
           <template #default="{ row }">
-            <ElButton v-if="row.level < 3" link type="primary" @click="showDialog(row)">
+            <ElButton
+              v-if="row.level < 3"
+              v-perm="'sys:region:save'"
+              link
+              type="primary"
+              @click="showDialog(row)"
+            >
               新增下级
             </ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton v-perm="'sys:region:remove'" link type="danger" @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

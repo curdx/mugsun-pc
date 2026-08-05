@@ -3,7 +3,7 @@
   <div class="form-page art-full-height">
     <ElCard class="art-table-card">
       <div class="form-toolbar">
-        <ElButton type="primary" @click="showCreate">新建表单</ElButton>
+        <ElButton v-perm="'sys:form:save'" type="primary" @click="showCreate">新建表单</ElButton>
       </div>
 
       <ElTable :data="tableData" border v-loading="loading">
@@ -20,10 +20,14 @@
         <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
         <ElTableColumn label="操作" width="280" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="openDesigner(row)">设计</ElButton>
+            <ElButton v-perm="'sys:form:save'" link type="primary" @click="openDesigner(row)"
+              >设计</ElButton
+            >
             <ElButton link type="success" @click="openFill(row)">填报</ElButton>
             <ElButton link type="warning" @click="openRecords(row)">记录</ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton v-perm="'sys:form:remove'" link type="danger" @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

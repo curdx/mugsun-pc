@@ -4,7 +4,9 @@
     <ElCard class="art-table-card" shadow="never">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton type="primary" @click="showDialog('add')" v-ripple>新增模板</ElButton>
+          <ElButton v-perm="'sys:message:manage'" type="primary" @click="showDialog('add')" v-ripple
+            >新增模板</ElButton
+          >
         </template>
       </ArtTableHeader>
 
@@ -48,6 +50,7 @@
   import { ElButton, ElMessage, ElMessageBox } from 'element-plus'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
+  import { hasPerm } from '@/utils/permission'
   import {
     fetchMsgTemplatePage,
     fetchMsgTemplateDetail,
@@ -80,10 +83,15 @@
           label: '操作',
           width: 140,
           fixed: 'right',
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
           formatter: (row: any) =>
             h('div', [
-              h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) }),
-              h(ArtButtonTable, { type: 'delete', onClick: () => remove(row) })
+              hasPerm('sys:message:manage')
+                ? h(ArtButtonTable, { type: 'edit', onClick: () => showDialog('edit', row) })
+                : null,
+              hasPerm('sys:message:manage')
+                ? h(ArtButtonTable, { type: 'delete', onClick: () => remove(row) })
+                : null
             ])
         }
       ]

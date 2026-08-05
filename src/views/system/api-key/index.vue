@@ -3,7 +3,9 @@
   <div class="apikey-page art-full-height">
     <ElCard class="art-table-card">
       <div class="apikey-toolbar">
-        <ElButton type="primary" @click="showDialog">生成密钥</ElButton>
+        <ElButton v-perm="'sys:api-key:generate'" type="primary" @click="showDialog"
+          >生成密钥</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border v-loading="loading">
@@ -21,10 +23,12 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="warning" @click="toggle(row)">
+            <ElButton v-perm="'sys:api-key:edit'" link type="warning" @click="toggle(row)">
               {{ row.status === 1 ? '停用' : '启用' }}
             </ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton v-perm="'sys:api-key:remove'" link type="danger" @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

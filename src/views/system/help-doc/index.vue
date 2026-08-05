@@ -7,7 +7,9 @@
         <ElCard class="art-table-card" shadow="never">
           <div class="panel-toolbar">
             <span class="panel-title">帮助目录</span>
-            <ElButton size="small" @click="showCatalogDialog('add')">新增目录</ElButton>
+            <ElButton v-perm="'sys:help:manage'" size="small" @click="showCatalogDialog('add')"
+              >新增目录</ElButton
+            >
           </div>
           <ElTable
             :data="catalogTree"
@@ -22,6 +24,7 @@
             <ElTableColumn label="操作" width="170">
               <template #default="{ row }">
                 <ElButton
+                  v-perm="'sys:help:manage'"
                   link
                   type="primary"
                   size="small"
@@ -30,6 +33,7 @@
                   下级
                 </ElButton>
                 <ElButton
+                  v-perm="'sys:help:manage'"
                   link
                   type="primary"
                   size="small"
@@ -37,7 +41,13 @@
                 >
                   编辑
                 </ElButton>
-                <ElButton link type="danger" size="small" @click.stop="removeCatalog(row)">
+                <ElButton
+                  v-perm="'sys:help:manage'"
+                  link
+                  type="danger"
+                  size="small"
+                  @click.stop="removeCatalog(row)"
+                >
                   删除
                 </ElButton>
               </template>
@@ -54,6 +64,7 @@
               {{ selectedCatalog ? `${selectedCatalog.name} · 文档` : '文档（请先选择左侧目录）' }}
             </span>
             <ElButton
+              v-perm="'sys:help:manage'"
               size="small"
               type="primary"
               :disabled="!selectedCatalog"
@@ -68,13 +79,30 @@
             <ElTableColumn prop="sort" label="排序" width="70" />
             <ElTableColumn label="操作" width="210">
               <template #default="{ row }">
-                <ElButton link type="primary" size="small" @click="showDocDialog('edit', row)"
+                <ElButton
+                  v-perm="'sys:help:manage'"
+                  link
+                  type="primary"
+                  size="small"
+                  @click="showDocDialog('edit', row)"
                   >编辑</ElButton
                 >
-                <ElButton link type="primary" size="small" @click="showBindingDialog(row)"
+                <ElButton
+                  v-perm="'sys:help:manage'"
+                  link
+                  type="primary"
+                  size="small"
+                  @click="showBindingDialog(row)"
                   >绑定页面</ElButton
                 >
-                <ElButton link type="danger" size="small" @click="removeDoc(row)">删除</ElButton>
+                <ElButton
+                  v-perm="'sys:help:manage'"
+                  link
+                  type="danger"
+                  size="small"
+                  @click="removeDoc(row)"
+                  >删除</ElButton
+                >
               </template>
             </ElTableColumn>
           </ElTable>

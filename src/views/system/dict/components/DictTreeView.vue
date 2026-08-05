@@ -11,7 +11,9 @@
     />
     <ElCard class="art-table-card">
       <div class="dict-toolbar">
-        <ElButton @click="showDialog('add')" v-ripple>新增字典</ElButton>
+        <ElButton v-perm="permPrefix + ':save'" @click="showDialog('add')" v-ripple
+          >新增字典</ElButton
+        >
       </div>
 
       <ElTable :data="treeData" row-key="id" default-expand-all border>
@@ -30,9 +32,23 @@
         <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
         <ElTableColumn label="操作" width="240">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="showDialog('add', row)">新增下级</ElButton>
-            <ElButton link type="primary" @click="showDialog('edit', row)">编辑</ElButton>
-            <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
+            <ElButton
+              v-perm="permPrefix + ':save'"
+              link
+              type="primary"
+              @click="showDialog('add', row)"
+              >新增下级</ElButton
+            >
+            <ElButton
+              v-perm="permPrefix + ':save'"
+              link
+              type="primary"
+              @click="showDialog('edit', row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="permPrefix + ':remove'" link type="danger" @click="deleteRow(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>
@@ -98,9 +114,11 @@
     treeApi: (params?: Record<string, any>) => Promise<any[]>
     saveApi: (data: Record<string, any>) => Promise<any>
     removeApi: (id: any) => Promise<any>
+    /** 权限码前缀（sys:dict / sys:dict-biz），按钮门控拼接 :save/:remove */
+    permPrefix?: string
   }
 
-  const props = defineProps<Props>()
+  const props = withDefaults(defineProps<Props>(), { permPrefix: 'sys:dict' })
 
   const dictStore = useDictStore()
 

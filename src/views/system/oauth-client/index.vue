@@ -3,7 +3,9 @@
   <div class="oauth-client-page art-full-height">
     <ElCard class="art-table-card">
       <div class="oauth-toolbar">
-        <ElButton type="primary" @click="showCreate">新建客户端</ElButton>
+        <ElButton v-perm="'sys:oauth:manage'" type="primary" @click="showCreate"
+          >新建客户端</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border v-loading="loading">
@@ -34,12 +36,18 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="230" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="showEdit(row)">编辑</ElButton>
-            <ElButton link type="warning" @click="resetSecret(row)">重置密钥</ElButton>
-            <ElButton link type="info" @click="toggle(row)">
+            <ElButton v-perm="'sys:oauth:manage'" link type="primary" @click="showEdit(row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:oauth:manage'" link type="warning" @click="resetSecret(row)"
+              >重置密钥</ElButton
+            >
+            <ElButton v-perm="'sys:oauth:manage'" link type="info" @click="toggle(row)">
               {{ row.status === 1 ? '停用' : '启用' }}
             </ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton v-perm="'sys:oauth:manage'" link type="danger" @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

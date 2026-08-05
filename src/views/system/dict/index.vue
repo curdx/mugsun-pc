@@ -1,6 +1,11 @@
 <!-- 系统字典管理页面 -->
 <template>
-  <DictTreeView :tree-api="fetchDictTree" :save-api="saveDict" :remove-api="removeDict" />
+  <DictTreeView
+    :tree-api="fetchDictTree"
+    :save-api="saveDict"
+    :remove-api="removeDict"
+    perm-prefix="sys:dict"
+  />
 </template>
 
 <script setup lang="ts">

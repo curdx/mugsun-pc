@@ -60,8 +60,10 @@
             </ElTable>
             <div class="modeling-actions">
               <ElButton @click="addCol">加字段</ElButton>
-              <ElButton type="success" @click="confirmBuild(true)">确认并建表</ElButton>
-              <ElButton @click="confirmBuild(false)">仅保存配置</ElButton>
+              <ElButton v-perm="'sys:gen:ddl'" type="success" @click="confirmBuild(true)"
+                >确认并建表</ElButton
+              >
+              <ElButton v-perm="'sys:gen:ddl'" @click="confirmBuild(false)">仅保存配置</ElButton>
             </div>
           </div>
         </ElTabPane>
@@ -77,12 +79,36 @@
                 <ElButton link type="primary" size="small" @click="openColumns(row)"
                   >字段配置</ElButton
                 >
-                <ElButton link type="info" size="small" @click="preview(row)">预览DDL</ElButton>
-                <ElButton link type="success" size="small" @click="doCreate(row)">建表</ElButton>
-                <ElButton link type="warning" size="small" @click="doSync(row, false)"
+                <ElButton
+                  v-perm="'sys:gen:preview'"
+                  link
+                  type="info"
+                  size="small"
+                  @click="preview(row)"
+                  >预览DDL</ElButton
+                >
+                <ElButton
+                  v-perm="'sys:gen:ddl'"
+                  link
+                  type="success"
+                  size="small"
+                  @click="doCreate(row)"
+                  >建表</ElButton
+                >
+                <ElButton
+                  v-perm="'sys:gen:ddl'"
+                  link
+                  type="warning"
+                  size="small"
+                  @click="doSync(row, false)"
                   >增量同步</ElButton
                 >
-                <ElButton link type="danger" size="small" @click="doSync(row, true)"
+                <ElButton
+                  v-perm="'sys:gen:ddl'"
+                  link
+                  type="danger"
+                  size="small"
+                  @click="doSync(row, true)"
                   >强制重建</ElButton
                 >
               </template>
@@ -133,8 +159,12 @@
         </ElTable>
         <template #footer>
           <ElButton @click="addEditCol">加字段</ElButton>
-          <ElButton type="primary" @click="saveColumns(false)">保存配置</ElButton>
-          <ElButton type="warning" @click="saveColumns(true)">保存并同步到物理表</ElButton>
+          <ElButton v-perm="'sys:gen:edit'" type="primary" @click="saveColumns(false)"
+            >保存配置</ElButton
+          >
+          <ElButton v-perm="'sys:gen:ddl'" type="warning" @click="saveColumns(true)"
+            >保存并同步到物理表</ElButton
+          >
         </template>
       </ElDialog>
     </ElCard>

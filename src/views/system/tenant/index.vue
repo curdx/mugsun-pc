@@ -11,7 +11,9 @@
     />
     <ElCard class="art-table-card">
       <div class="tenant-toolbar">
-        <ElButton type="primary" @click="openCreate" v-ripple>新增租户</ElButton>
+        <ElButton v-perm="'sys:tenant:save'" type="primary" @click="openCreate" v-ripple
+          >新增租户</ElButton
+        >
       </div>
 
       <ElTable :data="tableData" border>
@@ -40,8 +42,12 @@
         <ElTableColumn prop="expireTime" label="过期时间" min-width="170" />
         <ElTableColumn label="操作" width="150">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="openEdit(row)">编辑</ElButton>
-            <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
+            <ElButton v-perm="'sys:tenant:save'" link type="primary" @click="openEdit(row)"
+              >编辑</ElButton
+            >
+            <ElButton v-perm="'sys:tenant:remove'" link type="danger" @click="deleteRow(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

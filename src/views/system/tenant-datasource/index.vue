@@ -3,7 +3,9 @@
   <div class="tds-page art-full-height">
     <ElCard class="art-table-card">
       <div class="tds-toolbar">
-        <ElButton type="primary" @click="showCreate">新增数据源</ElButton>
+        <ElButton v-perm="'sys:tenant-datasource:save'" type="primary" @click="showCreate"
+          >新增数据源</ElButton
+        >
         <ElAlert
           type="info"
           :closable="false"
@@ -33,8 +35,20 @@
         <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
         <ElTableColumn label="操作" width="150" fixed="right">
           <template #default="{ row }">
-            <ElButton link type="primary" @click="showEdit(row)">编辑</ElButton>
-            <ElButton link type="danger" @click="remove(row)">删除</ElButton>
+            <ElButton
+              v-perm="'sys:tenant-datasource:save'"
+              link
+              type="primary"
+              @click="showEdit(row)"
+              >编辑</ElButton
+            >
+            <ElButton
+              v-perm="'sys:tenant-datasource:remove'"
+              link
+              type="danger"
+              @click="remove(row)"
+              >删除</ElButton
+            >
           </template>
         </ElTableColumn>
       </ElTable>

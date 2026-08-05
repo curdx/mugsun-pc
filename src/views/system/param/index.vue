@@ -11,7 +11,7 @@
     />
     <ElCard class="art-table-card">
       <div class="param-toolbar">
-        <ElButton @click="showDialog('add')" v-ripple>新增参数</ElButton>
+        <ElButton v-perm="'sys:param:save'" @click="showDialog('add')" v-ripple>新增参数</ElButton>
       </div>
 
       <ArtTable
@@ -41,6 +41,7 @@
   import { fetchParamList, fetchSaveParam, fetchRemoveParam } from '@/api/system-manage'
   import ParamDialog from './modules/param-dialog.vue'
   import { ElButton } from 'element-plus'
+  import { hasPerm } from '@/utils/permission'
   import type { ColumnOption } from '@/types/component'
 
   defineOptions({ name: 'SysParam' })
@@ -76,18 +77,28 @@
       label: '操作',
       width: 160,
       fixed: 'right',
+      // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
       formatter: (row: any) =>
         h('div', [
-          h(
-            ElButton,
-            { link: true, type: 'primary', size: 'small', onClick: () => showDialog('edit', row) },
-            () => '编辑'
-          ),
-          h(
-            ElButton,
-            { link: true, type: 'danger', size: 'small', onClick: () => handleDelete(row) },
-            () => '删除'
-          )
+          hasPerm('sys:param:save')
+            ? h(
+                ElButton,
+                {
+                  link: true,
+                  type: 'primary',
+                  size: 'small',
+                  onClick: () => showDialog('edit', row)
+                },
+                () => '编辑'
+              )
+            : null,
+          hasPerm('sys:param:remove')
+            ? h(
+                ElButton,
+                { link: true, type: 'danger', size: 'small', onClick: () => handleDelete(row) },
+                () => '删除'
+              )
+            : null
         ])
     }
   ]
