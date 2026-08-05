@@ -525,6 +525,10 @@ export function fetchFlowHistory(instanceId: number | string) {
 export function fetchJobList() {
   return request.get<any[]>({ url: '/api/system/job/list' })
 }
+/** 处理器注册表（BasicProcessor 实现，value=全限定类名 label=简单类名） */
+export function fetchJobProcessors() {
+  return request.get<Array<{ label: string; value: string }>>({ url: '/api/system/job/processors' })
+}
 export function fetchSaveJob(data: Record<string, any>) {
   return request.post<number>({ url: '/api/system/job/save', data })
 }
@@ -626,6 +630,17 @@ export function fetchUpdateInfo(data: Record<string, any>) {
 }
 export function fetchUpdatePassword(data: Record<string, any>) {
   return request.post<void>({ url: '/api/auth/update-password', data })
+}
+/** 更新头像（/system/file/upload 公开区产物 URL，落 sys_user.avatar） */
+export function fetchUpdateAvatar(data: { avatar: string }) {
+  return request.post<void>({ url: '/api/auth/update-avatar', data })
+}
+/** 头像上传：公开区登记（img 直显免授权下载），返回 SysAttach 取 url */
+export function uploadAvatarFile(file: File) {
+  const form = new FormData()
+  form.append('file', file)
+  form.append('access', 'public')
+  return request.post<any>({ url: '/api/system/file/upload', data: form })
 }
 
 // 获取菜单列表

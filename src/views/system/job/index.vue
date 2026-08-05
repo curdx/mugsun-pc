@@ -8,12 +8,20 @@
 
       <ElTable :data="tableData" border v-loading="loading">
         <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="jobName" label="任务名称" min-width="160" />
-        <ElTableColumn prop="jobDescription" label="描述" min-width="160" show-overflow-tooltip />
-        <ElTableColumn label="触发方式" min-width="160">
+        <ElTableColumn prop="jobName" label="任务名称" min-width="140" />
+        <ElTableColumn label="处理器" min-width="150" show-overflow-tooltip>
+          <template #default="{ row }">{{ simpleName(row.processorInfo) }}</template>
+        </ElTableColumn>
+        <ElTableColumn prop="jobParams" label="任务参数" min-width="110" show-overflow-tooltip>
+          <template #default="{ row }">{{ row.jobParams || '—' }}</template>
+        </ElTableColumn>
+        <ElTableColumn label="触发方式" min-width="150">
           <template #default="{ row }">
             {{ row.timeExpression ? `CRON ${row.timeExpression}` : '手动触发' }}
           </template>
+        </ElTableColumn>
+        <ElTableColumn label="下次触发" min-width="160">
+          <template #default="{ row }">{{ fmt(row.nextTriggerTime) }}</template>
         </ElTableColumn>
         <ElTableColumn label="状态" width="90">
           <template #default="{ row }">
@@ -49,6 +57,22 @@
         </ElFormItem>
         <ElFormItem label="描述">
           <ElInput v-model="form.jobDescription" placeholder="任务描述" />
+        </ElFormItem>
+        <ElFormItem label="处理器" prop="processorInfo">
+          <ElSelect v-model="form.processorInfo" placeholder="请选择处理器" style="width: 100%">
+            <ElOption
+              v-for="p in processorOptions"
+              :key="p.value"
+              :label="p.label"
+              :value="p.value"
+            />
+          </ElSelect>
+        </ElFormItem>
+        <ElFormItem label="任务参数">
+          <ElInput
+            v-model="form.jobParams"
+            placeholder="jobParams（如缓存分组前缀 mugsun:dict，可空）"
+          />
         </ElFormItem>
         <ElFormItem label="触发方式" prop="timeExpressionType">
           <ElSelect v-model="form.timeExpressionType" style="width: 100%">
@@ -89,6 +113,7 @@
   import type { FormInstance, FormRules } from 'element-plus'
   import {
     fetchJobList,
+    fetchJobProcessors,
     fetchSaveJob,
     fetchRunJob,
     fetchEnableJob,
@@ -106,19 +131,27 @@
   const logsVisible = ref(false)
   const logs = ref<any[]>([])
   const formRef = ref<FormInstance>()
+  const processorOptions = ref<Array<{ label: string; value: string }>>([])
 
   const form = reactive<Record<string, any>>({
     id: undefined,
     jobName: '',
     jobDescription: '',
+    processorInfo: '',
+    jobParams: '',
     timeExpressionType: 'API',
     timeExpression: ''
   })
 
   const rules: FormRules = {
     jobName: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
+    processorInfo: [{ required: true, message: '请选择处理器', trigger: 'change' }],
     timeExpression: [{ required: true, message: '请输入 CRON 表达式', trigger: 'blur' }]
   }
+
+  /** 全限定类名 → 简单类名展示 */
+  const simpleName = (className: string): string =>
+    className ? className.substring(className.lastIndexOf('.') + 1) : '—'
 
   const loadData = async (): Promise<void> => {
     loading.value = true
@@ -129,13 +162,18 @@
     }
   }
 
-  onMounted(loadData)
+  onMounted(async () => {
+    await loadData()
+    processorOptions.value = (await fetchJobProcessors()) || []
+  })
 
   const showDialog = (row?: any): void => {
     Object.assign(form, {
       id: undefined,
       jobName: '',
       jobDescription: '',
+      processorInfo: '',
+      jobParams: '',
       timeExpressionType: 'API',
       timeExpression: ''
     })
@@ -143,6 +181,8 @@
       form.id = row.id
       form.jobName = row.jobName
       form.jobDescription = row.jobDescription
+      form.processorInfo = row.processorInfo || ''
+      form.jobParams = row.jobParams || ''
       form.timeExpressionType = row.timeExpression ? 'CRON' : 'API'
       form.timeExpression = row.timeExpression || ''
     }
