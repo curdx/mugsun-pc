@@ -132,3 +132,15 @@ export async function logout(page: Page): Promise<void> {
   // 等守卫把未登录态重定向到登录页（异步，等其落定再放行后续导航）
   await page.waitForURL(/\/auth\/login/, { timeout: 10_000 })
 }
+
+/** 读取当前会话 accessToken（pinia 持久化键带版本前缀，如 sys-v3.0.2-user，向后兼容裸 user 键） */
+export async function readAccessToken(page: Page): Promise<string> {
+  return page.evaluate(() => {
+    const key = Object.keys(localStorage).find((k) => k.endsWith('-user')) || 'user'
+    try {
+      return JSON.parse(localStorage.getItem(key) || '{}').accessToken || ''
+    } catch {
+      return ''
+    }
+  })
+}

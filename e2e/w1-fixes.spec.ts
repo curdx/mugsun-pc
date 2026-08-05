@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
-import { login, logout, readCaptchaCode } from './fixtures/auth'
+import { login, logout, readCaptchaCode, readAccessToken } from './fixtures/auth'
 
 /**
  * W1「一眼假清理」逐项真实浏览器验证。
@@ -140,9 +140,7 @@ test('W1-R8/R2 自助注册分配默认角色 + 定时任务读接口按权限�
   await expect(page.getByText('租户运营', { exact: true })).toHaveCount(0)
 
   // —— 该用户调定时任务读接口被拒（修复前任意登录可读） ——
-  const userToken = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('user') || '{}').accessToken
-  )
+  const userToken = await readAccessToken(page)
   const denied = await page.request.get('/api/system/job/list', {
     headers: { Authorization: userToken }
   })
@@ -151,9 +149,7 @@ test('W1-R8/R2 自助注册分配默认角色 + 定时任务读接口按权限�
   // —— admin 不受影响 ——
   await logout(page)
   await login(page)
-  const adminToken = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('user') || '{}').accessToken
-  )
+  const adminToken = await readAccessToken(page)
   const allowed = await page.request.get('/api/system/job/list', {
     headers: { Authorization: adminToken }
   })

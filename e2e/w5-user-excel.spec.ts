@@ -2,7 +2,7 @@ import { execSync } from 'node:child_process'
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
 import * as XLSX from 'xlsx'
-import { login, logout } from './fixtures/auth'
+import { login, logout, readAccessToken } from './fixtures/auth'
 
 /**
  * W5 用户导入导出完整化：
@@ -31,7 +31,7 @@ function psql(sql: string): string {
 
 /** 从页面 localStorage 取当前 token */
 async function token(page: Page): Promise<string> {
-  return page.evaluate(() => JSON.parse(localStorage.getItem('user') || '{}').accessToken)
+  return readAccessToken(page)
 }
 
 /** multipart 上传导入文件 */

@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
-import { login, logout } from './fixtures/auth'
+import { login, logout, readAccessToken } from './fixtures/auth'
 
 /**
  * W7 按钮级权限门控：v-perm/hasPerm 与后端权限码对齐。
@@ -18,9 +18,7 @@ function psql(sql: string): string {
 
 /** 从页面 localStorage 取当前 token 调 API */
 async function api(page: Page, method: 'GET' | 'POST', url: string, body?: any) {
-  const token = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('user') || '{}').accessToken
-  )
+  const token = await readAccessToken(page)
   return page.request.fetch(`/api${url}`, {
     method,
     headers: { Authorization: token, 'Content-Type': 'application/json' },

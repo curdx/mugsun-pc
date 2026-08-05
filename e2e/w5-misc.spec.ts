@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
-import { login } from './fixtures/auth'
+import { login, readAccessToken } from './fixtures/auth'
 
 /**
  * W5 任务G 杂项清理验证：
@@ -21,9 +21,7 @@ function psql(sql: string): string {
 
 /** 从页面 localStorage 取当前 token 调 API（同 w3-menu） */
 async function api(page: Page, method: 'GET' | 'POST', url: string, body?: any) {
-  const token = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('user') || '{}').accessToken
-  )
+  const token = await readAccessToken(page)
   return page.request.fetch(`/api${url}`, {
     method,
     headers: { Authorization: token, 'Content-Type': 'application/json' },

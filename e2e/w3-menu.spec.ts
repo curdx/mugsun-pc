@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process'
 import type { Page } from '@playwright/test'
 import { test, expect } from '@playwright/test'
-import { login, logout } from './fixtures/auth'
+import { login, logout, readAccessToken } from './fixtures/auth'
 
 /**
  * W3 后端菜单驱动矩阵：菜单管理真实驱动侧边栏（修「两张皮」）。
@@ -19,9 +19,7 @@ function psql(sql: string): string {
 
 /** 从页面 localStorage 取当前 token 调 API */
 async function api(page: Page, method: 'GET' | 'POST', url: string, body?: any) {
-  const token = await page.evaluate(
-    () => JSON.parse(localStorage.getItem('user') || '{}').accessToken
-  )
+  const token = await readAccessToken(page)
   return page.request.fetch(`/api${url}`, {
     method,
     headers: { Authorization: token, 'Content-Type': 'application/json' },
@@ -68,9 +66,11 @@ test('W3-2 授权驱动：角色授权/回收侧边栏即时变化', async () =>
   expect(datatestRoleId).not.toBe('')
   const resetResp = await api(page, 'POST', '/system/user/reset-password', [fronttestId])
   expect(resetResp.status()).toBe(200)
-  // 记录 datatest 当前授权（用于回收还原）
+  // 记录 datatest 当前授权（用于回收还原）；先强制剔除角色管理作净基线（防历史失败轮残留污染）
   const currentResp = await api(page, 'GET', `/system/role/menu-ids?roleId=${datatestRoleId}`)
-  const currentIds = (await currentResp.json()).data as number[]
+  const rawIds = ((await currentResp.json()).data as (number | string)[]).map(String)
+  const currentIds = rawIds.filter((id) => id !== ROLE_MENU_ID)
+  await api(page, 'POST', '/system/role/grant', { roleId: datatestRoleId, menuIds: currentIds })
 
   // ① fronttest 登录：无 角色管理（datatest 未授），有 用户管理（已授）与公共菜单
   await logout(page)
@@ -97,7 +97,11 @@ test('W3-2 授权驱动：角色授权/回收侧边栏即时变化', async () =>
   const roleMenuItem = page.getByRole('menuitem', { name: '角色管理' })
   await expect(roleMenuItem).toBeVisible({ timeout: 10_000 })
   await roleMenuItem.click()
-  await expect(page.getByRole('button', { name: '新增角色' })).toBeVisible({ timeout: 10_000 })
+  // 菜单可见即可达（授权生效）；v-perm 门控下 fronttest 无 sys:role:save，新增按钮隐藏属预期
+  await expect(page.getByRole('columnheader', { name: '角色名称' })).toBeVisible({
+    timeout: 10_000
+  })
+  await expect(page.getByRole('button', { name: '新增角色' })).toHaveCount(0)
 
   // ③ 回收 → 重新登录 → 消失
   await logout(page)
