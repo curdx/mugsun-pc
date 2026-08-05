@@ -14,15 +14,8 @@
         <template #left>
           <ElButton v-perm="'sys:user:add'" @click="showDialog('add')" v-ripple>新增用户</ElButton>
           <ElButton @click="handleExport" v-ripple>导出</ElButton>
-          <ElButton v-perm="'sys:user:add'" @click="triggerImport" v-ripple>导入</ElButton>
+          <ElButton v-perm="'sys:user:add'" @click="importVisible = true" v-ripple>导入</ElButton>
           <ElButton @click="handleResetColumns" v-ripple>恢复默认列</ElButton>
-          <input
-            ref="importInput"
-            type="file"
-            accept=".xlsx,.xls"
-            style="display: none"
-            @change="handleImport"
-          />
         </template>
       </ArtTableHeader>
 
@@ -46,6 +39,8 @@
       />
 
       <UserRoleDialog v-model:visible="userRoleVisible" :user-data="currentRoleUser" />
+
+      <UserImportDialog v-model:visible="importVisible" @success="refreshData" />
     </ElCard>
   </div>
 </template>
@@ -57,17 +52,11 @@
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { useTableColumnPersist } from '@/hooks/core/useTableColumnPersist'
-  import {
-    fetchUserPage,
-    saveUser,
-    removeUser,
-    exportUser,
-    importUser,
-    resetUserPassword
-  } from '@/api/user'
+  import { fetchUserPage, saveUser, removeUser, exportUser, resetUserPassword } from '@/api/user'
   import { fetchDeptTree } from '@/api/system-manage'
   import UserDialog from './modules/user-dialog.vue'
   import UserRoleDialog from './modules/user-role-dialog.vue'
+  import UserImportDialog from './modules/user-import-dialog.vue'
   import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
   import { DICT_CODE } from '@/utils/constants'
   import { hasPerm } from '@/utils/permission'
@@ -134,7 +123,7 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentUserData = ref<Record<string, any>>({})
-  const importInput = ref<HTMLInputElement>()
+  const importVisible = ref(false)
   const userRoleVisible = ref(false)
   const currentRoleUser = ref<Record<string, any>>({})
 
@@ -154,25 +143,12 @@
     })
   }
 
-  // 导出用户
+  // 导出用户：按当前生效的查询条件导出（剔除分页参数；空值由后端忽略）
   const handleExport = async (): Promise<void> => {
-    await exportUser()
-  }
-
-  // 触发导入文件选择
-  const triggerImport = (): void => {
-    importInput.value?.click()
-  }
-
-  // 导入用户
-  const handleImport = async (event: Event): Promise<void> => {
-    const input = event.target as HTMLInputElement
-    const file = input.files?.[0]
-    if (!file) return
-    await importUser(file)
-    ElMessage.success('导入成功')
-    input.value = ''
-    refreshData()
+    const conditions = { ...(searchParams as Record<string, any>) }
+    delete conditions.pageNum
+    delete conditions.pageSize
+    await exportUser(conditions)
   }
 
   // 表格列工厂（与列持久化共用同一份出厂默认）
@@ -236,6 +212,7 @@
     data,
     loading,
     pagination,
+    searchParams,
     handleSizeChange,
     handleCurrentChange,
     refreshData,

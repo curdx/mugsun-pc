@@ -1,5 +1,5 @@
 import request from '@/utils/http'
-import type { UserPage, UserPageQuery, UserForm, UserVO } from './type'
+import type { UserPage, UserPageQuery, UserForm, UserVO, UserQuery, UserImportResult } from './type'
 
 /** 用户分页（强类型：返回 openapi 生成的 PageSysUser） */
 export function fetchUserPage(params: UserPageQuery) {
@@ -44,14 +44,23 @@ export function grantUser(userId: number | string, roleIds: Array<number | strin
   return request.post<void>({ url: '/api/system/user/grant', data: { userId, roleIds } })
 }
 
-/** 导出用户（授权流式下载） */
-export function exportUser() {
-  return request.download({ url: '/api/system/user/export', filename: '用户数据.xlsx' })
+/** 导出用户（按查询条件，授权流式下载；手机号由后端按字段级权限裁决明文/脱敏） */
+export function exportUser(params?: UserQuery) {
+  return request.download({ url: '/api/system/user/export', params, filename: '用户数据.xlsx' })
 }
 
-/** 导入用户（multipart 上传） */
-export function importUser(file: File) {
+/** 下载用户导入模板（表头 + 一行示例） */
+export function downloadUserImportTemplate() {
+  return request.download({
+    url: '/api/system/user/import-template',
+    filename: '用户导入模板.xlsx'
+  })
+}
+
+/** 导入用户（multipart 上传；updateSupport=true 覆盖更新已存在账号，返回成败明细） */
+export function importUser(file: File, updateSupport: boolean) {
   const form = new FormData()
   form.append('file', file)
-  return request.post<void>({ url: '/api/system/user/import', data: form })
+  form.append('updateSupport', String(updateSupport))
+  return request.post<UserImportResult>({ url: '/api/system/user/import', data: form })
 }

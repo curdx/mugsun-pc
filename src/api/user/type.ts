@@ -13,11 +13,27 @@ export type UserPage = ApiSchema<'PageSysUser'>
 export interface UserQuery {
   username?: string
   nickname?: string
+  phone?: string
   status?: number
+  deptId?: number
 }
 
 /** 用户分页查询（查询条件 + 分页三件套） */
 export interface UserPageQuery extends UserQuery, PageQuery {}
+
+/** 用户导入失败行（rowIndex 为 Excel 物理行号，表头占第 1 行） */
+export interface UserImportFailRow {
+  rowIndex: number
+  username: string
+  reason: string
+}
+
+/** 用户导入结果（成败计数 + 失败明细） */
+export interface UserImportResult {
+  successCount: number
+  failCount: number
+  failList: UserImportFailRow[]
+}
 
 /** 用户新增/编辑表单 */
 export type UserForm = Partial<
