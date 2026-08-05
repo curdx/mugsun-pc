@@ -1044,6 +1044,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/login-log/unlock': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['unlock']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/job/save': {
     parameters: {
       query?: never
@@ -4164,14 +4180,14 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/file/list': {
+  '/system/file/page': {
     parameters: {
       query?: never
       header?: never
       path?: never
       cookie?: never
     }
-    get: operations['list_8']
+    get: operations['page_20']
     put?: never
     post?: never
     delete?: never
@@ -4219,7 +4235,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_20']
+    get: operations['page_21']
     put?: never
     post?: never
     delete?: never
@@ -4235,7 +4251,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_21']
+    get: operations['page_22']
     put?: never
     post?: never
     delete?: never
@@ -4411,7 +4427,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_22']
+    get: operations['page_23']
     put?: never
     post?: never
     delete?: never
@@ -4443,7 +4459,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_23']
+    get: operations['page_24']
     put?: never
     post?: never
     delete?: never
@@ -4459,7 +4475,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_24']
+    get: operations['page_25']
     put?: never
     post?: never
     delete?: never
@@ -4491,7 +4507,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_25']
+    get: operations['page_26']
     put?: never
     post?: never
     delete?: never
@@ -4571,7 +4587,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_26']
+    get: operations['page_27']
     put?: never
     post?: never
     delete?: never
@@ -4603,7 +4619,7 @@ export interface paths {
       path?: never
       cookie?: never
     }
-    get: operations['page_27']
+    get: operations['page_28']
     put?: never
     post?: never
     delete?: never
@@ -5257,6 +5273,13 @@ export interface components {
       permission?: string
       /** Format: int32 */
       sort?: number
+      icon?: string
+      /** Format: int32 */
+      isHide?: number
+      /** Format: int32 */
+      isKeepAlive?: number
+      /** Format: int32 */
+      isExternal?: number
       children?: components['schemas']['SysMenu'][]
     }
     SysMailTemplate: {
@@ -6676,6 +6699,9 @@ export interface components {
       loginTime?: string
       tenantId?: string
       userAgent?: string
+      browser?: string
+      os?: string
+      loginLocation?: string
       device?: string
     }
     AlarmConfig: {
@@ -6941,10 +6967,10 @@ export interface components {
       flowName?: string
       businessId?: string
       formCustom?: string
-      formPath?: string
-      defJson?: string
       /** Format: int32 */
       activityStatus?: number
+      formPath?: string
+      defJson?: string
     }
     RInstance: {
       /** Format: int32 */
@@ -6954,11 +6980,23 @@ export interface components {
       msg?: string
       dataType?: string
     }
-    RListSysAttach: {
+    PageSysAttach: {
+      records?: components['schemas']['SysAttach'][]
+      /** Format: int64 */
+      pageNumber?: number
+      /** Format: int64 */
+      pageSize?: number
+      /** Format: int64 */
+      totalPage?: number
+      /** Format: int64 */
+      totalRow?: number
+      optimizeCountQuery?: boolean
+    }
+    RPageSysAttach: {
       /** Format: int32 */
       code?: number
       success?: boolean
-      data?: components['schemas']['SysAttach'][]
+      data?: components['schemas']['PageSysAttach']
       msg?: string
       dataType?: string
     }
@@ -8856,6 +8894,32 @@ export interface operations {
     requestBody: {
       content: {
         'application/json': number[]
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  unlock: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          [key: string]: number
+        }
       }
     }
     responses: {
@@ -11126,7 +11190,11 @@ export interface operations {
   }
   list: {
     parameters: {
-      query?: never
+      query?: {
+        tenantName?: string
+        tenantCode?: string
+        status?: number
+      }
       header?: never
       path?: never
       cookie?: never
@@ -11171,6 +11239,8 @@ export interface operations {
       query?: {
         pageNum?: number
         pageSize?: number
+        name?: string
+        status?: number
       }
       header?: never
       path?: never
@@ -11437,6 +11507,8 @@ export interface operations {
       query?: {
         pageNum?: number
         pageSize?: number
+        roleName?: string
+        roleCode?: string
       }
       header?: never
       path?: never
@@ -11712,6 +11784,8 @@ export interface operations {
       query?: {
         pageNum?: number
         pageSize?: number
+        postName?: string
+        postCode?: string
       }
       header?: never
       path?: never
@@ -11776,7 +11850,10 @@ export interface operations {
   }
   list_3: {
     parameters: {
-      query?: never
+      query?: {
+        paramName?: string
+        paramKey?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -11888,7 +11965,11 @@ export interface operations {
       query?: {
         pageNum?: number
         pageSize?: number
+        title?: string
+        operator?: string
         status?: number
+        beginTime?: string
+        endTime?: string
       }
       header?: never
       path?: never
@@ -12515,7 +12596,10 @@ export interface operations {
   }
   tree: {
     parameters: {
-      query?: never
+      query?: {
+        menuName?: string
+        isHide?: number
+      }
       header?: never
       path?: never
       cookie?: never
@@ -12605,6 +12689,8 @@ export interface operations {
       query?: {
         pageNum?: number
         pageSize?: number
+        username?: string
+        ip?: string
         status?: number
       }
       header?: never
@@ -13336,9 +13422,14 @@ export interface operations {
       }
     }
   }
-  list_8: {
+  page_20: {
     parameters: {
-      query?: never
+      query?: {
+        pageNum?: number
+        pageSize?: number
+        filename?: string
+        ext?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -13351,7 +13442,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          '*/*': components['schemas']['RListSysAttach']
+          '*/*': components['schemas']['RPageSysAttach']
         }
       }
     }
@@ -13398,7 +13489,7 @@ export interface operations {
       }
     }
   }
-  page_20: {
+  page_21: {
     parameters: {
       query?: {
         pageNum?: number
@@ -13422,7 +13513,7 @@ export interface operations {
       }
     }
   }
-  page_21: {
+  page_22: {
     parameters: {
       query?: {
         pageNum?: number
@@ -13471,7 +13562,10 @@ export interface operations {
   }
   tree_1: {
     parameters: {
-      query?: never
+      query?: {
+        code?: string
+        dictValue?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -13535,7 +13629,10 @@ export interface operations {
   }
   tree_2: {
     parameters: {
-      query?: never
+      query?: {
+        code?: string
+        dictValue?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -13599,7 +13696,9 @@ export interface operations {
   }
   tree_3: {
     parameters: {
-      query?: never
+      query?: {
+        deptName?: string
+      }
       header?: never
       path?: never
       cookie?: never
@@ -13659,7 +13758,7 @@ export interface operations {
       }
     }
   }
-  page_22: {
+  page_23: {
     parameters: {
       query?: {
         pageNum?: number
@@ -13705,7 +13804,7 @@ export interface operations {
       }
     }
   }
-  page_23: {
+  page_24: {
     parameters: {
       query?: {
         pageNum?: number
@@ -13728,7 +13827,7 @@ export interface operations {
       }
     }
   }
-  page_24: {
+  page_25: {
     parameters: {
       query?: {
         pageNum?: number
@@ -13773,7 +13872,7 @@ export interface operations {
       }
     }
   }
-  page_25: {
+  page_26: {
     parameters: {
       query?: {
         pageNum?: number
@@ -13883,7 +13982,7 @@ export interface operations {
       }
     }
   }
-  page_26: {
+  page_27: {
     parameters: {
       query?: {
         pageNum?: number
@@ -13931,7 +14030,7 @@ export interface operations {
       }
     }
   }
-  page_27: {
+  page_28: {
     parameters: {
       query?: {
         pageNum?: number
