@@ -12,3 +12,8 @@ src/types/import/components.d.ts
 
 # Dev server log
 dev.log
+
+# E2E artifacts
+dev-e2e.log
+e2e-report/
+test-results/
