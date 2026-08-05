@@ -1,6 +1,14 @@
 <!-- 岗位管理页面 -->
 <template>
   <div class="post-page art-full-height">
+    <!-- 查询栏：条件实时生效、重置回默认 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
@@ -31,6 +39,7 @@
 <script setup lang="ts">
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchGetPostList, fetchSavePost, fetchRemovePost } from '@/api/system-manage'
   import PostDialog from './modules/post-dialog.vue'
@@ -38,6 +47,26 @@
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'Post' })
+
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    postName: '',
+    postCode: ''
+  })
+  const searchItems = computed(() => [
+    {
+      key: 'postName',
+      label: '岗位名称',
+      type: 'input',
+      props: { placeholder: '请输入岗位名称', clearable: true }
+    },
+    {
+      key: 'postCode',
+      label: '岗位编码',
+      type: 'input',
+      props: { placeholder: '请输入岗位编码', clearable: true }
+    }
+  ])
 
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
@@ -51,7 +80,10 @@
     pagination,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    fetchData,
+    replaceSearchParams,
+    resetSearchParams
   } = useTable({
     core: {
       apiFn: fetchGetPostList,
@@ -84,6 +116,22 @@
       })
     }
   })
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (params: Record<string, any>): Promise<void> => {
+    // 替换全部查询参数（防旧条件残留），回到第一页
+    replaceSearchParams({ ...params, pageNum: 1, pageSize: 20 })
+    await fetchData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      postName: '',
+      postCode: ''
+    }
+    resetSearchParams()
+    await fetchData()
+  }
 
   const showDialog = (type: DialogType, row?: Record<string, any>): void => {
     dialogType.value = type

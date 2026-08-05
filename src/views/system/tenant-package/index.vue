@@ -1,6 +1,14 @@
 <!-- 租户套餐管理（对接 /system/tenant-package）：绑定该套餐可用功能菜单 -->
 <template>
   <div class="tpkg-page art-full-height">
+    <!-- 查询栏：条件实时生效、重置回默认 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
       <div class="tpkg-toolbar">
         <ElButton type="primary" @click="showCreate">新建套餐</ElButton>
@@ -69,6 +77,7 @@
   import { ref, reactive, onMounted, nextTick } from 'vue'
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessage, ElMessageBox } from 'element-plus'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import {
     fetchTenantPackagePage,
     fetchSubmitTenantPackage,
@@ -79,6 +88,33 @@
   import type { AppRouteRecord } from '@/types/router'
 
   defineOptions({ name: 'TenantPackage' })
+
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    name: '',
+    status: undefined as number | undefined
+  })
+  const searchItems = computed(() => [
+    {
+      key: 'name',
+      label: '套餐名称',
+      type: 'input',
+      props: { placeholder: '请输入套餐名称', clearable: true }
+    },
+    {
+      key: 'status',
+      label: '状态',
+      type: 'select',
+      props: {
+        placeholder: '请选择状态',
+        clearable: true,
+        options: [
+          { label: '启用', value: 1 },
+          { label: '停用', value: 0 }
+        ]
+      }
+    }
+  ])
 
   interface TreeNode {
     value: string
@@ -113,10 +149,16 @@
 
   const keyCount = (keys: string): number => (keys ? keys.split(',').filter(Boolean).length : 0)
 
+  // 查询条件以 searchForm 为唯一事实源（v-model 已同步），CRUD 刷新后过滤仍生效
+  const currentParams = (): Record<string, any> => ({
+    name: searchForm.value.name || undefined,
+    status: searchForm.value.status
+  })
+
   const loadData = async (): Promise<void> => {
     loading.value = true
     try {
-      const resp = await fetchTenantPackagePage({ pageNum: 1, pageSize: 50 })
+      const resp = await fetchTenantPackagePage({ pageNum: 1, pageSize: 50, ...currentParams() })
       tableData.value = resp?.records ?? []
     } finally {
       loading.value = false
@@ -124,6 +166,19 @@
   }
 
   onMounted(loadData)
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (): Promise<void> => {
+    await loadData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      name: '',
+      status: undefined
+    }
+    await loadData()
+  }
 
   const showCreate = (): void => {
     Object.assign(form, { id: null, name: '', status: 1, remark: '' })

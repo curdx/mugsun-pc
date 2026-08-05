@@ -1,6 +1,14 @@
 <!-- 部门管理页面（树形 CRUD） -->
 <template>
   <div class="dept-page art-full-height">
+    <!-- 查询栏：按名称过滤（命中节点及其祖先保留），重置回全树 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
       <div class="dept-toolbar">
         <ElButton @click="showDialog('add')" v-ripple>新增部门</ElButton>
@@ -32,6 +40,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import {
     fetchDeptTree,
     fetchDeptSelect,
@@ -44,18 +53,48 @@
 
   defineOptions({ name: 'Dept' })
 
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    deptName: ''
+  })
+  const searchItems = computed(() => [
+    {
+      key: 'deptName',
+      label: '部门名称',
+      type: 'input',
+      props: { placeholder: '请输入部门名称', clearable: true }
+    }
+  ])
+
   const treeData = ref<any[]>([])
   const deptOptions = ref<Array<{ label: string; value: string }>>([])
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentData = ref<Record<string, any>>({})
 
+  // 查询条件以 searchForm 为唯一事实源（v-model 已同步），CRUD 刷新后过滤仍生效
+  const currentParams = (): Record<string, any> | undefined =>
+    searchForm.value.deptName ? { deptName: searchForm.value.deptName } : undefined
+
   const loadData = async (): Promise<void> => {
-    treeData.value = (await fetchDeptTree()) || []
+    treeData.value = (await fetchDeptTree(currentParams())) || []
     deptOptions.value = (await fetchDeptSelect()) || []
   }
 
   onMounted(loadData)
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (): Promise<void> => {
+    // 后端过滤命中节点及其祖先后重新建树
+    await loadData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      deptName: ''
+    }
+    await loadData()
+  }
 
   const showDialog = (type: DialogType, row?: Record<string, any>): void => {
     dialogType.value = type

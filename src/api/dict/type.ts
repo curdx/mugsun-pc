@@ -24,3 +24,9 @@ export type DictBizForm = Partial<
     'id' | 'parentId' | 'code' | 'dictKey' | 'dictValue' | 'sort' | 'remark' | 'isSealed'
   >
 >
+
+/** 字典树查询条件（系统/业务字典共用，后端模糊过滤并回填亲属节点） */
+export interface DictTreeQuery {
+  dictValue?: string
+  code?: string
+}

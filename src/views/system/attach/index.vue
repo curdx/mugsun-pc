@@ -1,68 +1,222 @@
 <!-- 附件管理页面 -->
 <template>
   <div class="attach-page art-full-height">
+    <!-- 查询栏：文件名模糊 / 类型精确，条件实时生效、重置回默认 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
-      <div class="attach-toolbar">
-        <ElButton :loading="uploading" @click="triggerUpload" v-ripple>上传附件</ElButton>
-        <input ref="uploadInput" type="file" style="display: none" @change="handleUpload" />
-        <ElProgress
-          v-if="uploading && directUploading"
-          :percentage="uploadPercent"
-          class="attach-progress"
-        />
-      </div>
+      <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
+        <template #left>
+          <ElButton :loading="uploading" @click="triggerUpload" v-ripple>上传附件</ElButton>
+          <input ref="uploadInput" type="file" style="display: none" @change="handleUpload" />
+          <ElProgress
+            v-if="uploading && directUploading"
+            :percentage="uploadPercent"
+            class="attach-progress"
+          />
+        </template>
+      </ArtTableHeader>
 
-      <ElTable :data="tableData" border>
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="name" label="文件名" min-width="220" show-overflow-tooltip />
-        <ElTableColumn prop="ext" label="类型" width="100" />
-        <ElTableColumn label="大小" width="120">
-          <template #default="{ row }">{{ formatSize(row.size) }}</template>
-        </ElTableColumn>
-        <ElTableColumn prop="platform" label="存储平台" width="140" />
-        <ElTableColumn label="操作" width="160">
-          <template #default="{ row }">
-            <ElButton link type="primary" @click="download(row)">下载</ElButton>
-            <ElButton link type="danger" @click="deleteRow(row)">删除</ElButton>
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <ArtTable
+        :loading="loading"
+        :data="data as any[]"
+        :columns="columns"
+        :pagination="pagination"
+        border
+        @pagination:size-change="handleSizeChange"
+        @pagination:current-change="handleCurrentChange"
+      >
+      </ArtTable>
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { h, ref, watch, onBeforeUnmount } from 'vue'
+  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
+  import { useTable } from '@/hooks/core/useTable'
+  import { fetchAttachPage } from '@/api/attach'
   import {
-    fetchAttachList,
     fetchUploadFile,
     fetchPresignedPut,
     fetchCreateAttach,
     fetchRemoveAttach
   } from '@/api/system-manage'
   import request from '@/utils/http'
-  import { ElMessageBox, ElMessage } from 'element-plus'
+  import { ElButton, ElImage, ElMessageBox, ElMessage } from 'element-plus'
 
   defineOptions({ name: 'Attach' })
 
-  const tableData = ref<any[]>([])
+  /** 支持缩略图预览的图片扩展名 */
+  const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']
+
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    filename: '',
+    ext: ''
+  })
+  const searchItems = computed(() => [
+    {
+      key: 'filename',
+      label: '文件名',
+      type: 'input',
+      props: { placeholder: '请输入文件名', clearable: true }
+    },
+    {
+      key: 'ext',
+      label: '类型',
+      type: 'input',
+      props: { placeholder: '请输入扩展名，如 png', clearable: true }
+    }
+  ])
+
   const uploadInput = ref<HTMLInputElement>()
   const uploading = ref(false)
   /** 是否命中两段式直传（云存储平台），决定进度条可见性 */
   const directUploading = ref(false)
   const uploadPercent = ref(0)
 
-  const loadData = async (): Promise<void> => {
-    tableData.value = (await fetchAttachList()) || []
+  const isImage = (row: any): boolean =>
+    !!row.ext && IMAGE_EXTS.includes(String(row.ext).toLowerCase())
+
+  // ===== 图片预览（私有附件经 download-stream 鉴权链取字节 → objectURL） =====
+  const previewObjectUrls = new Set<string>()
+
+  const loadPreviews = (rows: any[]): void => {
+    // 换页/刷新即回收上一批 objectURL，防内存泄漏
+    previewObjectUrls.forEach((url) => URL.revokeObjectURL(url))
+    previewObjectUrls.clear()
+    ;(rows || []).forEach(async (row) => {
+      if (!isImage(row) || row.previewUrl) return
+      try {
+        const blob = await request.request<Blob>({
+          url: `/api/system/file/download-stream/${row.id}`,
+          responseType: 'blob',
+          skipEnvelope: true,
+          transformResponse: [(d) => d],
+          showErrorMessage: false
+        })
+        // 鉴权失败时后端回 JSON 错误信封而非图片字节，此类 blob 不生成预览
+        if (blob instanceof Blob && blob.type.startsWith('image/')) {
+          const url = URL.createObjectURL(blob)
+          previewObjectUrls.add(url)
+          row.previewUrl = url
+        }
+      } catch {
+        /* 预览失败静默（下载入口仍在） */
+      }
+    })
   }
 
-  onMounted(loadData)
+  onBeforeUnmount(() => {
+    previewObjectUrls.forEach((url) => URL.revokeObjectURL(url))
+    previewObjectUrls.clear()
+  })
 
   const formatSize = (size: number): string => {
     if (!size) return '-'
     if (size < 1024) return size + ' B'
     if (size < 1048576) return (size / 1024).toFixed(1) + ' KB'
     return (size / 1048576).toFixed(1) + ' MB'
+  }
+
+  const {
+    columns,
+    columnChecks,
+    data,
+    loading,
+    pagination,
+    handleSizeChange,
+    handleCurrentChange,
+    refreshData,
+    fetchData,
+    replaceSearchParams,
+    resetSearchParams
+  } = useTable({
+    core: {
+      apiFn: fetchAttachPage,
+      apiParams: { pageNum: 1, pageSize: 20 },
+      // 后端分页参数为 pageNum/pageSize
+      paginationKey: { current: 'pageNum', size: 'pageSize' },
+      columnsFactory: () => [
+        { type: 'index', width: 60, label: '序号' },
+        {
+          prop: 'preview',
+          label: '预览',
+          width: 80,
+          // 图片附件缩略图（el-image 点击放大预览）；非图片/未加载完成显示占位
+          formatter: (row: any) =>
+            row.previewUrl
+              ? h(ElImage, {
+                  src: row.previewUrl,
+                  previewSrcList: [row.previewUrl],
+                  fit: 'cover',
+                  previewTeleported: true,
+                  style: 'width:44px;height:44px;border-radius:4px;display:block'
+                })
+              : h('span', { style: 'color:var(--el-text-color-secondary)' }, '—')
+        },
+        { prop: 'name', label: '文件名', minWidth: 220, showOverflowTooltip: true },
+        { prop: 'ext', label: '类型', width: 90 },
+        {
+          prop: 'size',
+          label: '大小',
+          width: 110,
+          formatter: (row: any) => formatSize(row.size)
+        },
+        { prop: 'platform', label: '存储平台', width: 130 },
+        { prop: 'createTime', label: '上传时间', minWidth: 170 },
+        {
+          prop: 'operation',
+          label: '操作',
+          width: 130,
+          fixed: 'right',
+          formatter: (row: any) =>
+            h('div', [
+              h(
+                ElButton,
+                { link: true, type: 'primary', size: 'small', onClick: () => download(row) },
+                () => '下载'
+              ),
+              h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
+            ])
+        }
+      ]
+    },
+    transform: {
+      // 适配后端 mybatis-flex Page：records + totalRow
+      responseAdapter: (resp: any) => ({
+        records: resp?.records ?? [],
+        total: resp?.totalRow ?? 0,
+        current: resp?.pageNumber ?? 1,
+        size: resp?.pageSize ?? 20
+      })
+    }
+  })
+
+  // 数据到位后懒加载图片缩略图（每页图片数量有限，逐条取流）
+  watch(data, (rows) => loadPreviews(rows as any[]))
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (params: Record<string, any>): Promise<void> => {
+    // 替换全部查询参数（防旧条件残留），回到第一页
+    replaceSearchParams({ ...params, pageNum: 1, pageSize: 20 })
+    await fetchData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      filename: '',
+      ext: ''
+    }
+    resetSearchParams()
+    await fetchData()
   }
 
   const triggerUpload = (): void => {
@@ -107,7 +261,7 @@
         await fetchUploadFile(file)
       }
       ElMessage.success('上传成功')
-      loadData()
+      refreshData()
     } finally {
       uploading.value = false
       directUploading.value = false
@@ -130,21 +284,15 @@
     }).then(async () => {
       await fetchRemoveAttach(row.id)
       ElMessage.success('删除成功')
-      loadData()
+      refreshData()
     })
   }
 </script>
 
 <style scoped>
-  .attach-toolbar {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 12px;
-  }
-
   .attach-progress {
     flex: 1;
     max-width: 320px;
+    margin-left: 12px;
   }
 </style>

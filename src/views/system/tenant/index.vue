@@ -1,6 +1,14 @@
 <!-- 租户管理页面 -->
 <template>
   <div class="tenant-page art-full-height">
+    <!-- 查询栏：条件实时生效、重置回默认 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
       <div class="tenant-toolbar">
         <ElButton type="primary" @click="openCreate" v-ripple>新增租户</ElButton>
@@ -50,6 +58,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import {
     fetchTenantList,
     fetchCreateTenant,
@@ -62,6 +71,40 @@
 
   defineOptions({ name: 'Tenant' })
 
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    tenantName: '',
+    tenantCode: '',
+    status: undefined as number | undefined
+  })
+  const searchItems = computed(() => [
+    {
+      key: 'tenantName',
+      label: '租户名称',
+      type: 'input',
+      props: { placeholder: '请输入租户名称', clearable: true }
+    },
+    {
+      key: 'tenantCode',
+      label: '租户编号',
+      type: 'input',
+      props: { placeholder: '请输入租户编号', clearable: true }
+    },
+    {
+      key: 'status',
+      label: '状态',
+      type: 'select',
+      props: {
+        placeholder: '请选择状态',
+        clearable: true,
+        options: [
+          { label: '正常', value: 1 },
+          { label: '停用', value: 0 }
+        ]
+      }
+    }
+  ])
+
   const tableData = ref<any[]>([])
   const packages = ref<any[]>([])
   const dialogVisible = ref(false)
@@ -70,8 +113,15 @@
   const packageName = (id: number | string): string =>
     packages.value.find((p) => String(p.id) === String(id))?.name ?? '—'
 
+  // 查询条件以 searchForm 为唯一事实源（v-model 已同步），CRUD 刷新后过滤仍生效
+  const currentParams = (): Record<string, any> => ({
+    tenantName: searchForm.value.tenantName || undefined,
+    tenantCode: searchForm.value.tenantCode || undefined,
+    status: searchForm.value.status
+  })
+
   const loadData = async (): Promise<void> => {
-    tableData.value = (await fetchTenantList()) || []
+    tableData.value = (await fetchTenantList(currentParams())) || []
   }
 
   const loadPackages = async (): Promise<void> => {
@@ -82,6 +132,20 @@
     loadData()
     loadPackages()
   })
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (): Promise<void> => {
+    await loadData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      tenantName: '',
+      tenantCode: '',
+      status: undefined
+    }
+    await loadData()
+  }
 
   const openCreate = (): void => {
     current.value = null

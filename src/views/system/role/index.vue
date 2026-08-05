@@ -1,6 +1,14 @@
 <!-- 角色管理页面 -->
 <template>
   <div class="role-page art-full-height">
+    <!-- 查询栏：条件实时生效、重置回默认 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
@@ -37,6 +45,7 @@
 <script setup lang="ts">
   import { h, ref, nextTick } from 'vue'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchRolePage, saveRole, removeRole } from '@/api/role'
   import RoleDialog from './modules/role-dialog.vue'
@@ -45,6 +54,26 @@
   import { DialogType } from '@/types'
 
   defineOptions({ name: 'Role' })
+
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    roleName: '',
+    roleCode: ''
+  })
+  const searchItems = [
+    {
+      key: 'roleName',
+      label: '角色名称',
+      type: 'input',
+      props: { placeholder: '请输入角色名称', clearable: true }
+    },
+    {
+      key: 'roleCode',
+      label: '角色编码',
+      type: 'input',
+      props: { placeholder: '请输入角色编码', clearable: true }
+    }
+  ]
 
   const SCOPE_LABELS: Record<number, string> = {
     1: '全部数据',
@@ -73,7 +102,10 @@
     pagination,
     handleSizeChange,
     handleCurrentChange,
-    refreshData
+    refreshData,
+    fetchData,
+    replaceSearchParams,
+    resetSearchParams
   } = useTable({
     core: {
       apiFn: fetchRolePage,
@@ -123,6 +155,22 @@
       })
     }
   })
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (params: Record<string, any>): Promise<void> => {
+    // 替换全部查询参数（防旧条件残留），回到第一页
+    replaceSearchParams({ ...params, pageNum: 1, pageSize: 20 })
+    await fetchData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      roleName: '',
+      roleCode: ''
+    }
+    resetSearchParams()
+    await fetchData()
+  }
 
   const showDialog = (type: DialogType, row?: Record<string, any>): void => {
     dialogType.value = type

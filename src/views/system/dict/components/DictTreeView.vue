@@ -1,6 +1,14 @@
 <!-- 字典树 CRUD 通用视图（系统字典 / 业务字典共用，通过 api 注入） -->
 <template>
   <div class="dict-page art-full-height">
+    <!-- 查询栏：条件实时生效、重置回默认 -->
+    <ArtSearchBar
+      v-model="searchForm"
+      :items="searchItems"
+      :span="6"
+      @search="handleSearch"
+      @reset="handleResetSearch"
+    />
     <ElCard class="art-table-card">
       <div class="dict-toolbar">
         <ElButton @click="showDialog('add')" v-ripple>新增字典</ElButton>
@@ -83,10 +91,11 @@
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
+  import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useDictStore } from '@/store/modules/dict'
 
   interface Props {
-    treeApi: () => Promise<any[]>
+    treeApi: (params?: Record<string, any>) => Promise<any[]>
     saveApi: (data: Record<string, any>) => Promise<any>
     removeApi: (id: any) => Promise<any>
   }
@@ -94,6 +103,28 @@
   const props = defineProps<Props>()
 
   const dictStore = useDictStore()
+
+  // ===== 查询栏 =====
+  const searchForm = ref({
+    dictValue: '',
+    code: ''
+  })
+  const searchItems = [
+    {
+      key: 'dictValue',
+      label: '字典名称',
+      type: 'input',
+      props: { placeholder: '请输入字典名称', clearable: true }
+    },
+    {
+      key: 'code',
+      label: '字典编码',
+      type: 'input',
+      props: { placeholder: '请输入字典编码', clearable: true }
+    }
+  ]
+  // 当前生效的查询条件（保存/删除后重载保持过滤态，与用户页 refreshData 口径一致）
+  const searchParams = ref<Record<string, any>>({})
 
   const treeData = ref<any[]>([])
   const topOptions = ref<Array<{ label: string; value: any }>>([])
@@ -119,15 +150,37 @@
   }
 
   const loadData = async (): Promise<void> => {
-    treeData.value = (await props.treeApi()) || []
-    // 顶级字典类型作为上级候选
-    topOptions.value = treeData.value.map((node: any) => ({
+    treeData.value = (await props.treeApi(searchParams.value)) || []
+  }
+
+  // 上级候选恒取全量顶级类型（不受查询过滤影响）
+  const loadTopOptions = async (): Promise<void> => {
+    const full = (await props.treeApi()) || []
+    topOptions.value = full.map((node: any) => ({
       label: node.dictValue || node.code,
       value: node.id
     }))
   }
 
-  onMounted(loadData)
+  onMounted(() => {
+    loadData()
+    loadTopOptions()
+  })
+
+  // ===== 查询栏联动 =====
+  const handleSearch = async (params: Record<string, any>): Promise<void> => {
+    searchParams.value = { ...params }
+    await loadData()
+  }
+
+  const handleResetSearch = async (): Promise<void> => {
+    searchForm.value = {
+      dictValue: '',
+      code: ''
+    }
+    searchParams.value = {}
+    await loadData()
+  }
 
   const showDialog = (type: 'add' | 'edit', row?: Record<string, any>): void => {
     dialogType.value = type
@@ -145,6 +198,7 @@
       ElMessage.success('保存成功')
       // 字典维护变更后重载运行时缓存，业务页即时生效
       if (formData.code) dictStore.reload(formData.code)
+      loadTopOptions()
       loadData()
     })
   }
@@ -159,6 +213,7 @@
       ElMessage.success('删除成功')
       // 删除后重载运行时缓存，业务页即时生效
       if (row.code) dictStore.reload(row.code)
+      loadTopOptions()
       loadData()
     })
   }

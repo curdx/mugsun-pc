@@ -3,8 +3,8 @@ import { AppRouteRecord } from '@/types/router'
 
 // 用户域 → @/api/user，角色域 → @/api/role，字典域 → @/api/dict（均 openapi 生成类型，无 any）
 // ===== 部门 =====
-export function fetchDeptTree() {
-  return request.get<any[]>({ url: '/api/system/dept/tree' })
+export function fetchDeptTree(params?: Record<string, any>) {
+  return request.get<any[]>({ url: '/api/system/dept/tree', params })
 }
 export function fetchDeptSelect() {
   return request.get<Array<{ label: string; value: string }>>({ url: '/api/system/dept/select' })
@@ -54,8 +54,8 @@ export function fetchRemoveMenu(ids: (number | string)[] | number | string) {
 }
 
 // ===== 参数 =====
-export function fetchParamList() {
-  return request.get<any[]>({ url: '/api/system/param/list' })
+export function fetchParamList(params?: Record<string, any>) {
+  return request.get<any[]>({ url: '/api/system/param/list', params })
 }
 export function fetchSaveParam(data: Record<string, any>) {
   return request.post<void>({ url: '/api/system/param/submit', data })
@@ -87,8 +87,8 @@ export function fetchSendTestMail(data: Record<string, any>) {
 // ===== 系统字典 / 业务字典 =====（树/批量/CRUD 已迁至 @/api/dict）
 
 // ===== 租户 =====
-export function fetchTenantList() {
-  return request.get<any[]>({ url: '/api/system/tenant/list' })
+export function fetchTenantList(params?: Record<string, any>) {
+  return request.get<any[]>({ url: '/api/system/tenant/list', params })
 }
 export function fetchCreateTenant(data: Record<string, any>) {
   return request.post<string>({ url: '/api/system/tenant/create', data })
@@ -154,9 +154,6 @@ export function fetchMyNoticeUnreadCount() {
 }
 
 // ===== 附件 =====
-export function fetchAttachList() {
-  return request.get<any[]>({ url: '/api/system/file/list' })
-}
 export function fetchUploadFile(file: File) {
   const form = new FormData()
   form.append('file', file)
