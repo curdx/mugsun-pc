@@ -4,8 +4,6 @@
     <ElCard class="art-table-card">
       <div class="flow-toolbar">
         <ElButton type="primary" @click="openDesigner">设计流程</ElButton>
-        <ElButton @click="deploy">部署请假流程</ElButton>
-        <ElButton @click="() => start({ flowCode: 'leave' })">发起请假</ElButton>
       </div>
 
       <ElTable :data="tableData" border>
@@ -197,7 +195,6 @@
   import ApprovalForm from '../flow-center/components/ApprovalForm.vue'
   import {
     fetchFlowDefinitions,
-    fetchFlowDeploy,
     fetchFlowStart,
     fetchFlowStartBy,
     fetchFlowStartForm,
@@ -261,12 +258,6 @@
     const page = await fetchFormPage({ current: 1, size: 200 })
     forms.value = (page?.records || []).map((f: any) => ({ label: f.name, value: f.formKey }))
   })
-
-  const deploy = async (): Promise<void> => {
-    await fetchFlowDeploy()
-    ElMessage.success('部署成功')
-    loadData()
-  }
 
   // ==================== 发起（带表单） ====================
 

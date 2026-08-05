@@ -43,6 +43,12 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     meta: { title: '第三方登录', isHideTab: true }
   },
   {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicy',
+    component: () => import('@views/auth/privacy-policy/index.vue'),
+    meta: { title: '隐私政策', isHideTab: true }
+  },
+  {
     path: '/oauth-consent',
     name: 'OauthConsent',
     component: () => import('@views/system/oauth-consent/index.vue'),

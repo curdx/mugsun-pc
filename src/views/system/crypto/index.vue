@@ -37,6 +37,7 @@
 <script setup lang="ts">
   import { sm4 } from 'sm-crypto'
   import { ElMessage } from 'element-plus'
+  import request from '@/utils/http'
 
   defineOptions({ name: 'CryptoDemo' })
 
@@ -81,15 +82,15 @@
       responseCipher.value = ''
       decrypted.value = ''
 
-      const resp = await fetch('/api/system/crypto/echo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ encryptData })
+      // 走统一请求层（自动携带登录令牌），skipEnvelope 取回原始信封以读 dataType
+      const json = await request.post<{ dataType?: string; data?: string }>({
+        url: '/api/system/crypto/echo',
+        data: { encryptData },
+        skipEnvelope: true
       })
-      const json = await resp.json()
       if (json.dataType === 'ENCRYPT') {
-        responseCipher.value = json.data
-        decrypted.value = decryptCbc(json.data)
+        responseCipher.value = json.data || ''
+        decrypted.value = decryptCbc(json.data || '')
       } else {
         decrypted.value = JSON.stringify(json.data)
       }

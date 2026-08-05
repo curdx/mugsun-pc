@@ -43,8 +43,8 @@ export const headerBarConfig: HeaderBarFeatureConfig = {
     description: '通知中心，显示系统通知和消息'
   },
   chat: {
-    enabled: true,
-    description: '聊天功能，提供实时沟通'
+    enabled: false,
+    description: '聊天功能（未接入真实会话能力，关闭入口）'
   },
   language: {
     enabled: true,

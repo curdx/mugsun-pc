@@ -38,30 +38,6 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
     enabled: true
   },
   {
-    name: '锁屏',
-    key: 'screen-lock',
-    component: defineAsyncComponent(
-      () => import('@/components/core/layouts/art-screen-lock/index.vue')
-    ),
-    enabled: true
-  },
-  {
-    name: '聊天窗口',
-    key: 'chat-window',
-    component: defineAsyncComponent(
-      () => import('@/components/core/layouts/art-chat-window/index.vue')
-    ),
-    enabled: true
-  },
-  {
-    name: '礼花效果',
-    key: 'fireworks-effect',
-    component: defineAsyncComponent(
-      () => import('@/components/core/layouts/art-fireworks-effect/index.vue')
-    ),
-    enabled: true
-  },
-  {
     name: '水印效果',
     key: 'watermark',
     component: defineAsyncComponent(

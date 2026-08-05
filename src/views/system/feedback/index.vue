@@ -19,6 +19,7 @@
   import { h } from 'vue'
   import { ElButton, ElTag, ElMessage, ElMessageBox } from 'element-plus'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
+  import request from '@/utils/http'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchFeedbackPage, fetchFeedbackStatus, fetchRemoveFeedback } from '@/api/feedback'
 
@@ -46,16 +47,18 @@
           label: '附件',
           width: 160,
           formatter: (row: any) =>
-            row.attachUrl && /^https?:\/\//i.test(row.attachUrl)
+            row.attachId
               ? h(
-                  'a',
+                  ElButton,
                   {
-                    href: row.attachUrl,
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                    class: 'text-theme'
+                    link: true,
+                    type: 'primary',
+                    onClick: () =>
+                      request.download({
+                        url: `/api/system/file/download-stream/${row.attachId}`
+                      })
                   },
-                  row.attachName || '查看附件'
+                  () => row.attachName || '下载附件'
                 )
               : '—'
         },

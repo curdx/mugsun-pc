@@ -217,13 +217,16 @@
 
   const captchaImage = ref('')
 
+  /** 记住账号：仅持久化用户名（不落密码，防凭据泄露），下次登录自动回填 */
+  const REMEMBERED_USERNAME_KEY = 'mugsun.remembered-username'
+
   const formData = reactive({
     username: '',
     password: '',
     tenantId: '',
     captchaUuid: '',
     captchaCode: '',
-    rememberPassword: true
+    rememberPassword: false
   })
 
   const rules = computed<FormRules>(() => ({
@@ -347,8 +350,13 @@
   }
 
   onMounted(() => {
-    // 仅开发环境预填演示账号（生产构建绝不携带默认凭据）
-    if (import.meta.env.DEV) {
+    // 回填记住的账号（仅用户名，密码绝不持久化）
+    const remembered = localStorage.getItem(REMEMBERED_USERNAME_KEY)
+    if (remembered) {
+      formData.username = remembered
+      formData.rememberPassword = true
+    } else if (import.meta.env.DEV) {
+      // 仅开发环境预填演示账号（生产构建绝不携带默认凭据）
       formData.username = 'admin'
       formData.password = '123456'
     }
@@ -376,6 +384,13 @@
         captchaUuid,
         captchaCode
       })
+
+      // 记住账号：勾选则持久化用户名，未勾选清除
+      if (formData.rememberPassword) {
+        localStorage.setItem(REMEMBERED_USERNAME_KEY, username)
+      } else {
+        localStorage.removeItem(REMEMBERED_USERNAME_KEY)
+      }
 
       let token = resp.token
       let refreshToken = resp.refreshToken
