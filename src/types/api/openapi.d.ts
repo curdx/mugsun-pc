@@ -452,22 +452,6 @@ export interface paths {
     patch?: never
     trace?: never
   }
-  '/system/repeat/submit': {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    post: operations['submit_7']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
   '/system/region/submit': {
     parameters: {
       query?: never
@@ -477,7 +461,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_8']
+    post: operations['submit_7']
     delete?: never
     options?: never
     head?: never
@@ -525,7 +509,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_9']
+    post: operations['submit_8']
     delete?: never
     options?: never
     head?: never
@@ -557,7 +541,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_10']
+    post: operations['submit_9']
     delete?: never
     options?: never
     head?: never
@@ -589,7 +573,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_11']
+    post: operations['submit_10']
     delete?: never
     options?: never
     head?: never
@@ -765,7 +749,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_12']
+    post: operations['submit_11']
     delete?: never
     options?: never
     head?: never
@@ -797,7 +781,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_13']
+    post: operations['submit_12']
     delete?: never
     options?: never
     head?: never
@@ -829,7 +813,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_14']
+    post: operations['submit_13']
     delete?: never
     options?: never
     head?: never
@@ -941,7 +925,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_15']
+    post: operations['submit_14']
     delete?: never
     options?: never
     head?: never
@@ -973,7 +957,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_16']
+    post: operations['submit_15']
     delete?: never
     options?: never
     head?: never
@@ -1005,7 +989,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_17']
+    post: operations['submit_16']
     delete?: never
     options?: never
     head?: never
@@ -1373,7 +1357,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_18']
+    post: operations['submit_17']
     delete?: never
     options?: never
     head?: never
@@ -1773,7 +1757,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_19']
+    post: operations['submit_18']
     delete?: never
     options?: never
     head?: never
@@ -1837,7 +1821,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_20']
+    post: operations['submit_19']
     delete?: never
     options?: never
     head?: never
@@ -1885,7 +1869,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_21']
+    post: operations['submit_20']
     delete?: never
     options?: never
     head?: never
@@ -1917,7 +1901,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_22']
+    post: operations['submit_21']
     delete?: never
     options?: never
     head?: never
@@ -1949,7 +1933,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_23']
+    post: operations['submit_22']
     delete?: never
     options?: never
     head?: never
@@ -2061,7 +2045,7 @@ export interface paths {
     }
     get?: never
     put?: never
-    post: operations['submit_24']
+    post: operations['submit_23']
     delete?: never
     options?: never
     head?: never
@@ -2292,6 +2276,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/auth/update-avatar': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['updateAvatar']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/auth/two-factor': {
     parameters: {
       query?: never
@@ -2468,6 +2468,54 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/auth/forget-reset': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['forgetReset']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/auth/forget-code': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    post: operations['forgetCode']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/v3/system/menus': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['menus']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/workbench/overview': {
     parameters: {
       query?: never
@@ -2524,6 +2572,22 @@ export interface paths {
       cookie?: never
     }
     get: operations['page']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/system/user/import-template': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['importTemplate']
     put?: never
     post?: never
     delete?: never
@@ -3668,6 +3732,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/system/job/processors': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['processors']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/system/job/list': {
     parameters: {
       query?: never
@@ -4724,6 +4804,22 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/auth/social/sources': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get: operations['socialSources']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/auth/social/render/{source}': {
     parameters: {
       query?: never
@@ -4880,6 +4976,27 @@ export interface components {
       id?: number
       /** Format: int32 */
       status?: number
+    }
+    FailRow: {
+      /** Format: int32 */
+      rowIndex?: number
+      username?: string
+      reason?: string
+    }
+    RUserImportResult: {
+      /** Format: int32 */
+      code?: number
+      success?: boolean
+      data?: components['schemas']['UserImportResult']
+      msg?: string
+      dataType?: string
+    }
+    UserImportResult: {
+      /** Format: int32 */
+      successCount?: number
+      /** Format: int32 */
+      failCount?: number
+      failList?: components['schemas']['FailRow'][]
     }
     UserGrantParam: {
       /** Format: int64 */
@@ -5275,6 +5392,8 @@ export interface components {
       sort?: number
       icon?: string
       /** Format: int32 */
+      isPublic?: number
+      /** Format: int32 */
       isHide?: number
       /** Format: int32 */
       isKeepAlive?: number
@@ -5303,6 +5422,8 @@ export interface components {
       id?: number
       jobName?: string
       jobDescription?: string
+      processorInfo?: string
+      jobParams?: string
       timeExpressionType?: string
       timeExpression?: string
     }
@@ -5578,6 +5699,7 @@ export interface components {
       /** Format: int64 */
       size?: number
       platform?: string
+      downloadable?: boolean
       access?: string
       basePath?: string
     }
@@ -5789,6 +5911,9 @@ export interface components {
     UpdateInfoDTO: {
       nickname?: string
     }
+    UpdateAvatarDTO: {
+      avatar?: string
+    }
     RegisterDTO: {
       username?: string
       password?: string
@@ -5804,6 +5929,18 @@ export interface components {
       captchaUuid?: string
       captchaCode?: string
       clientId?: string
+    }
+    ForgetResetDTO: {
+      username?: string
+      tenantId?: string
+      code?: string
+      newPassword?: string
+    }
+    ForgetCodeDTO: {
+      username?: string
+      tenantId?: string
+      captchaUuid?: string
+      captchaCode?: string
     }
     RListMapStringObject: {
       /** Format: int32 */
@@ -6226,6 +6363,7 @@ export interface components {
       /** Format: int32 */
       status?: number
       errorMsg?: string
+      operatorName?: string
       tenantId?: string
       prevHash?: string
       recordHash?: string
@@ -6962,13 +7100,13 @@ export interface components {
       nodeName?: string
       /** Format: date-time */
       updateTime?: string
+      /** Format: int32 */
+      activityStatus?: number
       delFlag?: string
       updateBy?: string
       flowName?: string
       businessId?: string
       formCustom?: string
-      /** Format: int32 */
-      activityStatus?: number
       formPath?: string
       defJson?: string
     }
@@ -7488,14 +7626,21 @@ export interface operations {
   }
   importUser: {
     parameters: {
-      query: {
-        file: string
+      query?: {
+        updateSupport?: boolean
       }
       header?: never
       path?: never
       cookie?: never
     }
-    requestBody?: never
+    requestBody?: {
+      content: {
+        'application/json': {
+          /** Format: binary */
+          file: string
+        }
+      }
+    }
     responses: {
       /** @description OK */
       200: {
@@ -7503,7 +7648,7 @@ export interface operations {
           [name: string]: unknown
         }
         content: {
-          '*/*': components['schemas']['RVoid']
+          '*/*': components['schemas']['RUserImportResult']
         }
       }
     }
@@ -8032,32 +8177,6 @@ export interface operations {
       path?: never
       cookie?: never
     }
-    requestBody?: {
-      content: {
-        'application/json': {
-          [key: string]: unknown
-        }
-      }
-    }
-    responses: {
-      /** @description OK */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content: {
-          '*/*': components['schemas']['RString']
-        }
-      }
-    }
-  }
-  submit_8: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
     requestBody: {
       content: {
         'application/json': components['schemas']['SysRegion']
@@ -8124,7 +8243,7 @@ export interface operations {
       }
     }
   }
-  submit_9: {
+  submit_8: {
     parameters: {
       query?: never
       header?: never
@@ -8172,7 +8291,7 @@ export interface operations {
       }
     }
   }
-  submit_10: {
+  submit_9: {
     parameters: {
       query?: never
       header?: never
@@ -8220,7 +8339,7 @@ export interface operations {
       }
     }
   }
-  submit_11: {
+  submit_10: {
     parameters: {
       query?: never
       header?: never
@@ -8482,7 +8601,7 @@ export interface operations {
       }
     }
   }
-  submit_12: {
+  submit_11: {
     parameters: {
       query?: never
       header?: never
@@ -8530,7 +8649,7 @@ export interface operations {
       }
     }
   }
-  submit_13: {
+  submit_12: {
     parameters: {
       query?: never
       header?: never
@@ -8578,7 +8697,7 @@ export interface operations {
       }
     }
   }
-  submit_14: {
+  submit_13: {
     parameters: {
       query?: never
       header?: never
@@ -8738,7 +8857,7 @@ export interface operations {
       }
     }
   }
-  submit_15: {
+  submit_14: {
     parameters: {
       query?: never
       header?: never
@@ -8786,7 +8905,7 @@ export interface operations {
       }
     }
   }
-  submit_16: {
+  submit_15: {
     parameters: {
       query?: never
       header?: never
@@ -8834,7 +8953,7 @@ export interface operations {
       }
     }
   }
-  submit_17: {
+  submit_16: {
     parameters: {
       query?: never
       header?: never
@@ -9371,7 +9490,7 @@ export interface operations {
       }
     }
   }
-  submit_18: {
+  submit_17: {
     parameters: {
       query?: never
       header?: never
@@ -9979,7 +10098,7 @@ export interface operations {
       }
     }
   }
-  submit_19: {
+  submit_18: {
     parameters: {
       query?: never
       header?: never
@@ -10075,7 +10194,7 @@ export interface operations {
       }
     }
   }
-  submit_20: {
+  submit_19: {
     parameters: {
       query?: never
       header?: never
@@ -10147,7 +10266,7 @@ export interface operations {
       }
     }
   }
-  submit_21: {
+  submit_20: {
     parameters: {
       query?: never
       header?: never
@@ -10195,7 +10314,7 @@ export interface operations {
       }
     }
   }
-  submit_22: {
+  submit_21: {
     parameters: {
       query?: never
       header?: never
@@ -10243,7 +10362,7 @@ export interface operations {
       }
     }
   }
-  submit_23: {
+  submit_22: {
     parameters: {
       query?: never
       header?: never
@@ -10409,7 +10528,7 @@ export interface operations {
       }
     }
   }
-  submit_24: {
+  submit_23: {
     parameters: {
       query?: never
       header?: never
@@ -10796,6 +10915,30 @@ export interface operations {
       }
     }
   }
+  updateAvatar: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateAvatarDTO']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
   twoFactor: {
     parameters: {
       query?: never
@@ -11058,6 +11201,74 @@ export interface operations {
       }
     }
   }
+  forgetReset: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ForgetResetDTO']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  forgetCode: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ForgetCodeDTO']
+      }
+    }
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RVoid']
+        }
+      }
+    }
+  }
+  menus: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListMapStringObject']
+        }
+      }
+    }
+  }
   overview: {
     parameters: {
       query?: never
@@ -11148,9 +11359,33 @@ export interface operations {
       }
     }
   }
-  export: {
+  importTemplate: {
     parameters: {
       query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
+  export: {
+    parameters: {
+      query?: {
+        username?: string
+        nickname?: string
+        phone?: string
+        status?: number
+        deptId?: number
+      }
       header?: never
       path?: never
       cookie?: never
@@ -12732,6 +12967,26 @@ export interface operations {
       }
     }
   }
+  processors: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RListMapStringString']
+        }
+      }
+    }
+  }
   list_6: {
     parameters: {
       query?: never
@@ -14165,6 +14420,26 @@ export interface operations {
         client_id: string
         scope?: string
       }
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          '*/*': components['schemas']['RMapStringObject']
+        }
+      }
+    }
+  }
+  socialSources: {
+    parameters: {
+      query?: never
       header?: never
       path?: never
       cookie?: never
