@@ -28,6 +28,9 @@
           <ElOption label="按钮" value="F" />
         </ElSelect>
       </ElFormItem>
+      <ElFormItem label="图标" prop="icon">
+        <IconSelector v-model="formData.icon" style="width: 100%" />
+      </ElFormItem>
       <ElFormItem label="路由地址" prop="path">
         <ElInput v-model="formData.path" placeholder="如 /system/user" />
       </ElFormItem>
@@ -39,6 +42,18 @@
       </ElFormItem>
       <ElFormItem label="排序" prop="sort">
         <ElInputNumber v-model="formData.sort" :min="0" />
+      </ElFormItem>
+      <ElFormItem label="是否隐藏" prop="isHide">
+        <ElSwitch v-model="formData.isHide" :active-value="1" :inactive-value="0" />
+        <span class="switch-tip">隐藏后不出现在侧边栏</span>
+      </ElFormItem>
+      <ElFormItem label="页面缓存" prop="isKeepAlive">
+        <ElSwitch v-model="formData.isKeepAlive" :active-value="1" :inactive-value="0" />
+        <span class="switch-tip">缓存页面组件（keepAlive）</span>
+      </ElFormItem>
+      <ElFormItem label="是否外链" prop="isExternal">
+        <ElSwitch v-model="formData.isExternal" :active-value="1" :inactive-value="0" />
+        <span class="switch-tip">外链新窗口打开</span>
       </ElFormItem>
     </ElForm>
     <template #footer>
@@ -52,6 +67,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
+  import IconSelector from './icon-selector.vue'
 
   interface Props {
     visible: boolean
@@ -114,10 +130,14 @@
     parentId: 0,
     menuName: '',
     menuType: 'M',
+    icon: '',
     path: '',
     component: '',
     permission: '',
-    sort: 0
+    sort: 0,
+    isHide: 0,
+    isKeepAlive: 1,
+    isExternal: 0
   })
 
   const rules: FormRules = {
@@ -136,10 +156,14 @@
             parentId: 0,
             menuName: '',
             menuType: 'M',
+            icon: '',
             path: '',
             component: '',
             permission: '',
-            sort: 0
+            sort: 0,
+            isHide: 0,
+            isKeepAlive: 1,
+            isExternal: 0
           },
           props.menuData || {}
         )
@@ -158,3 +182,11 @@
     })
   }
 </script>
+
+<style scoped>
+  .switch-tip {
+    margin-left: 8px;
+    font-size: 12px;
+    color: var(--el-text-color-secondary);
+  }
+</style>
