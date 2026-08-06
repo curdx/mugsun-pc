@@ -141,7 +141,7 @@
               :inactive-value="0"
             />
             <ElSelect
-              v-else-if="col.htmlType === 'select'"
+              v-else-if="col.htmlType === 'select' && col.dictType"
               v-model="form[col.columnName]"
               style="width: 100%"
             >
@@ -152,6 +152,11 @@
                 :value="opt.value"
               />
             </ElSelect>
+            <ElInput
+              v-else-if="col.htmlType === 'select'"
+              v-model="form[col.columnName]"
+              :placeholder="`${col.columnComment || col.javaField}（未配置字典，暂以输入代替）`"
+            />
             <ElInput v-else v-model="form[col.columnName]" />
           </ElFormItem>
         </ElForm>
