@@ -37,6 +37,17 @@ export default ({ mode }: { mode: string }) => {
       },
       host: true
     },
+    // 预览构建产物（pnpm serve）沿用同一代理，保证生产构建可被端到端冒烟验证
+    preview: {
+      proxy: {
+        '/api': {
+          target: VITE_API_PROXY_URL,
+          changeOrigin: true,
+          ws: true,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
+      }
+    },
     // 路径别名
     resolve: {
       alias: {
