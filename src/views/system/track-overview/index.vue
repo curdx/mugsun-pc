@@ -45,6 +45,7 @@
             :loading="loading"
             height="300px"
             show-legend
+            :symbol="trendLabels.length <= 1 ? 'circle' : 'none'"
           />
         </div>
       </ElCol>

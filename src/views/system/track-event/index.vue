@@ -75,6 +75,7 @@
         height="320px"
         show-legend
         show-area-color
+        :symbol="trendLabels.length <= 1 ? 'circle' : 'none'"
       />
     </ElDrawer>
   </div>

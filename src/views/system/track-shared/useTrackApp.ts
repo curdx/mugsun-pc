@@ -64,5 +64,8 @@ export function fmtTrackDuration(ms?: number | null): string {
 export function fmtTrackTimeAuto(v?: number | string): string {
   if (v === undefined || v === null || v === '') return '-'
   if (typeof v === 'number' || /^\d{10,}$/.test(String(v))) return fmtTrackTime(Number(v))
-  return String(v)
+  // ISO 等日期字符串统一格式化为 YYYY-MM-DD HH:mm（原始串带 T 与毫秒，不便阅读）
+  const d = new Date(String(v))
+  if (Number.isNaN(d.getTime())) return String(v)
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
