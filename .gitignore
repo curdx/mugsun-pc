@@ -17,3 +17,8 @@ dev.log
 dev-e2e.log
 e2e-report/
 test-results/
+
+# 运行日志
+preview.log
+vite-e2e.log
+dev.log
