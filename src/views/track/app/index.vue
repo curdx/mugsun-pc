@@ -107,7 +107,7 @@
     fetchTrackAppPage,
     fetchTrackEventDefPage
   } from '@/api/track'
-  import { fmtTrackTimeAuto, useTrackApp } from '@/views/system/track-shared/useTrackApp'
+  import { fmtTrackTimeAuto, useTrackApp } from '@/views/track/shared/useTrackApp'
   import { hasPerm } from '@/utils/permission'
   import AppDialog from './modules/app-dialog.vue'
   import EventDefDialog from './modules/event-def-dialog.vue'

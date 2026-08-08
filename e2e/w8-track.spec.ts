@@ -96,7 +96,7 @@ test('W8-1 登录后浏览页面：/track/collect 真实上报 $pageview', async
 })
 
 test('W8-2 埋点概览：PV 卡片 > 0 + 趋势图 canvas 渲染', async () => {
-  await page.goto('/#/system/track-overview')
+  await page.goto('/#/track/overview')
   const pvCard = page.locator('.track-stat-card', { hasText: '浏览量(PV)' })
   await expect(pvCard).toBeVisible({ timeout: 15_000 })
   // overview 卡片当日口径直算 track_event 明细，本会话 PV 落库后可见（含异步消费等待）
@@ -114,7 +114,7 @@ test('W8-2 埋点概览：PV 卡片 > 0 + 趋势图 canvas 渲染', async () => 
 })
 
 test('W8-3 事件分析：实时事件流或事件表有行', async () => {
-  await page.goto('/#/system/track-event')
+  await page.goto('/#/track/event')
   const realtimeRows = page.locator('.track-realtime-card .el-table tbody tr')
   const tableRows = page.locator('.track-event-page .art-table-card .el-table tbody tr')
   // 两表任一有行即过（不用 .or() 断言可见性：两者皆有行时 strict mode 冲突）
@@ -128,9 +128,9 @@ test('W8-3 事件分析：实时事件流或事件表有行', async () => {
 
 test('W8-4 性能/错误/应用三页渲染无 console error', async () => {
   for (const [path, marker] of [
-    ['/#/system/track-perf', '.track-perf-page'],
-    ['/#/system/track-error', '.track-error-page'],
-    ['/#/system/track-app', '.track-app-page']
+    ['/#/track/perf', '.track-perf-page'],
+    ['/#/track/error', '.track-error-page'],
+    ['/#/track/app', '.track-app-page']
   ] as const) {
     const before = consoleErrors.length
     await page.goto(path)

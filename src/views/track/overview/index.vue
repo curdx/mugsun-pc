@@ -109,11 +109,7 @@
     fetchTrackPages,
     fetchTrackTrend
   } from '@/api/track'
-  import {
-    fmtTrackClock,
-    fmtTrackDuration,
-    useTrackApp
-  } from '@/views/system/track-shared/useTrackApp'
+  import { fmtTrackClock, fmtTrackDuration, useTrackApp } from '@/views/track/shared/useTrackApp'
   import type { LineDataItem, PieDataItem } from '@/types/component/chart'
   import { ElButton, ElOption, ElRadioButton, ElRadioGroup, ElSelect } from 'element-plus'
 

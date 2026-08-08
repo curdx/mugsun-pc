@@ -10,12 +10,26 @@
  * identify 仅上报 $identify 申请绑定（user_id 放 props，是否落映射由服务端裁定）。
  * 匿名（未登录）页面照常采集（如登录页 PV），user_id 留空——设计语义。
  *
+ * 会话回放（G100）：回放插件经桥接插件动态加载（import('@mugsun/track-web/replay') 独立 chunk，
+ * rrweb 再由插件内部懒加载），主包不含录制实现；是否录制由 SDK 按 config 下发的
+ * replayEnabled/replaySampleRate 自决（远端开启后下次启动生效），前端零判断。
+ *
  * @module plugins/track
  * @author Mugsun
  */
 import type { App } from 'vue'
 import MugsunTrack from '@mugsun/track-web/vue'
-import type { TrackClient } from '@mugsun/track-web'
+import {
+  autocapturePlugin,
+  errorPlugin,
+  exposurePlugin,
+  pageleavePlugin,
+  pageviewPlugin,
+  webVitalsPlugin,
+  type PluginContext,
+  type TrackClient,
+  type TrackPlugin
+} from '@mugsun/track-web'
 import { router } from '@/router'
 import { useUserStore } from '@/store/modules/user'
 
@@ -26,8 +40,37 @@ const DEFAULT_TRACK_APP_KEY = 'ak_000000000000000000000001'
 let tracker: TrackClient | null = null
 
 /**
+ * 回放桥接插件：install 同步路径不阻塞（首屏 pageview/error 等既有采集零时差），
+ * 回放实现 chunk 异步就绪后补挂 setup；加载失败仅回放缺位，不影响主采集链路。
+ * teardown 幂等：chunk 未就绪先卸 = 标记 disposed 防补挂，已补挂则透传卸除。
+ */
+function replayBridgePlugin(): TrackPlugin {
+  return {
+    name: 'replay',
+    setup(ctx: PluginContext) {
+      let disposed = false
+      let teardown: unknown
+      void import('@mugsun/track-web/replay')
+        .then(({ replayPlugin }) => {
+          if (disposed) return
+          teardown = replayPlugin().setup(ctx)
+        })
+        .catch(() => {
+          // 回放 chunk 加载失败（弱网/构建缺块）：静默降级，主采集不受影响
+        })
+      return () => {
+        disposed = true
+        if (typeof teardown === 'function') (teardown as () => void)()
+      }
+    }
+  }
+}
+
+/**
  * 初始化埋点（router 就绪后、mount 前调用）。
  * endpoint 缺省 /api：dev 下 /api/track/collect 经 vite 代理到后端；release 取构建版本号。
+ * plugins 显式给定（与 SDK vue 适配层 router 模式同一序列，外加回放桥接）——
+ * 不传则适配层内部默认序列不含回放。
  */
 export function setupTrack(app: App): void {
   app.use(MugsunTrack, {
@@ -35,6 +78,15 @@ export function setupTrack(app: App): void {
     appKey: import.meta.env.VITE_TRACK_APP_KEY || DEFAULT_TRACK_APP_KEY,
     release: import.meta.env.VITE_VERSION,
     router,
+    plugins: [
+      pageviewPlugin({ manual: true }),
+      pageleavePlugin(),
+      autocapturePlugin(),
+      exposurePlugin(),
+      webVitalsPlugin(),
+      errorPlugin(),
+      replayBridgePlugin()
+    ],
     // 上报携带登录 token 供服务端身份裁定；beacon 冲刷场景无法自定义头，按匿名处理，不阻断采集
     headers: (): Record<string, string> => {
       const token = useUserStore().accessToken

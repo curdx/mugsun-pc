@@ -82,6 +82,9 @@ importers:
       qrcode.vue:
         specifier: ^3.6.0
         version: 3.6.0(vue@3.5.22(typescript@5.6.3))
+      rrweb-player:
+        specifier: ^2.1.1
+        version: 2.1.1
       sm-crypto:
         specifier: ^0.4.0
         version: 0.4.0
@@ -1682,6 +1685,30 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@rrweb/packer@2.1.1':
+    resolution:
+      {
+        integrity: sha512-xPGT7/Cfn1yHD2MOwQhX/8yTvNculurUxPT6ZKXVW8Wh/LI7Jn19L+e8PYKFhj/M89uwNeoTr6hiUQxgb8SMzQ==
+      }
+
+  '@rrweb/replay@2.1.1':
+    resolution:
+      {
+        integrity: sha512-jq64eyJvrh/ioBS1MpDrs/Lj+7QY2TW4xGxp4g4LJKdltSkqMjMbUmhTDcpzaEDZt66S0gasGcgqCulsksSXnw==
+      }
+
+  '@rrweb/types@2.1.1':
+    resolution:
+      {
+        integrity: sha512-g0I3nCNL1S7slDXwhunxOuOoswkY8WVZJQrPFiwixOc6xoD514d1JLTuyAzCKIox8g/PaLKtV5g31Uk42inQSQ==
+      }
+
+  '@rrweb/utils@2.1.1':
+    resolution:
+      {
+        integrity: sha512-x2SgJAD3YJ9eVcLZ5l6OqWMtczdA3VfS5XqPeqpZdQgV9oh6Id5GK2cDN4bimnkqryOcIJdz8cTvV0yNvqQ+nA==
+      }
+
   '@sec-ant/readable-stream@0.4.1':
     resolution:
       {
@@ -1846,10 +1873,22 @@ packages:
         integrity: sha512-VeJbUb0wEKbcwaSlj5n+LscBl9IPgLPkHVGBkh00cztv6X4L/TJXK58LzFuBKX7/GAfiGhIwH67YTLTlzvIzBA==
       }
 
+  '@tsconfig/svelte@1.0.13':
+    resolution:
+      {
+        integrity: sha512-5lYJP45Xllo4yE/RUBccBT32eBlRDbqN8r1/MIvQbKxW3aFqaYPCNgm8D5V20X4ShHcwvYWNlKg3liDh1MlBoA==
+      }
+
   '@types/conventional-commits-parser@5.0.1':
     resolution:
       {
         integrity: sha512-7uz5EHdzz2TqoMfV7ee61Egf5y6NkcO4FB/1iCCQnbeiI1F3xzv3vK5dBCXUCLQgGYS+mUeigK1iKQzvED+QnQ==
+      }
+
+  '@types/css-font-loading-module@0.0.7':
+    resolution:
+      {
+        integrity: sha512-nl09VhutdjINdWyXxHWN/w9zlNCfr60JUqJbd24YXUuCwgeL0TpFSdElCwb6cxfB6ybE19Gjj4g0jsgkXxKv1Q==
       }
 
   '@types/estree@1.0.8':
@@ -2345,6 +2384,12 @@ packages:
       slate: ^0.72.0
       snabbdom: ^3.1.0
 
+  '@xstate/fsm@1.6.5':
+    resolution:
+      {
+        integrity: sha512-b5o1I6aLNeYlU/3CPlj/Z91ybk1gUsKT+5NAJI+2W4UjvS5KLG28K9v5UvNoFVjHV8PajVZ00RH3vnjyQO7ZAw==
+      }
+
   JSONStream@1.3.5:
     resolution:
       {
@@ -2538,6 +2583,13 @@ packages:
       {
         integrity: sha512-1ugUSr8BHXRnK23KfuYS+gVMC3LB8QGH9W1iGtDPsNWoQbgtXSExkBu2aDR4epiGWZOjZsj6lDl/N/AqqTC3UA==
       }
+
+  base64-arraybuffer@1.0.2:
+    resolution:
+      {
+        integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==
+      }
+    engines: { node: '>= 0.6.0' }
 
   base64-js@1.5.1:
     resolution:
@@ -3713,6 +3765,12 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fflate@0.4.9:
+    resolution:
+      {
+        integrity: sha512-zdxgIEddhfsyCaWpJ2SdXEP8ZMrKJ6+5jl4OupODcywU0IhRk6gdXuVGcPICyfx2H97hVK7xmJtRLPjkxAX8Vw==
+      }
 
   figures@3.2.0:
     resolution:
@@ -5850,6 +5908,30 @@ packages:
     engines: { node: '>=18.0.0', npm: '>=8.0.0' }
     hasBin: true
 
+  rrdom@2.1.1:
+    resolution:
+      {
+        integrity: sha512-VBkTF3bGNqcZjqnbo/gKi9GVQPIxiG0dofw7CQdAZQFQ2juJdt2YKIf3oS9QudL8HTpGh9bz5TUN+3amBn1Geg==
+      }
+
+  rrweb-player@2.1.1:
+    resolution:
+      {
+        integrity: sha512-oiAWx/m9Pz0DD5jlJdrF8QlotOZZBK0jINNSYAixxhGa2dI1TrzVVmF4eWFSd6AR8f2zjazKXI/PXCqj3PttXQ==
+      }
+
+  rrweb-snapshot@2.1.1:
+    resolution:
+      {
+        integrity: sha512-al4Kx7Am7YlIn/5Yb2EMr7cdmjGiK+cLhdilJEXqkFXgpnys8t/yMJumXy2Ormgirpg3MBnFha0GTgny+iIL2w==
+      }
+
+  rrweb@2.1.1:
+    resolution:
+      {
+        integrity: sha512-ToxhJg3SsrAhw+/DPhI/2iiwZQIrGK5BGkZ0kHn4qUExcvQYRaolkciD1FWX2+r6vf1IxFyhsoRY18h3D+XoCg==
+      }
+
   run-applescript@7.1.0:
     resolution:
       {
@@ -7663,6 +7745,8 @@ snapshots:
   '@keyv/serialize@1.1.1': {}
 
   '@mugsun/track-web@file:../mugsun-track(vue@3.5.22(typescript@5.6.3))':
+    dependencies:
+      rrweb: 2.1.1
     optionalDependencies:
       vue: 3.5.22(typescript@5.6.3)
 
@@ -7855,6 +7939,20 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.52.3':
     optional: true
 
+  '@rrweb/packer@2.1.1':
+    dependencies:
+      '@rrweb/types': 2.1.1
+      fflate: 0.4.9
+
+  '@rrweb/replay@2.1.1':
+    dependencies:
+      '@rrweb/types': 2.1.1
+      rrweb: 2.1.1
+
+  '@rrweb/types@2.1.1': {}
+
+  '@rrweb/utils@2.1.1': {}
+
   '@sec-ant/readable-stream@0.4.1': {}
 
   '@sindresorhus/merge-streams@4.0.0': {}
@@ -7934,9 +8032,13 @@ snapshots:
 
   '@transloadit/prettier-bytes@0.0.7': {}
 
+  '@tsconfig/svelte@1.0.13': {}
+
   '@types/conventional-commits-parser@5.0.1':
     dependencies:
       '@types/node': 24.8.1
+
+  '@types/css-font-loading-module@0.0.7': {}
 
   '@types/estree@1.0.8': {}
 
@@ -8376,6 +8478,8 @@ snapshots:
       slate: 0.72.8
       snabbdom: 3.6.2
 
+  '@xstate/fsm@1.6.5': {}
+
   JSONStream@1.3.5:
     dependencies:
       jsonparse: 1.3.1
@@ -8465,6 +8569,8 @@ snapshots:
   balanced-match@1.0.2: {}
 
   balanced-match@2.0.0: {}
+
+  base64-arraybuffer@1.0.2: {}
 
   base64-js@1.5.1: {}
 
@@ -9193,6 +9299,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.3):
     optionalDependencies:
       picomatch: 4.0.3
+
+  fflate@0.4.9: {}
 
   figures@3.2.0:
     dependencies:
@@ -10278,6 +10386,31 @@ snapshots:
       '@rollup/rollup-win32-x64-gnu': 4.52.3
       '@rollup/rollup-win32-x64-msvc': 4.52.3
       fsevents: 2.3.3
+
+  rrdom@2.1.1:
+    dependencies:
+      rrweb-snapshot: 2.1.1
+
+  rrweb-player@2.1.1:
+    dependencies:
+      '@rrweb/packer': 2.1.1
+      '@rrweb/replay': 2.1.1
+      '@tsconfig/svelte': 1.0.13
+
+  rrweb-snapshot@2.1.1:
+    dependencies:
+      postcss: 8.5.6
+
+  rrweb@2.1.1:
+    dependencies:
+      '@rrweb/types': 2.1.1
+      '@rrweb/utils': 2.1.1
+      '@types/css-font-loading-module': 0.0.7
+      '@xstate/fsm': 1.6.5
+      base64-arraybuffer: 1.0.2
+      mitt: 3.0.1
+      rrdom: 2.1.1
+      rrweb-snapshot: 2.1.1
 
   run-applescript@7.1.0: {}
 

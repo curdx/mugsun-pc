@@ -60,6 +60,15 @@ export function fmtTrackDuration(ms?: number | null): string {
   return `${m}m${pad(s % 60)}s`
 }
 
+/** 字节数 → 紧凑可读（512B / 36.4KB / 2.1MB） */
+export function fmtTrackSize(bytes?: number | null): string {
+  if (bytes === undefined || bytes === null || Number.isNaN(Number(bytes))) return '-'
+  const v = Number(bytes)
+  if (v < 1024) return `${v}B`
+  if (v < 1024 * 1024) return `${(v / 1024).toFixed(1)}KB`
+  return `${(v / 1024 / 1024).toFixed(2)}MB`
+}
+
 /** 兼容 epoch 毫秒与已格式化时间字符串（实体审计列为字符串、分析接口为 epoch） */
 export function fmtTrackTimeAuto(v?: number | string): string {
   if (v === undefined || v === null || v === '') return '-'

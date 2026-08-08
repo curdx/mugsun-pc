@@ -27,6 +27,26 @@
         <ElInputNumber v-model="formData.retentionDays" :min="1" :max="3650" :precision="0" />
         <span class="track-form-hint">单位：天</span>
       </ElFormItem>
+      <ElFormItem label="会话回放" prop="replayEnabled">
+        <ElSwitch v-model="formData.replayEnabled" :active-value="1" :inactive-value="0" />
+        <span class="track-form-hint">开启后 SDK 常录，按采样率上传</span>
+      </ElFormItem>
+      <template v-if="formData.replayEnabled === 1">
+        <ElFormItem label="回放采样率" prop="replaySampleRate">
+          <ElInputNumber
+            v-model="formData.replaySampleRate"
+            :min="0"
+            :max="100"
+            :step="10"
+            :precision="0"
+          />
+          <span class="track-form-hint">百分比 0 ~ 100，0 表示仅含错误会话强制上传</span>
+        </ElFormItem>
+        <ElFormItem label="回放保留期" prop="replayRetentionDays">
+          <ElInputNumber v-model="formData.replayRetentionDays" :min="1" :max="30" :precision="0" />
+          <span class="track-form-hint">单位：天，最长 30 天</span>
+        </ElFormItem>
+      </template>
       <ElFormItem label="备注" prop="remark">
         <ElInput v-model="formData.remark" type="textarea" :rows="2" placeholder="请输入备注" />
       </ElFormItem>
@@ -71,13 +91,18 @@
     enabled: 1,
     maskSelectors: '',
     retentionDays: 90,
+    replayEnabled: 0,
+    replaySampleRate: 10,
+    replayRetentionDays: 14,
     remark: ''
   })
 
   const rules: FormRules = {
     appName: [{ required: true, message: '请输入应用名称', trigger: 'blur' }],
     sampleRate: [{ required: true, message: '请设置采样率', trigger: 'blur' }],
-    retentionDays: [{ required: true, message: '请设置数据保留期', trigger: 'blur' }]
+    retentionDays: [{ required: true, message: '请设置数据保留期', trigger: 'blur' }],
+    replaySampleRate: [{ required: true, message: '请设置回放采样率', trigger: 'blur' }],
+    replayRetentionDays: [{ required: true, message: '请设置回放保留期', trigger: 'blur' }]
   }
 
   watch(
@@ -93,6 +118,9 @@
             enabled: 1,
             maskSelectors: '',
             retentionDays: 90,
+            replayEnabled: 0,
+            replaySampleRate: 10,
+            replayRetentionDays: 14,
             remark: ''
           },
           props.appData || {}

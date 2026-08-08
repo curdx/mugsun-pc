@@ -41,6 +41,27 @@ export function fetchTrackErrorDetail(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/track/errors/detail', params })
 }
 
+// ===== 会话回放 =====
+/** 回放会话分页（appKey/hasError 可筛，startTime 倒序） */
+export function fetchTrackReplayPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/track/replay/page', params })
+}
+/** 回放详情：{replay: 会话元数据, blocks: [{seq, key}]}（探测场景调用方自处理失败，不弹错误提示） */
+export function fetchTrackReplayDetail(params: Record<string, any>) {
+  return request.get<any>({
+    url: '/api/system/track/replay/detail',
+    params,
+    showErrorMessage: false
+  })
+}
+/**
+ * 回放块内容：rrweb 事件数组 JSON 明文（服务端已解压，R 信封外的裸 JSON 端点 → skipEnvelope）。
+ * 块缺失/过期时后端走 R 错误信封，此处原样抛出由调用方容错跳过。
+ */
+export function fetchTrackReplayData(params: Record<string, any>) {
+  return request.get<any[]>({ url: '/api/system/track/replay/data', params, skipEnvelope: true })
+}
+
 // ===== 埋点应用 =====
 export function fetchTrackAppPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/track/app/page', params })

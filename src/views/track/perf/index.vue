@@ -86,7 +86,7 @@
 
 <script setup lang="ts">
   import { fetchTrackVitals } from '@/api/track'
-  import { useTrackApp } from '@/views/system/track-shared/useTrackApp'
+  import { useTrackApp } from '@/views/track/shared/useTrackApp'
   import {
     ElButton,
     ElInput,

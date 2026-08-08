@@ -50,6 +50,9 @@
       >
       </ArtTable>
     </ElDrawer>
+
+    <!-- 会话回放播放器抽屉（与回放列表页共用组件，嵌套于错误详情之上） -->
+    <ReplayPlayerDrawer v-model:visible="replayVisible" :session-id="replaySessionId" />
   </div>
 </template>
 
@@ -58,7 +61,10 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchTrackErrorDetail, fetchTrackErrorPage } from '@/api/track'
-  import { fmtTrackTime, useTrackApp } from '@/views/system/track-shared/useTrackApp'
+  import { fmtTrackTime, useTrackApp } from '@/views/track/shared/useTrackApp'
+  import ReplayEntryButton from '@/views/track/shared/ReplayEntryButton.vue'
+  import ReplayPlayerDrawer from '@/views/track/shared/ReplayPlayerDrawer.vue'
+  import { hasPerm } from '@/utils/permission'
   import { ElOption, ElRadioButton, ElRadioGroup, ElSelect, ElTag } from 'element-plus'
 
   defineOptions({ name: 'TrackError' })
@@ -160,6 +166,13 @@
         h('span', { class: 'track-error-k' }, '会话'),
         h('span', `${row.sessionId || '-'} / 访客 ${row.distinctId || '-'}`)
       ]),
+      // 会话回放联动（G100）：探测有回放块才渲染入口；点击打开共享播放器抽屉
+      hasPerm('sys:track-replay:view')
+        ? h('div', { class: 'track-error-kv' }, [
+            h('span', { class: 'track-error-k' }, '会话回放'),
+            h(ReplayEntryButton, { sessionId: row.sessionId, onOpen: openReplay })
+          ])
+        : null,
       h('div', { class: 'track-error-kv' }, [
         h('span', { class: 'track-error-k' }, '事件ID'),
         h('span', row.eventId || '-')
@@ -225,6 +238,15 @@
       pageSize: 10
     })
     await fetchDetailData()
+  }
+
+  // ===== 会话回放联动（G100）：展开行回放入口打开共享播放器抽屉 =====
+  const replayVisible = ref(false)
+  const replaySessionId = ref('')
+
+  const openReplay = (sessionId: string): void => {
+    replaySessionId.value = sessionId
+    replayVisible.value = true
   }
 </script>
 

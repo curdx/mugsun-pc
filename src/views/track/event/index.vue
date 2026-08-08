@@ -86,7 +86,7 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchTrackEventPage, fetchTrackEventRealtime, fetchTrackTrend } from '@/api/track'
-  import { fmtTrackClock, fmtTrackTime, useTrackApp } from '@/views/system/track-shared/useTrackApp'
+  import { fmtTrackClock, fmtTrackTime, useTrackApp } from '@/views/track/shared/useTrackApp'
   import type { LineDataItem } from '@/types/component/chart'
   import {
     ElButton,
