@@ -111,7 +111,7 @@
   import { hasPerm } from '@/utils/permission'
   import AppDialog from './modules/app-dialog.vue'
   import EventDefDialog from './modules/event-def-dialog.vue'
-  import { ElButton, ElInput, ElMessage, ElOption, ElSelect, ElTag } from 'element-plus'
+  import { ElButton, ElInput, ElMessage, ElOption, ElSelect, ElTag, ElTooltip } from 'element-plus'
 
   defineOptions({ name: 'TrackApp' })
 
@@ -156,14 +156,18 @@
     rowName: (row) => row.appName,
     columnsFactory: () => [
       { type: 'index', width: 60, label: '序号' },
-      { prop: 'appName', label: '应用名称', minWidth: 140, showOverflowTooltip: true },
+      { prop: 'appName', label: '应用名称', minWidth: 120, showOverflowTooltip: true },
       {
         prop: 'appKey',
         label: 'AppKey',
-        minWidth: 240,
+        minWidth: 230,
         formatter: (row: any) =>
           h('div', { class: 'track-appkey-cell' }, [
-            h('span', { class: 'track-appkey-value' }, row.appKey),
+            h(
+              ElTooltip,
+              { content: row.appKey, placement: 'top' },
+              { default: () => h('span', { class: 'track-appkey-value' }, row.appKey) }
+            ),
             h(
               ElButton,
               { link: true, type: 'primary', size: 'small', onClick: () => copyAppKey(row.appKey) },
@@ -200,7 +204,7 @@
       {
         prop: 'createTime',
         label: '创建时间',
-        minWidth: 150,
+        minWidth: 170,
         formatter: (row: any) => fmtTrackTimeAuto(row.createTime)
       },
       {
@@ -380,12 +384,15 @@ const track = createTracker({
       }
     }
 
-    .track-appkey-cell {
+    // 表格单元格由 ArtTable 渲染（h() 产物不带本页 scopeId），formatter 定制样式须走 :deep()
+    :deep(.track-appkey-cell) {
       display: flex;
       gap: 8px;
       align-items: center;
 
       .track-appkey-value {
+        // min-width:0 让 flex 子元素可收缩，省略号才生效
+        min-width: 0;
         overflow: hidden;
         font-family: monospace;
         font-size: 13px;

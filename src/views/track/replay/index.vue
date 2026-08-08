@@ -47,8 +47,9 @@
     useTrackApp
   } from '@/views/track/shared/useTrackApp'
   import ReplayPlayerDrawer from '@/views/track/shared/ReplayPlayerDrawer.vue'
+  import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { hasPerm } from '@/utils/permission'
-  import { ElButton, ElOption, ElRadioButton, ElRadioGroup, ElSelect, ElTag } from 'element-plus'
+  import { ElOption, ElRadioButton, ElRadioGroup, ElSelect, ElTag } from 'element-plus'
 
   defineOptions({ name: 'TrackReplay' })
 
@@ -129,11 +130,12 @@
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 按真实权限码门控
           formatter: (row: any) =>
             hasPerm('sys:track-replay:view')
-              ? h(
-                  ElButton,
-                  { link: true, type: 'primary', size: 'small', onClick: () => play(row) },
-                  () => '播放'
-                )
+              ? h(ArtButtonTable, {
+                  icon: 'ri:play-circle-line',
+                  iconClass: 'bg-theme/12 text-theme track-replay-play',
+                  title: '播放',
+                  onClick: () => play(row)
+                })
               : null
         }
       ]

@@ -133,7 +133,7 @@ test('W9-2 回放列表页：本会话行可见', async () => {
 test('W9-3 点播放：rrweb-player 渲染且事件数 > 0（录放闭环截图）', async () => {
   test.setTimeout(90_000)
   const firstRow = page.locator('.track-replay-page .el-table tbody tr').first()
-  await firstRow.getByRole('button', { name: '播放' }).click()
+  await firstRow.locator('.track-replay-play').click()
 
   // 播放器抽屉：逐 seq 拉块（skipEnvelope 裸 JSON）→ 拼接 → rrweb-player 挂载
   const drawer = page.locator('.el-drawer', { hasText: '会话回放' })

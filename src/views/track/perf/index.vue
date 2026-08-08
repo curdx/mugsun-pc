@@ -18,7 +18,7 @@
       </ElRadioGroup>
       <ElInput
         v-model="routePath"
-        placeholder="路由筛选，如 /system/user，回车生效"
+        placeholder="路由模板筛选，回车生效"
         clearable
         class="track-route-input"
         @keyup.enter="loadVitals"
@@ -41,7 +41,7 @@
       </ElCol>
       <ElCol :xs="12" :sm="8" :lg="4">
         <div class="art-card track-metric-card track-metric-legend">
-          <div class="track-metric-sub">阈值（good / poor）</div>
+          <div class="track-metric-sub">阈值（良好 / 差）</div>
           <div class="track-legend-line">LCP 2500/4000ms</div>
           <div class="track-legend-line">INP 200/500ms</div>
           <div class="track-legend-line">CLS 0.1/0.25</div>
@@ -76,7 +76,9 @@
           </template>
         </ElTableColumn>
         <ElTableColumn label="P95" min-width="120" align="right">
-          <template #default="{ row }">{{ row.p95Text }}</template>
+          <template #default="{ row }">
+            <span :class="`is-${row.p95Level}`">{{ row.p95Text }}</span>
+          </template>
         </ElTableColumn>
         <template #empty><ElEmpty description="暂无数据" :image-size="60" /></template>
       </ElTable>
@@ -164,7 +166,8 @@
         p50Text: fmtValue(meta, rawValue(meta, row.p50)),
         p75Text: fmtValue(meta, p75),
         p95Text: fmtValue(meta, rawValue(meta, row.p95)),
-        level
+        level,
+        p95Level: levelOf(meta, rawValue(meta, row.p95))
       }
     })
   )
@@ -254,8 +257,11 @@
 
       .track-metric-sub {
         margin-top: 6px;
+        overflow: hidden;
         font-size: 12px;
         color: var(--el-text-color-secondary);
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
 

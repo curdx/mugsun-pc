@@ -83,19 +83,37 @@
       <ElCol :xs="24" :sm="8" :lg="4">
         <div class="art-card track-chart-card">
           <p class="track-card-title">来源分布</p>
-          <ArtRingChart :data="referrerDist" :loading="loading" height="240px" show-legend />
+          <ArtRingChart
+            :data="referrerDist"
+            :loading="loading"
+            height="240px"
+            show-legend
+            legend-position="bottom"
+          />
         </div>
       </ElCol>
       <ElCol :xs="24" :sm="8" :lg="4">
         <div class="art-card track-chart-card">
           <p class="track-card-title">设备分布</p>
-          <ArtRingChart :data="deviceDist" :loading="loading" height="240px" show-legend />
+          <ArtRingChart
+            :data="deviceDist"
+            :loading="loading"
+            height="240px"
+            show-legend
+            legend-position="bottom"
+          />
         </div>
       </ElCol>
       <ElCol :xs="24" :sm="8" :lg="4">
         <div class="art-card track-chart-card">
           <p class="track-card-title">浏览器 Top</p>
-          <ArtRingChart :data="browserTop" :loading="loading" height="240px" show-legend />
+          <ArtRingChart
+            :data="browserTop"
+            :loading="loading"
+            height="240px"
+            show-legend
+            legend-position="bottom"
+          />
         </div>
       </ElCol>
     </ElRow>

@@ -1,0 +1,111 @@
+🚀 API_URL = /
+🚀 VERSION = 3.0.2
+
+  VITE v7.1.7  ready in 700 ms
+
+  ➜  Local:   http://localhost:3007/
+  ➜  Network: http://192.168.31.233:3007/
+  ➜  Network: http://198.18.0.1:3007/
+  ➜  Vue DevTools: Open http://localhost:3007/__devtools__/ as a separate window
+  ➜  Vue DevTools: Press Option(⌥)+Shift(⇧)+D in App to toggle the Vue DevTools
+1:44:01 AM [vite] (client) page reload e2e-report/index.html
+1:44:25 AM [vite] (client) page reload e2e-report/index.html
+1:51:24 AM [vite] (client) page reload e2e-report/index.html
+1:51:41 AM [vite] (client) page reload e2e-report/index.html
+1:55:35 AM [vite] ws proxy error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+1:55:35 AM [vite] ws proxy socket error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+1:55:35 AM [vite] (client) page reload e2e-report/index.html
+1:55:35 AM [vite] (client) page reload e2e-report/trace/index.html
+1:55:35 AM [vite] (client) page reload e2e-report/trace/snapshot.html
+1:55:35 AM [vite] (client) page reload e2e-report/trace/uiMode.html
+1:57:12 AM [vite] (client) page reload e2e-report/index.html
+1:57:12 AM [vite] (client) page reload e2e-report/trace/index.html
+1:57:12 AM [vite] (client) page reload e2e-report/trace/snapshot.html
+1:57:12 AM [vite] (client) page reload e2e-report/trace/uiMode.html
+1:58:25 AM [vite] (client) page reload e2e-report/index.html
+1:58:25 AM [vite] (client) page reload e2e-report/trace/index.html
+1:58:25 AM [vite] (client) page reload e2e-report/trace/snapshot.html
+1:58:25 AM [vite] (client) page reload e2e-report/trace/uiMode.html
+2:01:41 AM [vite] (client) page reload e2e-report/index.html
+2:02:24 AM [vite] (client) page reload e2e-report/index.html
+2:03:27 AM [vite] (client) page reload e2e-report/index.html
+2:03:27 AM [vite] (client) page reload e2e-report/index.html
+2:54:18 AM [vite] (client) hmr update /src/views/track/overview/index.vue, /src/assets/styles/core/tailwind.css
+2:56:55 AM [vite] ws proxy error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+2:56:55 AM [vite] ws proxy socket error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+2:57:28 AM [vite] (client) page reload e2e-report/index.html
+2:57:28 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:11:28 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:18:37 AM [vite] (client) page reload e2e-report/index.html
+4:18:37 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:18:37 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:20:41 AM [vite] (client) page reload e2e-report/trace/index.html
+4:20:41 AM [vite] (client) page reload e2e-report/trace/snapshot.html
+4:20:41 AM [vite] (client) page reload e2e-report/trace/uiMode.html
+4:20:41 AM [vite] (client) page reload e2e-report/index.html
+4:20:41 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:22:57 AM [vite] (client) page reload e2e-report/index.html
+4:22:57 AM [vite] (client) page reload e2e-report/trace/index.html
+4:22:57 AM [vite] (client) page reload e2e-report/trace/snapshot.html
+4:22:57 AM [vite] (client) page reload e2e-report/index.html
+4:22:57 AM [vite] (client) page reload e2e-report/trace/uiMode.html
+4:22:57 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:26:32 AM [vite] (client) page reload e2e-report/index.html
+4:26:32 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:33:41 AM [vite] (client) hmr update /src/views/track/app/index.vue, /src/assets/styles/core/tailwind.css
+4:33:53 AM [vite] (client) hmr update /src/views/track/app/index.vue?vue&type=style&index=0&scoped=03b9e461&lang.scss, /src/assets/styles/core/tailwind.css
+4:34:04 AM [vite] (client) hmr update /src/views/track/app/index.vue, /src/assets/styles/core/tailwind.css
+4:34:25 AM [vite] (client) hmr update /src/views/track/perf/index.vue?vue&type=style&index=0&scoped=d8d25d69&lang.scss, /src/assets/styles/core/tailwind.css
+4:34:36 AM [vite] (client) hmr update /src/views/track/perf/index.vue, /src/assets/styles/core/tailwind.css
+4:34:46 AM [vite] (client) hmr update /src/views/track/perf/index.vue, /src/assets/styles/core/tailwind.css
+4:35:13 AM [vite] (client) hmr update /src/views/track/perf/index.vue, /src/assets/styles/core/tailwind.css
+4:35:23 AM [vite] (client) hmr update /src/views/track/perf/index.vue, /src/assets/styles/core/tailwind.css
+4:35:35 AM [vite] (client) hmr update /src/views/track/replay/index.vue, /src/assets/styles/core/tailwind.css
+4:35:55 AM [vite] (client) hmr update /src/views/track/replay/index.vue, /src/assets/styles/core/tailwind.css
+4:36:35 AM [vite] (client) hmr update /src/views/track/replay/index.vue, /src/assets/styles/core/tailwind.css
+4:36:44 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:37:11 AM [vite] (client) hmr update /src/views/track/overview/index.vue, /src/assets/styles/core/tailwind.css
+4:37:21 AM [vite] (client) hmr update /src/views/track/overview/index.vue, /src/assets/styles/core/tailwind.css
+4:37:32 AM [vite] (client) hmr update /src/views/track/overview/index.vue, /src/assets/styles/core/tailwind.css
+4:39:07 AM [vite] (client) page reload e2e-report/index.html
+4:39:07 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:40:09 AM [vite] ws proxy error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+4:40:09 AM [vite] ws proxy socket error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+4:40:09 AM [vite] (client) page reload e2e-report/index.html
+4:40:09 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:41:43 AM [vite] (client) page reload e2e-report/index.html
+4:41:43 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:43:11 AM [vite] (client) page reload e2e-report/index.html
+4:43:11 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:43:57 AM [vite] (client) page reload e2e-report/index.html
+4:43:57 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:46:01 AM [vite] (client) page reload e2e-report/index.html
+4:46:01 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:46:35 AM [vite] (client) page reload e2e-report/index.html
+4:46:35 AM [vite] (client) hmr update /src/assets/styles/core/tailwind.css
+4:47:00 AM [vite] (client) hmr update /src/views/track/app/index.vue, /src/assets/styles/core/tailwind.css
+4:47:10 AM [vite] (client) hmr update /src/views/track/app/index.vue, /src/assets/styles/core/tailwind.css
+4:47:23 AM [vite] (client) page reload src/router/modules/track.ts
+4:47:23 AM [vite] (client) hmr update /src/views/track/perf/index.vue, /src/assets/styles/core/tailwind.css
+4:48:11 AM [vite] ws proxy error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+4:48:11 AM [vite] ws proxy socket error:
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+4:48:15 AM [vite] (client) page reload e2e-report/index.html
+4:48:43 AM [vite] (client) page reload e2e-report/index.html
+4:48:43 AM [vite] (client) page reload e2e-report/index.html
+4:49:08 AM [vite] (client) page reload e2e-report/index.html

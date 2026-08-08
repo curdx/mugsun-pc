@@ -1,7 +1,7 @@
 import { AppRouteRecord } from '@/types/router'
 
 /**
- * 埋点分析应用（顶级应用分组）：数据概览、事件分析、性能分析、错误监控与接入管理。
+ * 埋点分析应用（顶级应用分组）：数据概览、事件分析、性能分析、错误监控、会话回放与接入管理。
  */
 export const trackRoutes: AppRouteRecord = {
   path: '/track',
