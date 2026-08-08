@@ -100,13 +100,17 @@ test('W2-S2 业务字典页搜索栏：建数→过滤→重置→还原', async
 
   // 经 UI 建两个顶级业务字典（真实落库，防依赖不存在的数据）
   const addDict = async (name: string, code: string): Promise<void> => {
-    // 弹窗打开后会异步拉取上级选项并重渲染（按钮会瞬态脱离 DOM），先等其落定
+    // 弹窗打开后会异步拉取上级选项并重渲染（按钮会瞬态脱离 DOM，点击可能落空），
+    // 轮询重试点击直至弹窗真正可见，再进入填表
     const optionsResp = page
       .waitForResponse((r) => r.url().includes('/system/dict-biz/tree'), { timeout: 10_000 })
       .catch(() => null)
-    await page.getByRole('button', { name: '新增字典' }).filter({ visible: true }).click()
-    await optionsResp
     const dialog = page.locator('.el-dialog:visible')
+    await expect(async () => {
+      await page.getByRole('button', { name: '新增字典' }).filter({ visible: true }).click()
+      await expect(dialog).toBeVisible({ timeout: 3_000 })
+    }).toPass({ timeout: 15_000 })
+    await optionsResp
     await dialog.getByPlaceholder('如 sex').fill(code)
     await dialog.getByPlaceholder('如 男').fill(name)
     const submitResp = page.waitForResponse((r) => r.url().includes('/system/dict-biz/submit'))
