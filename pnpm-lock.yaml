@@ -19,6 +19,9 @@ importers:
       '@iconify/vue':
         specifier: ^5.0.0
         version: 5.0.0(vue@3.5.22(typescript@5.6.3))
+      '@mugsun/track-web':
+        specifier: file:../mugsun-track
+        version: file:../mugsun-track(vue@3.5.22(typescript@5.6.3))
       '@tailwindcss/vite':
         specifier: ^4.1.14
         version: 4.1.14(vite@7.1.7(@types/node@24.8.1)(jiti@2.6.0)(lightningcss@1.30.1)(sass@1.93.2)(terser@5.44.0)(tsx@4.20.6)(yaml@2.8.1))
@@ -1253,6 +1256,15 @@ packages:
       {
         integrity: sha512-dXn3FZhPv0US+7dtJsIi2R+c7qWYiReoEh5zUntWCf4oSpMNib8FDhSoed6m3QyZdx5hK7iLFkYk3rNxwt8vTA==
       }
+
+  '@mugsun/track-web@file:../mugsun-track':
+    resolution: { directory: ../mugsun-track, type: directory }
+    engines: { node: '>=20' }
+    peerDependencies:
+      vue: '>=3.2.0'
+    peerDependenciesMeta:
+      vue:
+        optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     resolution:
@@ -2978,6 +2990,7 @@ packages:
       {
         integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==
       }
+    deprecated: Active development of CryptoJS has been discontinued. This library is no longer maintained.
 
   css-functions-list@3.2.3:
     resolution:
@@ -6989,7 +7002,7 @@ snapshots:
       '@babel/code-frame': 7.27.1
       '@babel/generator': 7.28.3
       '@babel/helper-compilation-targets': 7.27.2
-      '@babel/helper-module-transforms': 7.28.3(@babel/core@7.28.4)
+      '@babel/helper-module-transforms': 7.28.3(@babel/core@7.28.4(supports-color@10.2.2))
       '@babel/helpers': 7.28.4
       '@babel/parser': 7.28.4
       '@babel/template': 7.27.2
@@ -7053,7 +7066,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/helper-module-transforms@7.28.3(@babel/core@7.28.4)':
+  '@babel/helper-module-transforms@7.28.3(@babel/core@7.28.4(supports-color@10.2.2))':
     dependencies:
       '@babel/core': 7.28.4(supports-color@10.2.2)
       '@babel/helper-module-imports': 7.27.1
@@ -7648,6 +7661,10 @@ snapshots:
       hookified: 1.12.1
 
   '@keyv/serialize@1.1.1': {}
+
+  '@mugsun/track-web@file:../mugsun-track(vue@3.5.22(typescript@5.6.3))':
+    optionalDependencies:
+      vue: 3.5.22(typescript@5.6.3)
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:

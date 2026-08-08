@@ -364,6 +364,61 @@ export const systemRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'track-overview',
+      name: 'TrackOverview',
+      component: '/system/track-overview',
+      meta: {
+        title: '埋点概览',
+        icon: 'ri:dashboard-2-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'track-event',
+      name: 'TrackEvent',
+      component: '/system/track-event',
+      meta: {
+        title: '事件分析',
+        icon: 'ri:flashlight-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'track-perf',
+      name: 'TrackPerf',
+      component: '/system/track-perf',
+      meta: {
+        title: '性能监控',
+        icon: 'ri:speed-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'track-error',
+      name: 'TrackError',
+      component: '/system/track-error',
+      meta: {
+        title: '错误监控',
+        icon: 'ri:bug-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'track-app',
+      name: 'TrackApp',
+      component: '/system/track-app',
+      meta: {
+        title: '埋点应用',
+        icon: 'ri:apps-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'data-audit',
       name: 'DataAudit',
       component: '/system/data-audit',

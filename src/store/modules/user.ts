@@ -42,6 +42,7 @@ import { setPageTitle } from '@/utils/router'
 import { resetRouterState } from '@/router/guards/beforeEach'
 import { useMenuStore } from './menu'
 import { StorageConfig } from '@/utils/storage/storage-config'
+import { trackReset } from '@/plugins/track'
 
 /**
  * 用户状态管理
@@ -141,6 +142,11 @@ export const useUserStore = defineStore(
      * 如果是同一账号重新登录，保留工作台标签页
      */
     const logOut = () => {
+      // 埋点登出重置：清登录身份、更换 anonymous_id、轮换会话（仅在已登录时执行，
+      // 匿名访问被重定向登录页触发的 logOut 不轮换，保持匿名会话连续性）
+      if (isLogin.value) {
+        trackReset()
+      }
       // 保存当前用户 ID，用于下次登录时判断是否为同一用户
       const currentUserId = info.value.userId
       if (currentUserId) {

@@ -50,6 +50,7 @@ import { connectMessageSocket } from '@/utils/socket'
 import { useCommon } from '@/hooks/core/useCommon'
 import { useWorktabStore } from '@/store/modules/worktab'
 import { fetchGetUserInfo } from '@/api/auth'
+import { trackIdentify } from '@/plugins/track'
 import { ApiStatus } from '@/utils/http/status'
 import { isHttpError } from '@/utils/http/error'
 import { RouteRegistry, MenuProcessor, IframeRouteManager, RoutePermissionValidator } from '../core'
@@ -377,6 +378,8 @@ async function fetchUserInfo(): Promise<void> {
   const userStore = useUserStore()
   const data = await fetchGetUserInfo()
   userStore.setUserInfo(data)
+  // 埋点身份绑定（$identify；事件级 user_id 最终由服务端按 token 裁定）
+  trackIdentify(data.userId)
   // 按后端策略开关全局水印（等保：用户名+日期，防截屏泄露溯源）
   useSettingStore().setWatermarkVisible(!!(data as any).watermark)
   // 检查并清理工作台标签页（如果是不同用户登录）

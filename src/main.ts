@@ -12,6 +12,7 @@ import '@styles/index.scss'                         // 样式
 import '@utils/sys/console.ts'                      // 控制台输出内容
 import { setupGlobDirectives } from './directives'
 import { setupErrorHandle } from './utils/sys/error-handle'
+import { setupTrack } from './plugins/track'         // 埋点（自监控）
 
 document.addEventListener(
   'touchstart',
@@ -24,6 +25,8 @@ initStore(app)
 initRouter(app)
 setupGlobDirectives(app)
 setupErrorHandle(app)
+// 埋点须在 setupErrorHandle 之后挂接（errorHandler 链式保留既有处理），且 router 就绪、mount 之前
+setupTrack(app)
 
 app.use(ElementPlus)
 app.use(formCreate)

@@ -203,6 +203,7 @@
   import { encryptPassword } from '@/utils/gm'
   import { fetchSocialRender, fetchSocialSources } from '@/api/auth'
   import { connectMessageSocket } from '@/utils/socket'
+  import { trackIdentify } from '@/plugins/track'
   import {
     ElNotification,
     ElMessage,
@@ -304,6 +305,10 @@
     if (!token) throw new Error('Login failed - no token received')
     userStore.setToken(token, refreshToken)
     userStore.setLoginStatus(true)
+    // 埋点身份绑定兜底：快速路径（动态路由已注册时守卫不再拉取用户信息）用已缓存信息即时绑定；
+    // 常规路径由路由守卫 fetchUserInfo 后 identify（SDK 幂等，重复绑定无副作用）
+    const cachedUserId = userStore.getUserInfo.userId
+    if (cachedUserId) trackIdentify(cachedUserId)
     // 建立消息推送长连接
     connectMessageSocket()
     showLoginSuccessNotice()
