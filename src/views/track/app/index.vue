@@ -58,6 +58,46 @@
           >
           </ArtTable>
         </ElTabPane>
+        <!-- ===== 符号表（sourcemap） ===== -->
+        <ElTabPane label="符号表" name="sourcemap" lazy>
+          <div class="track-app-toolbar">
+            <ElSelect
+              v-model="appKey"
+              :loading="appsLoading"
+              placeholder="请选择应用"
+              class="track-app-select"
+            >
+              <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
+            </ElSelect>
+            <ElInput
+              v-model="smRelease"
+              placeholder="Release 筛选，回车生效"
+              clearable
+              class="track-sm-release"
+              @keyup.enter="loadSourcemaps"
+              @clear="loadSourcemaps"
+            />
+            <ElButton @click="loadSourcemaps" v-ripple>查询</ElButton>
+            <ElButton
+              v-perm="'sys:track-app:edit'"
+              type="primary"
+              @click="smUploadVisible = true"
+              v-ripple
+            >
+              上传符号表
+            </ElButton>
+          </div>
+
+          <ArtTable
+            :loading="smLoading"
+            :data="smData as any[]"
+            :columns="smColumns"
+            :pagination="smPagination"
+            @pagination:size-change="handleSmSizeChange"
+            @pagination:current-change="handleSmCurrentChange"
+          >
+          </ArtTable>
+        </ElTabPane>
       </ElTabs>
 
       <AppDialog
@@ -71,6 +111,12 @@
         v-model:visible="defDialogVisible"
         :def-data="currentDef"
         @submit="onSubmitDef"
+      />
+
+      <SourcemapUploadDialog
+        v-model:visible="smUploadVisible"
+        :app-key="appKey"
+        @submit="onSubmitSourcemap"
       />
 
       <!-- 新增成功：展示 appKey + 接入代码片段 -->
@@ -102,16 +148,29 @@
   import { useTable } from '@/hooks/core/useTable'
   import {
     fetchRemoveTrackApp,
+    fetchRemoveTrackSourcemap,
     fetchSaveTrackApp,
     fetchSaveTrackEventDef,
     fetchTrackAppPage,
-    fetchTrackEventDefPage
+    fetchTrackEventDefPage,
+    fetchTrackSourcemapPage,
+    fetchUploadTrackSourcemap
   } from '@/api/track'
-  import { fmtTrackTimeAuto, useTrackApp } from '@/views/track/shared/useTrackApp'
+  import { fmtTrackSize, fmtTrackTimeAuto, useTrackApp } from '@/views/track/shared/useTrackApp'
   import { hasPerm } from '@/utils/permission'
   import AppDialog from './modules/app-dialog.vue'
   import EventDefDialog from './modules/event-def-dialog.vue'
-  import { ElButton, ElInput, ElMessage, ElOption, ElSelect, ElTag, ElTooltip } from 'element-plus'
+  import SourcemapUploadDialog from './modules/sourcemap-upload-dialog.vue'
+  import {
+    ElButton,
+    ElInput,
+    ElMessage,
+    ElMessageBox,
+    ElOption,
+    ElSelect,
+    ElTag,
+    ElTooltip
+  } from 'element-plus'
 
   defineOptions({ name: 'TrackApp' })
 
@@ -360,6 +419,103 @@ const track = createTracker({
     ElMessage.success('保存成功')
     await fetchDefs()
   }
+
+  // ===== 符号表 tab（G101）：按共享选中应用过滤 + release 精确筛；上传/删除走应用编辑权限码 =====
+  const smRelease = ref('')
+  const smUploadVisible = ref(false)
+
+  const {
+    columns: smColumns,
+    data: smData,
+    loading: smLoading,
+    pagination: smPagination,
+    handleSizeChange: handleSmSizeChange,
+    handleCurrentChange: handleSmCurrentChange,
+    fetchData: fetchSourcemaps,
+    replaceSearchParams: replaceSmParams
+  } = useTable({
+    core: {
+      apiFn: fetchTrackSourcemapPage,
+      apiParams: { pageNum: 1, pageSize: 20 },
+      // 首载等切到该 tab 且 appKey 就绪后手动触发
+      immediate: false,
+      paginationKey: { current: 'pageNum', size: 'pageSize' },
+      columnsFactory: () => [
+        { type: 'index', width: 60, label: '序号' },
+        { prop: 'release', label: 'Release', minWidth: 130, showOverflowTooltip: true },
+        { prop: 'filename', label: '文件名', minWidth: 220, showOverflowTooltip: true },
+        {
+          prop: 'sizeBytes',
+          label: '大小',
+          width: 100,
+          align: 'right',
+          headerAlign: 'right',
+          formatter: (row: any) => fmtTrackSize(row.sizeBytes)
+        },
+        {
+          prop: 'createTime',
+          label: '上传时间',
+          minWidth: 150,
+          formatter: (row: any) => fmtTrackTimeAuto(row.createTime)
+        },
+        {
+          prop: 'operation',
+          label: '操作',
+          width: 80,
+          fixed: 'right',
+          formatter: (row: any) =>
+            hasPerm('sys:track-app:edit')
+              ? h(ArtButtonTable, { type: 'delete', onClick: () => handleSmDelete(row) })
+              : null
+        }
+      ]
+    },
+    transform: {
+      responseAdapter: (resp: any) => ({
+        records: resp?.records ?? [],
+        total: resp?.totalRow ?? 0,
+        current: resp?.pageNumber ?? 1,
+        size: resp?.pageSize ?? 20
+      })
+    }
+  })
+
+  const loadSourcemaps = async (): Promise<void> => {
+    if (tab.value !== 'sourcemap' || !appKey.value) return
+    const params: Record<string, any> = { appKey: appKey.value, pageNum: 1, pageSize: 20 }
+    if (smRelease.value) params.release = smRelease.value
+    replaceSmParams(params)
+    await fetchSourcemaps()
+  }
+
+  // 切到符号表 tab / 应用变化时加载（首载在 appKey 就绪后触发）
+  watch([tab, appKey], loadSourcemaps, { immediate: true })
+
+  const onSubmitSourcemap = async (payload: { release: string; file: File }): Promise<void> => {
+    const form = new FormData()
+    form.append('file', payload.file)
+    form.append('appKey', appKey.value)
+    form.append('release', payload.release)
+    await fetchUploadTrackSourcemap(form)
+    smUploadVisible.value = false
+    ElMessage.success('上传成功')
+    await fetchSourcemaps()
+  }
+
+  const handleSmDelete = async (row: Record<string, any>): Promise<void> => {
+    await ElMessageBox.confirm(
+      `确认删除符号表「${row.filename}」（${row.release}）？`,
+      '删除确认',
+      {
+        type: 'warning',
+        confirmButtonText: '删除',
+        cancelButtonText: '取消'
+      }
+    )
+    await fetchRemoveTrackSourcemap(row.id)
+    ElMessage.success('已删除')
+    await fetchSourcemaps()
+  }
 </script>
 
 <style lang="scss" scoped>
@@ -381,6 +537,10 @@ const track = createTracker({
 
       .track-def-status {
         width: 120px;
+      }
+
+      .track-sm-release {
+        width: 200px;
       }
     }
 

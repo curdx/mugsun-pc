@@ -47,6 +47,14 @@
           <span class="track-form-hint">单位：天，最长 30 天</span>
         </ElFormItem>
       </template>
+      <ElFormItem label="错误告警" prop="alertEnabled">
+        <ElSwitch v-model="formData.alertEnabled" :active-value="1" :inactive-value="0" />
+        <span class="track-form-hint">新错误指纹或同指纹超阈值时站内信通知租户管理员</span>
+      </ElFormItem>
+      <ElFormItem v-if="formData.alertEnabled === 1" label="告警阈值" prop="alertThreshold">
+        <ElInputNumber v-model="formData.alertThreshold" :min="1" :max="1000" :precision="0" />
+        <span class="track-form-hint">10 分钟内同指纹错误超过该次数时告警</span>
+      </ElFormItem>
       <ElFormItem label="备注" prop="remark">
         <ElInput v-model="formData.remark" type="textarea" :rows="2" placeholder="请输入备注" />
       </ElFormItem>
@@ -94,6 +102,8 @@
     replayEnabled: 0,
     replaySampleRate: 10,
     replayRetentionDays: 14,
+    alertEnabled: 0,
+    alertThreshold: 10,
     remark: ''
   })
 
@@ -102,7 +112,8 @@
     sampleRate: [{ required: true, message: '请设置采样率', trigger: 'blur' }],
     retentionDays: [{ required: true, message: '请设置数据保留期', trigger: 'blur' }],
     replaySampleRate: [{ required: true, message: '请设置回放采样率', trigger: 'blur' }],
-    replayRetentionDays: [{ required: true, message: '请设置回放保留期', trigger: 'blur' }]
+    replayRetentionDays: [{ required: true, message: '请设置回放保留期', trigger: 'blur' }],
+    alertThreshold: [{ required: true, message: '请设置告警阈值', trigger: 'blur' }]
   }
 
   watch(
@@ -121,6 +132,8 @@
             replayEnabled: 0,
             replaySampleRate: 10,
             replayRetentionDays: 14,
+            alertEnabled: 0,
+            alertThreshold: 10,
             remark: ''
           },
           props.appData || {}

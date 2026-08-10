@@ -64,6 +64,7 @@
   import { fmtTrackTime, useTrackApp } from '@/views/track/shared/useTrackApp'
   import ReplayEntryButton from '@/views/track/shared/ReplayEntryButton.vue'
   import ReplayPlayerDrawer from '@/views/track/shared/ReplayPlayerDrawer.vue'
+  import StackRestore from '@/views/track/error/modules/stack-restore.vue'
   import { hasPerm } from '@/utils/permission'
   import { ElOption, ElRadioButton, ElRadioGroup, ElSelect, ElTag } from 'element-plus'
 
@@ -187,6 +188,13 @@
         h('span', { class: 'track-error-k' }, '堆栈'),
         h('pre', { class: 'track-error-pre' }, row.stack || '-')
       ]),
+      // 堆栈还原（G101）：仅带 release 的错误行可定位符号表；组件内自查符号表存在性并给引导
+      row.release
+        ? h('div', { class: 'track-error-kv' }, [
+            h('span', { class: 'track-error-k' }, '还原'),
+            h(StackRestore, { appKey: appKey.value, release: row.release, stack: row.stack || '' })
+          ])
+        : null,
       h('div', { class: 'track-error-kv' }, [
         h('span', { class: 'track-error-k' }, '上下文'),
         h('pre', { class: 'track-error-pre' }, prettyProps(row.props))

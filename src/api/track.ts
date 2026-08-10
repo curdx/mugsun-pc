@@ -74,6 +74,23 @@ export function fetchRemoveTrackApp(id: number | string) {
   return request.post<void>({ url: '/api/system/track/app/remove', data: { id } })
 }
 
+// ===== 符号表（sourcemap，G101） =====
+/** 分页（appKey 必填，release 可选精确筛）；records 为行投影（不含存储坐标） */
+export function fetchTrackSourcemapPage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/track/sourcemap/page', params })
+}
+/** 上传（multipart：file/appKey/release；.map ≤20MB 须含 mappings；同 appKey+release+filename 重传覆盖） */
+export function fetchUploadTrackSourcemap(data: FormData) {
+  return request.post<any>({ url: '/api/system/track/sourcemap/upload', data })
+}
+export function fetchRemoveTrackSourcemap(id: number | string) {
+  return request.post<void>({ url: '/api/system/track/sourcemap/remove', data: { id } })
+}
+/** .map 原文（application/json 直发，非 R 信封 → skipEnvelope；axios 已解析为对象，可直接喂 source-map-js） */
+export function fetchTrackSourcemapRaw(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/track/sourcemap/raw', params, skipEnvelope: true })
+}
+
 // ===== 事件定义 =====
 export function fetchTrackEventDefPage(params: Record<string, any>) {
   return request.get<any>({ url: '/api/system/track/event-def/page', params })
