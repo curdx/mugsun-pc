@@ -20,6 +20,7 @@
             v-if="card.percent !== undefined"
             :percentage="card.percent"
             :stroke-width="8"
+            :format="card.format"
             :status="card.percent > 90 ? 'exception' : undefined"
           />
           <div class="monitor-card-sub">{{ card.sub }}</div>
@@ -50,7 +51,11 @@
     value: string
     sub: string
     percent?: number
+    format?: (percentage: number) => string
   }
+
+  /** 进度条标签与大字同口径：一位小数（默认取整标签与 0.1% 大字不一致） */
+  const percentLabel = (p: number): string => `${p.toFixed(1)}%`
 
   const loading = ref(false)
   const cards = ref<MetricCard[]>([])
@@ -95,7 +100,8 @@
           title: '进程 CPU',
           value: `${(cpu * 100).toFixed(1)}%`,
           sub: `系统核数 ${measure(cpuCount)}`,
-          percent: Math.min(100, Math.round(cpu * 100))
+          percent: Math.min(100, Number((cpu * 100).toFixed(1))),
+          format: percentLabel
         },
         {
           title: 'JVM 线程',

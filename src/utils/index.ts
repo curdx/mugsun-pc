@@ -24,6 +24,9 @@ export * from './constants'
 // 存储相关
 export * from './storage'
 
+// 时间格式化相关
+export * from './date'
+
 // HTTP 相关
 export * from './http'
 

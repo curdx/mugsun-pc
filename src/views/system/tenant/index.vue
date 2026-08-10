@@ -19,28 +19,28 @@
       <ElTable :data="tableData" border>
         <ElTableColumn type="index" label="序号" width="60" />
         <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
-        <ElTableColumn prop="tenantName" label="租户名称" min-width="150" />
-        <ElTableColumn label="套餐" min-width="130">
+        <ElTableColumn prop="tenantName" label="租户名称" min-width="140" />
+        <ElTableColumn label="套餐" min-width="100">
           <template #default="{ row }">
             <ElTag v-if="row.packageId" type="success">{{ packageName(row.packageId) }}</ElTag>
             <ElTag v-else type="info">不限功能</ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="contactUser" label="联系人" min-width="110" />
-        <ElTableColumn prop="contactPhone" label="联系电话" min-width="130" />
-        <ElTableColumn label="账号上限" width="100" align="center">
+        <ElTableColumn prop="contactUser" label="联系人" min-width="100" />
+        <ElTableColumn prop="contactPhone" label="联系电话" min-width="110" />
+        <ElTableColumn label="账号上限" width="90" align="center" header-align="center">
           <template #default="{ row }">
             {{ row.accountCount == null || row.accountCount < 0 ? '不限' : row.accountCount }}
           </template>
         </ElTableColumn>
-        <ElTableColumn label="状态" width="90" align="center">
+        <ElTableColumn label="状态" width="90" align="center" header-align="center">
           <template #default="{ row }">
             <ElTag v-if="row.status === 0" type="danger">停用</ElTag>
             <ElTag v-else type="success">正常</ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="expireTime" label="过期时间" min-width="170" />
-        <ElTableColumn label="操作" width="150">
+        <ElTableColumn prop="expireTime" label="过期时间" min-width="160" />
+        <ElTableColumn label="操作" width="150" fixed="right">
           <template #default="{ row }">
             <ElButton v-perm="'sys:tenant:save'" link type="primary" @click="openEdit(row)"
               >编辑</ElButton

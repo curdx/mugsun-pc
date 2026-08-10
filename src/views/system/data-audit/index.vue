@@ -19,7 +19,9 @@
           <ElDescriptionsItem label="业务对象">{{ bizLabel(current.bizTable) }}</ElDescriptionsItem>
           <ElDescriptionsItem label="业务ID">{{ current.bizId }}</ElDescriptionsItem>
           <ElDescriptionsItem label="操作人">{{ current.operator }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="时间">{{ current.createTime }}</ElDescriptionsItem>
+          <ElDescriptionsItem label="时间">{{
+            formatTableTime(current.createTime)
+          }}</ElDescriptionsItem>
         </ElDescriptions>
 
         <ElDivider content-position="left">字段变更</ElDivider>
@@ -54,6 +56,7 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchDataAuditPage, fetchDataAuditDetail } from '@/api/system-manage'
+  import { formatTableTime } from '@/utils/date'
   import { ElTag } from 'element-plus'
   import { createTwoFilesPatch } from 'diff'
   import { html as renderDiff } from 'diff2html'
@@ -145,7 +148,12 @@
           formatter: (row: any) => summary(row)
         },
         { prop: 'operator', label: '操作人', minWidth: 170 },
-        { prop: 'createTime', label: '时间', minWidth: 180 },
+        {
+          prop: 'createTime',
+          label: '时间',
+          minWidth: 180,
+          formatter: (row: any) => formatTableTime(row.createTime)
+        },
         {
           prop: 'operation',
           label: '操作',

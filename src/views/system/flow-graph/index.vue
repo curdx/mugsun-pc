@@ -31,7 +31,9 @@
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="createTime" label="创建时间" min-width="170" />
+        <ElTableColumn prop="createTime" label="创建时间" min-width="170">
+          <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+        </ElTableColumn>
         <ElTableColumn label="操作" width="230" fixed="right">
           <template #default="{ row }">
             <ElButton
@@ -111,6 +113,7 @@
     fetchFlowUserSelect
   } from '@/api/system-manage'
   import { fetchRoleCodeSelect } from '@/api/role'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'FlowGraph' })
 

@@ -62,7 +62,9 @@
         <ElButton v-if="tableId" v-perm="'sys:online:edit'" @click="openAdd">新增</ElButton>
       </div>
 
-      <ElTable :data="rows" border v-loading="loading" style="margin-top: 12px">
+      <!-- 未选表单时无列可渲（只剩孤立「#」表头），以空态替代表格 -->
+      <ElEmpty v-if="!tableId" description="请选择上方在线表单" style="margin-top: 12px" />
+      <ElTable v-else :data="rows" border v-loading="loading" style="margin-top: 12px">
         <ElTableColumn type="index" label="#" width="50" />
         <ElTableColumn
           v-for="col in listColumns"

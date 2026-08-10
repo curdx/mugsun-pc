@@ -23,14 +23,14 @@
         <ElTableColumn label="下次触发" min-width="160">
           <template #default="{ row }">{{ fmt(row.nextTriggerTime) }}</template>
         </ElTableColumn>
-        <ElTableColumn label="状态" width="90">
+        <ElTableColumn label="状态" width="100">
           <template #default="{ row }">
             <ElTag :type="row.status === 1 ? 'success' : 'info'">
               {{ row.status === 1 ? '启用' : '停用' }}
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn label="操作" width="320" fixed="right">
+        <ElTableColumn label="操作" width="280" fixed="right">
           <template #default="{ row }">
             <ElButton v-perm="'sys:job:run'" link type="success" @click="run(row)"
               >立即执行</ElButton

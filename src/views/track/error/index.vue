@@ -93,8 +93,14 @@
       columnsFactory: () => [
         { type: 'index', width: 60, label: '序号' },
         { prop: 'message', label: '错误摘要', minWidth: 260, showOverflowTooltip: true },
-        { prop: 'eventCount', label: '次数', width: 100, align: 'right' },
-        { prop: 'sessionCount', label: '影响会话', width: 100, align: 'right' },
+        { prop: 'eventCount', label: '次数', width: 100, align: 'right', headerAlign: 'right' },
+        {
+          prop: 'sessionCount',
+          label: '影响会话',
+          width: 100,
+          align: 'right',
+          headerAlign: 'right'
+        },
         {
           prop: 'firstTime',
           label: '首次发生',

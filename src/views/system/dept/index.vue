@@ -17,7 +17,9 @@
       <ElTable :data="treeData" row-key="id" default-expand-all border>
         <ElTableColumn prop="deptName" label="部门名称" min-width="220" />
         <ElTableColumn prop="sort" label="排序" width="100" />
-        <ElTableColumn prop="createTime" label="创建时间" min-width="180" />
+        <ElTableColumn prop="createTime" label="创建时间" min-width="180">
+          <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+        </ElTableColumn>
         <ElTableColumn label="操作" width="240">
           <template #default="{ row }">
             <ElButton v-perm="'sys:dept:save'" link type="primary" @click="showDialog('add', row)"
@@ -56,6 +58,7 @@
   import DeptDialog from './modules/dept-dialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'Dept' })
 

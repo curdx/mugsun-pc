@@ -77,6 +77,7 @@
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchOperLogPage, fetchOperLogVerify } from '@/api/system-manage'
+  import { formatTableTime } from '@/utils/date'
   import { ElMessage, ElTag } from 'element-plus'
 
   defineOptions({ name: 'OperLog' })
@@ -174,7 +175,12 @@
               ? h(ElTag, { type: 'success' }, () => '成功')
               : h(ElTag, { type: 'danger' }, () => '失败')
         },
-        { prop: 'createTime', label: '时间', minWidth: 180 },
+        {
+          prop: 'createTime',
+          label: '时间',
+          minWidth: 180,
+          formatter: (row: any) => formatTableTime(row.createTime)
+        },
         {
           prop: 'operation',
           label: '操作',

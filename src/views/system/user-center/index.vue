@@ -24,9 +24,7 @@
             <ElDescriptionsItem label="昵称">{{ info.nickName }}</ElDescriptionsItem>
             <ElDescriptionsItem label="邮箱">{{ info.email || '未绑定' }}</ElDescriptionsItem>
             <ElDescriptionsItem label="手机">{{ info.phone || '未绑定' }}</ElDescriptionsItem>
-            <ElDescriptionsItem label="角色">{{
-              (info.roles || []).join(', ')
-            }}</ElDescriptionsItem>
+            <ElDescriptionsItem label="角色">{{ roleNames }}</ElDescriptionsItem>
           </ElDescriptions>
         </ElCard>
       </ElCol>
@@ -108,6 +106,7 @@
     uploadAvatarFile
   } from '@/api/system-manage'
   import { fetchSocialRender, fetchSocialUnbind, fetchSocialSources } from '@/api/auth'
+  import { fetchRoleCodeSelect } from '@/api/role'
   import { encryptPassword } from '@/utils/gm'
   import { ElMessage } from 'element-plus'
 
@@ -115,6 +114,27 @@
 
   const userStore = useUserStore()
   const info = computed<any>(() => userStore.getUserInfo || {})
+
+  // 角色码 → 角色名映射：/auth/info 只返回角色码（admin/R_SUPER…），按角色码下拉翻译为中文名；
+  // 无角色列表权限时接口被拒，降级原样显示角色码
+  const roleNameMap = ref<Record<string, string>>({})
+  onMounted(async () => {
+    try {
+      const options = (await fetchRoleCodeSelect()) || []
+      roleNameMap.value = Object.fromEntries(options.map((o: any) => [String(o.value), o.label]))
+    } catch {
+      roleNameMap.value = {}
+    }
+  })
+  // R_SUPER/R_ADMIN 是菜单门控伪角色（非 sys_role 真实角色），不展示；真实角色码翻译为中文名
+  const PSEUDO_ROLES = ['R_SUPER', 'R_ADMIN']
+  const roleNames = computed(() => {
+    const roles: string[] = info.value.roles || []
+    const names = roles
+      .filter((r) => !PSEUDO_ROLES.includes(r))
+      .map((r) => roleNameMap.value[r] || r)
+    return names.length ? names.join(', ') : roles.join(', ')
+  })
 
   const infoRef = ref<FormInstance>()
   const infoForm = reactive({ nickname: info.value.nickName || '' })

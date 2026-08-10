@@ -36,6 +36,7 @@
   import { ElButton, ElMessageBox, ElMessage } from 'element-plus'
   import { DICT_CODE } from '@/utils/constants'
   import { hasPerm } from '@/utils/permission'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'LoginLog' })
 
@@ -95,7 +96,14 @@
         { type: 'index', width: 60, label: '序号' },
         { prop: 'username', label: '账号', minWidth: 120 },
         { prop: 'ip', label: 'IP', minWidth: 130 },
-        { prop: 'loginLocation', label: '归属地', minWidth: 130, showOverflowTooltip: true },
+        {
+          prop: 'loginLocation',
+          label: '归属地',
+          minWidth: 130,
+          showOverflowTooltip: true,
+          // ip2region 关闭/内网/未命中时为空，统一占位
+          formatter: (row: any) => row.loginLocation || '-'
+        },
         { prop: 'browser', label: '浏览器', minWidth: 110, showOverflowTooltip: true },
         { prop: 'os', label: '操作系统', minWidth: 130, showOverflowTooltip: true },
         {
@@ -107,15 +115,21 @@
             h(ArtStatusTag, { code: DICT_CODE.LOGIN_RESULT, value: row.status })
         },
         { prop: 'msg', label: '说明', minWidth: 160, showOverflowTooltip: true },
-        { prop: 'loginTime', label: '登录时间', minWidth: 170 },
+        {
+          prop: 'loginTime',
+          label: '登录时间',
+          minWidth: 170,
+          formatter: (row: any) => formatTableTime(row.loginTime)
+        },
         {
           prop: 'operation',
           label: '操作',
           width: 90,
           fixed: 'right',
-          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控；
+          // 「解锁」仅对处于锁定中的行展示（locked 由后端按 Redis 锁键富化）
           formatter: (row: any) =>
-            hasPerm('sys:login-log:unlock')
+            hasPerm('sys:login-log:unlock') && row.locked
               ? h(
                   ElButton,
                   { link: true, type: 'warning', size: 'small', onClick: () => unlock(row) },
@@ -145,6 +159,8 @@
     }).then(async () => {
       await unlockLoginAccount(row.id)
       ElMessage.success('解锁成功')
+      // 解锁后刷新行级锁定标记（按钮随之隐藏）
+      refreshData()
     })
   }
 

@@ -10,9 +10,9 @@
 
       <ElTable :data="tableData" border v-loading="loading">
         <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="name" label="名称" min-width="130" />
-        <ElTableColumn prop="clientId" label="ClientId" min-width="180" />
-        <ElTableColumn prop="clientSecret" label="ClientSecret" min-width="150" />
+        <ElTableColumn prop="name" label="名称" min-width="100" />
+        <ElTableColumn prop="clientId" label="ClientId" min-width="160" show-overflow-tooltip />
+        <ElTableColumn prop="clientSecret" label="ClientSecret" min-width="130" />
         <ElTableColumn label="授权类型" min-width="180">
           <template #default="{ row }">
             <ElTag
@@ -25,7 +25,7 @@
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="scopes" label="授权范围" min-width="150" show-overflow-tooltip />
+        <ElTableColumn prop="scopes" label="授权范围" min-width="85" show-overflow-tooltip />
         <ElTableColumn label="有效期(秒)" width="100" prop="accessTokenValidity" />
         <ElTableColumn label="状态" width="80">
           <template #default="{ row }">

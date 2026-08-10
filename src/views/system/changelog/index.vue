@@ -72,6 +72,7 @@
   import ArtWangEditor from '@/components/core/forms/art-wang-editor/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { hasPerm } from '@/utils/permission'
+  import { formatTableTime } from '@/utils/date'
   import {
     fetchChangelogPage,
     fetchChangelogDetail,
@@ -87,6 +88,26 @@
     { label: '修复', value: 'fix', tag: 'danger' }
   ]
   const typeMeta = (v: string) => TYPES.find((t) => t.value === v) || { label: v, tag: 'info' }
+
+  // 语义版本比较（v1.3.0 > v1.10.0）：非数字段兜底字符串比较，非法版本排最后
+  const compareVersion = (a: string, b: string): number => {
+    const pa = String(a || '')
+      .replace(/^v/i, '')
+      .split('.')
+    const pb = String(b || '')
+      .replace(/^v/i, '')
+      .split('.')
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const na = pa[i]
+      const nb = pb[i]
+      if (na === undefined) return -1
+      if (nb === undefined) return 1
+      const diff =
+        /^\d+$/.test(na) && /^\d+$/.test(nb) ? Number(na) - Number(nb) : na.localeCompare(nb)
+      if (diff !== 0) return diff
+    }
+    return 0
+  }
 
   const {
     columns,
@@ -114,7 +135,12 @@
           }
         },
         { prop: 'title', label: '标题', minWidth: 220 },
-        { prop: 'publishTime', label: '发布时间', minWidth: 170 },
+        {
+          prop: 'publishTime',
+          label: '发布时间',
+          minWidth: 170,
+          formatter: (row: any) => formatTableTime(row.publishTime)
+        },
         { prop: 'sort', label: '排序', width: 80 },
         {
           prop: 'operation',
@@ -135,8 +161,11 @@
       ]
     },
     transform: {
+      // 后端按 sort 字段倒序返回（sort 默认 0，新版本易排老版本后），前端按语义版本倒序重排
       responseAdapter: (resp: any) => ({
-        records: resp?.records ?? [],
+        records: [...(resp?.records ?? [])].sort((a: any, b: any) =>
+          compareVersion(b.version, a.version)
+        ),
         total: resp?.totalRow ?? 0,
         current: resp?.pageNumber ?? 1,
         size: resp?.pageSize ?? 10

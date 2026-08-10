@@ -30,7 +30,9 @@
         </ElTableColumn>
         <ElTableColumn prop="msg" label="说明" min-width="180" show-overflow-tooltip />
         <ElTableColumn prop="ip" label="IP" width="130" />
-        <ElTableColumn prop="createTime" label="时间" min-width="170" />
+        <ElTableColumn prop="createTime" label="时间" min-width="170">
+          <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+        </ElTableColumn>
       </ElTable>
 
       <div class="oauth-log-pager">
@@ -49,6 +51,7 @@
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
   import { fetchOauthLogPage } from '@/api/oauth'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'OauthLog' })
 

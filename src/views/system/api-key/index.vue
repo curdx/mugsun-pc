@@ -23,7 +23,13 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="180" fixed="right">
           <template #default="{ row }">
-            <ElButton v-perm="'sys:api-key:edit'" link type="warning" @click="toggle(row)">
+            <!-- 语义配色：启用用主题色，停用才用 warning -->
+            <ElButton
+              v-perm="'sys:api-key:edit'"
+              link
+              :type="row.status === 1 ? 'warning' : 'primary'"
+              @click="toggle(row)"
+            >
               {{ row.status === 1 ? '停用' : '启用' }}
             </ElButton>
             <ElButton v-perm="'sys:api-key:remove'" link type="danger" @click="remove(row)"

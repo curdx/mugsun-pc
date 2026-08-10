@@ -28,7 +28,7 @@
           <template #default="{ row }">{{ TYPE_LABELS[row.menuType] ?? row.menuType }}</template>
         </ElTableColumn>
         <ElTableColumn prop="path" label="路由地址" min-width="160" />
-        <ElTableColumn prop="permission" label="权限标识" min-width="160" />
+        <ElTableColumn prop="permission" label="权限标识" min-width="200" show-overflow-tooltip />
         <ElTableColumn prop="sort" label="排序" width="80" />
         <ElTableColumn label="隐藏" width="80" align="center">
           <template #default="{ row }">

@@ -88,15 +88,17 @@
           label: '时长',
           width: 100,
           align: 'right',
+          headerAlign: 'right',
           formatter: (row: any) => fmtTrackDuration(row.durationMs)
         },
-        { prop: 'pageCount', label: '页面数', width: 90, align: 'right' },
-        { prop: 'rrwebEvents', label: '事件数', width: 90, align: 'right' },
+        { prop: 'pageCount', label: '页面数', width: 90, align: 'right', headerAlign: 'right' },
+        { prop: 'rrwebEvents', label: '事件数', width: 90, align: 'right', headerAlign: 'right' },
         {
           prop: 'sizeBytes',
           label: '大小',
           width: 100,
           align: 'right',
+          headerAlign: 'right',
           formatter: (row: any) => fmtTrackSize(row.sizeBytes)
         },
         {

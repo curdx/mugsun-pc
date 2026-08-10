@@ -80,6 +80,7 @@
   import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchErrorLogPage, fetchHandleErrorLog, fetchRemoveErrorLog } from '@/api/system-manage'
+  import { formatTableTime } from '@/utils/date'
   import { hasPerm } from '@/utils/permission'
   import { DICT_CODE } from '@/utils/constants'
   import { ElMessage, ElMessageBox, ElRadio, ElRadioButton, ElRadioGroup } from 'element-plus'
@@ -131,7 +132,12 @@
           formatter: (row: any) =>
             h(ArtDictTag, { code: DICT_CODE.ERROR_LOG_STATUS, value: row.status })
         },
-        { prop: 'createTime', label: '时间', minWidth: 170 },
+        {
+          prop: 'createTime',
+          label: '时间',
+          minWidth: 170,
+          formatter: (row: any) => formatTableTime(row.createTime)
+        },
         {
           prop: 'operation',
           label: '操作',

@@ -18,10 +18,11 @@
         <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
         <ElTableColumn prop="dsUrl" label="数据源 URL" min-width="280" show-overflow-tooltip />
         <ElTableColumn prop="dsUsername" label="用户名" width="120" />
-        <ElTableColumn label="隔离策略" width="120">
+        <ElTableColumn label="隔离策略" width="160">
           <template #default="{ row }">
+            <!-- schema 策略展示「Schema + schema 名」，列宽按内容预留，避免溢出被裁 -->
             <ElTag :type="row.isolationType === 2 ? 'warning' : 'primary'">
-              {{ row.isolationType === 2 ? `schema:${row.schemaName || ''}` : '独立库' }}
+              {{ row.isolationType === 2 ? `Schema ${row.schemaName || ''}` : '独立库' }}
             </ElTag>
           </template>
         </ElTableColumn>

@@ -19,9 +19,9 @@
             highlight-current-row
             @current-change="onCatalogSelect"
           >
-            <ElTableColumn prop="name" label="目录名称" min-width="150" />
-            <ElTableColumn prop="sort" label="排序" width="70" />
-            <ElTableColumn label="操作" width="170">
+            <ElTableColumn prop="name" label="目录名称" min-width="130" />
+            <ElTableColumn prop="sort" label="排序" width="60" />
+            <ElTableColumn label="操作" width="140">
               <template #default="{ row }">
                 <ElButton
                   v-perm="'sys:help:manage'"

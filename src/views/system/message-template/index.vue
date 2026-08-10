@@ -57,6 +57,7 @@
     fetchSaveMsgTemplate,
     fetchRemoveMsgTemplate
   } from '@/api/message'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'MessageTemplate' })
 
@@ -77,7 +78,12 @@
       columnsFactory: () => [
         { prop: 'code', label: '编码', width: 160 },
         { prop: 'title', label: '标题', minWidth: 220 },
-        { prop: 'createTime', label: '创建时间', minWidth: 180 },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          minWidth: 180,
+          formatter: (row: any) => formatTableTime(row.createTime)
+        },
         {
           prop: 'operation',
           label: '操作',

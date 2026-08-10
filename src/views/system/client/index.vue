@@ -20,7 +20,9 @@
           </template>
         </ElTableColumn>
         <ElTableColumn prop="maxOnline" label="最大在线(0不限)" width="130" />
-        <ElTableColumn prop="tokenTimeout" label="令牌有效期(秒)" width="130" />
+        <ElTableColumn label="令牌有效期" width="120">
+          <template #default="{ row }">{{ formatSecondsDuration(row.tokenTimeout) }}</template>
+        </ElTableColumn>
         <ElTableColumn label="状态" width="90">
           <template #default="{ row }">
             <ElTag :type="row.status === 1 ? 'success' : 'danger'" size="small">
@@ -114,6 +116,7 @@
     fetchEnableClient,
     fetchDisableClient
   } from '@/api/client'
+  import { formatSecondsDuration } from '@/utils/date'
 
   defineOptions({ name: 'Client' })
 

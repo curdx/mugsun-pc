@@ -22,13 +22,17 @@
         </ElTableColumn>
         <ElTableColumn label="操作" width="220">
           <template #default="{ row }">
+            <!-- 启用互斥切换：已启用行提供「禁用」（走 submit 全量更新 status），未启用行提供「启用」 -->
             <ElButton
+              v-if="row.status === 1"
               v-perm="'sys:sms:edit'"
               link
-              type="primary"
-              :disabled="row.status === 1"
-              @click="enableRow(row)"
+              type="warning"
+              @click="disableRow(row)"
             >
+              禁用
+            </ElButton>
+            <ElButton v-else v-perm="'sys:sms:edit'" link type="primary" @click="enableRow(row)">
               启用
             </ElButton>
             <ElButton v-perm="'sys:sms:save'" link type="primary" @click="showDialog('edit', row)"
@@ -81,6 +85,13 @@
   const enableRow = async (row: any): Promise<void> => {
     await fetchEnableSms(row.id)
     ElMessage.success('已启用')
+    loadData()
+  }
+
+  // 后端无独立禁用端点：submit 按 id 全量更新，置 status=0 即禁用
+  const disableRow = async (row: any): Promise<void> => {
+    await fetchSaveSms({ ...row, status: 0 })
+    ElMessage.success('已禁用')
     loadData()
   }
 

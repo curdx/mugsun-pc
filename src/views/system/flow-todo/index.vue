@@ -12,7 +12,9 @@
             <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
             <ElTableColumn prop="flowName" label="流程" min-width="120" />
             <ElTableColumn prop="nodeName" label="当前节点" min-width="120" />
-            <ElTableColumn prop="createTime" label="到达时间" min-width="170" />
+            <ElTableColumn prop="createTime" label="到达时间" min-width="170">
+              <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+            </ElTableColumn>
             <ElTableColumn label="操作" width="300" fixed="right">
               <template #default="{ row }">
                 <ElButton link type="success" @click="open('pass', row)">通过</ElButton>
@@ -53,7 +55,9 @@
                 <ArtDictTag :code="DICT_CODE.FLOW_STATUS" :value="row.flowStatus" />
               </template>
             </ElTableColumn>
-            <ElTableColumn prop="createTime" label="抄送时间" min-width="170" />
+            <ElTableColumn prop="createTime" label="抄送时间" min-width="170">
+              <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+            </ElTableColumn>
             <ElTableColumn label="操作" width="90" fixed="right">
               <template #default="{ row }">
                 <ElButton link type="primary" @click="showHistory(row)">进度</ElButton>
@@ -103,7 +107,7 @@
             v-for="(h, i) in history"
             :key="i"
             :type="timelineType(h)"
-            :timestamp="h.createTime"
+            :timestamp="formatTableTime(h.createTime)"
           >
             <div class="flow-his-node">{{ h.nodeName }}</div>
             <div class="flow-his-meta">
@@ -125,6 +129,7 @@
   import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import { useDictStore } from '@/store/modules/dict'
   import { DICT_CODE } from '@/utils/constants'
+  import { formatTableTime } from '@/utils/date'
   import {
     fetchFlowMyTodo,
     fetchFlowMyCopy,

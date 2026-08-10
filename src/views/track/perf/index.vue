@@ -63,19 +63,19 @@
             <span class="track-detail-name">{{ row.name }}</span>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="count" label="样本数" width="110" align="right" />
-        <ElTableColumn label="均值" min-width="120" align="right">
+        <ElTableColumn prop="count" label="样本数" width="110" align="right" header-align="right" />
+        <ElTableColumn label="均值" min-width="120" align="right" header-align="right">
           <template #default="{ row }">{{ row.avgText }}</template>
         </ElTableColumn>
-        <ElTableColumn label="P50" min-width="120" align="right">
+        <ElTableColumn label="P50" min-width="120" align="right" header-align="right">
           <template #default="{ row }">{{ row.p50Text }}</template>
         </ElTableColumn>
-        <ElTableColumn label="P75" min-width="120" align="right">
+        <ElTableColumn label="P75" min-width="120" align="right" header-align="right">
           <template #default="{ row }">
             <span :class="`is-${row.level}`">{{ row.p75Text }}</span>
           </template>
         </ElTableColumn>
-        <ElTableColumn label="P95" min-width="120" align="right">
+        <ElTableColumn label="P95" min-width="120" align="right" header-align="right">
           <template #default="{ row }">
             <span :class="`is-${row.p95Level}`">{{ row.p95Text }}</span>
           </template>

@@ -51,7 +51,7 @@
           </ElSelect>
         </ElFormItem>
         <ElFormItem>
-          <ElButton type="success" @click="callApi" :loading="apiLoading" :disabled="!token"
+          <ElButton type="primary" @click="callApi" :loading="apiLoading" :disabled="!token"
             >调用接口</ElButton
           >
         </ElFormItem>

@@ -49,6 +49,7 @@
     fetchRemoveAttach
   } from '@/api/system-manage'
   import request from '@/utils/http'
+  import { formatTableTime } from '@/utils/date'
   import { ElButton, ElImage, ElMessageBox, ElMessage } from 'element-plus'
 
   defineOptions({ name: 'Attach' })
@@ -172,7 +173,12 @@
           formatter: (row: any) => formatSize(row.size)
         },
         { prop: 'platform', label: '存储平台', width: 130 },
-        { prop: 'createTime', label: '上传时间', minWidth: 170 },
+        {
+          prop: 'createTime',
+          label: '上传时间',
+          minWidth: 170,
+          formatter: (row: any) => formatTableTime(row.createTime)
+        },
         {
           prop: 'operation',
           label: '操作',

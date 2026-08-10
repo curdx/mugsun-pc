@@ -19,7 +19,7 @@
     </ElCard>
 
     <ElDialog v-model="viewVisible" :title="current.title" width="560px">
-      <div class="msg-meta">{{ (current.sendTime || '').slice(0, 19).replace('T', ' ') }}</div>
+      <div class="msg-meta">{{ formatTableTime(current.sendTime) }}</div>
       <div class="msg-content" v-safe-html="current.content"></div>
     </ElDialog>
   </div>
@@ -36,6 +36,7 @@
     fetchReadAllMessage,
     fetchRemoveMyMessage
   } from '@/api/message'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'Message' })
 
@@ -76,7 +77,12 @@
               row.isRead === 1 ? '已读' : '未读'
             )
         },
-        { prop: 'sendTime', label: '发送时间', minWidth: 180 },
+        {
+          prop: 'sendTime',
+          label: '发送时间',
+          minWidth: 180,
+          formatter: (row: any) => formatTableTime(row.sendTime)
+        },
         {
           prop: 'operation',
           label: '操作',

@@ -27,7 +27,9 @@
       <ElCol :xs="24" :lg="12" class="mt-4 mt-lg-0">
         <div class="art-card chart-card">
           <p class="card-title">租户用户数</p>
-          <div ref="barRef" class="chart-box"></div>
+          <!-- 空数据时 echarts 只画一条轴线，以 ElEmpty 替代；图表容器 v-show 保挂载，有数据后再 init -->
+          <ElEmpty v-if="barEmpty" description="暂无数据" :image-size="60" />
+          <div v-show="!barEmpty" ref="barRef" class="chart-box"></div>
         </div>
       </ElCol>
     </ElRow>
@@ -216,6 +218,7 @@
   // ===== echarts =====
   const pieRef = ref<HTMLElement>()
   const barRef = ref<HTMLElement>()
+  const barEmpty = ref(false)
   let pieChart: echarts.ECharts | null = null
   let barChart: echarts.ECharts | null = null
   const COLORS = ['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399', '#9c6cff']
@@ -276,9 +279,11 @@
       todoCount: d.todoCount ?? 0,
       noticeUnread: d.noticeUnread ?? 0
     })
+    const barData = d.charts?.tenantUser || []
+    barEmpty.value = barData.length === 0
     await nextTick()
     renderPie(d.charts?.userStatus || [])
-    renderBar(d.charts?.tenantUser || [])
+    if (!barEmpty.value) renderBar(barData)
   }
 
   const loadTodo = async () => {

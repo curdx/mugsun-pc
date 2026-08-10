@@ -3,10 +3,11 @@
   <div class="gen-page art-full-height">
     <ElCard class="art-table-card">
       <ElDescriptions title="数据源" :column="4" border size="small" class="gen-ds">
-        <ElDescriptionsItem label="名称">{{ datasource.name }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="驱动">{{ datasource.driver }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="账号">{{ datasource.username }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="连接" :span="1">{{ datasource.url }}</ElDescriptionsItem>
+        <!-- 后端读不到连接配置时字段为 null，统一 '-' 兜底，避免出现无标题空白格 -->
+        <ElDescriptionsItem label="名称">{{ datasource.name || '-' }}</ElDescriptionsItem>
+        <ElDescriptionsItem label="驱动">{{ datasource.driver || '-' }}</ElDescriptionsItem>
+        <ElDescriptionsItem label="账号">{{ datasource.username || '-' }}</ElDescriptionsItem>
+        <ElDescriptionsItem label="连接" :span="1">{{ datasource.url || '-' }}</ElDescriptionsItem>
       </ElDescriptions>
 
       <div class="gen-form">

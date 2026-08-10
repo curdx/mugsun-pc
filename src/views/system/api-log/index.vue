@@ -51,6 +51,7 @@
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchApiLogPage } from '@/api/system-manage'
+  import { formatTableTime } from '@/utils/date'
   import { ElRadioButton, ElRadioGroup, ElTag } from 'element-plus'
 
   defineOptions({ name: 'ApiLog' })
@@ -99,7 +100,12 @@
                 : null
             ])
         },
-        { prop: 'createTime', label: '时间', minWidth: 170 },
+        {
+          prop: 'createTime',
+          label: '时间',
+          minWidth: 170,
+          formatter: (row: any) => formatTableTime(row.createTime)
+        },
         {
           prop: 'operation',
           label: '操作',

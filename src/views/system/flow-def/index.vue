@@ -20,7 +20,9 @@
             </ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="createTime" label="创建时间" min-width="180" />
+        <ElTableColumn prop="createTime" label="创建时间" min-width="180">
+          <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+        </ElTableColumn>
         <ElTableColumn label="操作" width="100" fixed="right">
           <template #default="{ row }">
             <ElButton link type="primary" @click="start(row)">发起</ElButton>
@@ -209,6 +211,7 @@
   import { fetchRoleCodeSelect } from '@/api/role'
   import { fetchFormPage, fetchFormByKey } from '@/api/form'
   import { ElMessage } from 'element-plus'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'FlowDef' })
 

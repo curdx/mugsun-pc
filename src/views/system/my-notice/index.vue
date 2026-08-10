@@ -20,9 +20,7 @@
 
     <ElDialog v-model="viewVisible" :title="current.title" width="640px" align-center>
       <div class="notice-meta">
-        <ElTag :type="categoryTag(current.category).type" size="small">
-          {{ categoryTag(current.category).text }}
-        </ElTag>
+        <ArtDictTag :code="DICT_CODE.NOTICE_CATEGORY" :value="current.category" />
         <span>{{ (current.releaseTime || '').slice(0, 19).replace('T', ' ') }}</span>
       </div>
       <div class="notice-content" v-safe-html="current.content"></div>
@@ -33,26 +31,19 @@
 <script setup lang="ts">
   import { h, reactive, ref } from 'vue'
   import { ElButton, ElTag } from 'element-plus'
+  import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchMyNoticePage, fetchReadNotice } from '@/api/system-manage'
+  import { DICT_CODE } from '@/utils/constants'
 
   defineOptions({ name: 'MyNotice' })
 
-  type TagType = 'primary' | 'success' | 'warning' | 'info' | 'danger'
-  const CATEGORY_MAP: Record<string, { text: string; type: TagType }> = {
-    notice: { text: '通知', type: 'primary' },
-    announcement: { text: '公告', type: 'success' },
-    warning: { text: '预警', type: 'warning' }
-  }
   const CATEGORY_FILTERS = [
     { label: '全部', value: '' },
     { label: '通知', value: 'notice' },
     { label: '公告', value: 'announcement' },
     { label: '预警', value: 'warning' }
   ]
-  const categoryTag = (c: string): { text: string; type: TagType } =>
-    CATEGORY_MAP[c] || { text: c || '-', type: 'info' }
-
   const category = ref('')
   const viewVisible = ref(false)
   const current = reactive<any>({ title: '', content: '', category: '', releaseTime: '' })
@@ -76,7 +67,8 @@
         {
           prop: 'isTop',
           label: '',
-          width: 50,
+          // 列宽需容纳「顶」tag（27.5px）+ 单元格内边距（24px），50px 会触发 text-overflow 省略号
+          width: 60,
           formatter: (row: any) =>
             row.isTop === 1 ? h(ElTag, { type: 'danger', size: 'small' }, () => '顶') : ''
         },
@@ -85,10 +77,9 @@
           prop: 'category',
           label: '分类',
           width: 90,
-          formatter: (row: any) => {
-            const c = categoryTag(row.category)
-            return h(ElTag, { type: c.type, size: 'small' }, () => c.text)
-          }
+          // 字典运行时驱动：与通知公告管理页一致走 ArtDictTag，不再手写 CATEGORY_MAP
+          formatter: (row: any) =>
+            h(ArtDictTag, { code: DICT_CODE.NOTICE_CATEGORY, value: row.category })
         },
         {
           prop: 'readFlag',

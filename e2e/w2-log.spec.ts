@@ -103,11 +103,9 @@ test('W2-C2 登录日志：搜索过滤 + UA/归属地列 + 解锁入口', async
   )
   expect(parsed, '最近登录日志 browser/os 应由 UA 解析落列').toBe('t')
 
-  // 解锁入口：首行「解锁」→ 确认 → 调用 unlock 端点成功（无锁定时幂等成功）
-  await page.getByRole('button', { name: '解锁' }).first().click()
-  const unlockResp = page.waitForResponse((r) => r.url().includes('/system/login-log/unlock'))
-  await page.locator('.el-message-box').getByRole('button', { name: '确定' }).click()
-  expect((await unlockResp).status(), '解锁端点须 200').toBe(200)
+  // 解锁入口按锁定状态显隐（行级 locked 由后端按 Redis 锁键富化）：admin 未锁定 → 不显示「解锁」按钮；
+  // 「连续错密锁定 → 本页一键解锁 → 恢复登录」完整链路见 session-lock.spec.ts
+  await expect(page.getByRole('button', { name: '解锁' })).toHaveCount(0)
 })
 
 test('W2-C3 附件管理：真分页 + 文件名搜索 + 图片预览', async () => {

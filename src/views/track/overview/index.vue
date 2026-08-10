@@ -45,6 +45,7 @@
             :loading="loading"
             height="300px"
             show-legend
+            :colors="trendColors"
             :symbol="trendLabels.length <= 1 ? 'circle' : 'none'"
           />
         </div>
@@ -74,7 +75,7 @@
             <ElTableColumn prop="pv" label="PV" width="90" align="right" />
             <ElTableColumn prop="uv" label="UV" width="90" align="right" />
             <ElTableColumn label="平均停留" width="110" align="right">
-              <template #default="{ row }">{{ fmtTrackDuration(row.avgDurationMs) }}</template>
+              <template #default="{ row }">{{ fmtAvgStay(row.avgDurationMs) }}</template>
             </ElTableColumn>
             <template #empty><ElEmpty description="暂无数据" :image-size="60" /></template>
           </ElTable>
@@ -128,12 +129,22 @@
     fetchTrackTrend
   } from '@/api/track'
   import { fmtTrackClock, fmtTrackDuration, useTrackApp } from '@/views/track/shared/useTrackApp'
+  import { useChartOps } from '@/hooks/core/useChart'
   import type { LineDataItem, PieDataItem } from '@/types/component/chart'
   import { ElButton, ElOption, ElRadioButton, ElRadioGroup, ElSelect } from 'element-plus'
 
   defineOptions({ name: 'TrackOverview' })
 
   const { appOptions, appKey, days, appsLoading } = useTrackApp()
+
+  /** Top 页面「平均停留」统一秒级 1 位小数（同列可比，>1s 为主场景；不再 ms/s 混排） */
+  const fmtAvgStay = (ms?: number | null): string => {
+    if (ms === undefined || ms === null || Number.isNaN(Number(ms))) return '-'
+    return `${(Number(ms) / 1000).toFixed(1)}s`
+  }
+
+  // 趋势配色：共享色板第 3 色 #EDF2FF 近白（「会话数」图例/线条对比度不足），仅本页替换为高对比橙
+  const trendColors = useChartOps().colors.map((c, i) => (i === 2 ? '#FFAF20' : c))
 
   // ===== 指标卡 =====
   const cards = reactive({

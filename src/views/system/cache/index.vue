@@ -17,7 +17,9 @@
             @current-change="onGroupSelect"
           >
             <ElTableColumn prop="name" label="缓存名" min-width="160" />
-            <ElTableColumn prop="count" label="键数" width="80" />
+            <ElTableColumn prop="count" label="键数" width="90">
+              <template #default="{ row }">{{ Number(row.count ?? 0).toLocaleString() }}</template>
+            </ElTableColumn>
           </ElTable>
         </ElCard>
       </ElCol>

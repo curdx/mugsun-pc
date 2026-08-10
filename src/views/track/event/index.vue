@@ -124,9 +124,9 @@
       columnsFactory: () => [
         { type: 'index', width: 60, label: '序号' },
         { prop: 'eventName', label: '事件名', minWidth: 180, showOverflowTooltip: true },
-        { prop: 'eventCount', label: '次数', width: 110, align: 'right' },
-        { prop: 'sessionCount', label: '会话数', width: 110, align: 'right' },
-        { prop: 'uv', label: 'UV', width: 100, align: 'right' },
+        { prop: 'eventCount', label: '次数', width: 110, align: 'right', headerAlign: 'right' },
+        { prop: 'sessionCount', label: '会话数', width: 110, align: 'right', headerAlign: 'right' },
+        { prop: 'uv', label: 'UV', width: 100, align: 'right', headerAlign: 'right' },
         {
           prop: 'lastTime',
           label: '最近发生',
