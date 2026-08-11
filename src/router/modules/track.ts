@@ -69,6 +69,17 @@ export const trackRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'user',
+      name: 'TrackUser',
+      component: '/track/user',
+      meta: {
+        title: '用户细查',
+        icon: 'ri:user-search-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'app',
       name: 'TrackApp',
       component: '/track/app',

@@ -74,6 +74,28 @@ export function fetchRemoveTrackApp(id: number | string) {
   return request.post<void>({ url: '/api/system/track/app/remove', data: { id } })
 }
 
+// ===== 用户细查（G102） =====
+/**
+ * 行为时间线游标分页：{records: [{eventId,eventName,ts,clientTs,urlPath,routePath,durationMs,
+ * sessionId,props(JSON 字符串),hasReplay,hasApiBody}], nextCursor}——received_at+id 倒序；
+ * userId/distinctId 二选一（userId 经 track_identity 归并匿名期行为）；范围硬限 ≤7 天（超界 400）。
+ */
+export function fetchTrackUserTimeline(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/track/user/timeline', params })
+}
+/**
+ * 接口响应体明文 JSON（application/json 直发，非 R 信封 → skipEnvelope）；
+ * 未采集/已过保留期 400——调用方按「未采集」占位展示，不弹错误提示。
+ */
+export function fetchTrackUserApiBody(params: Record<string, any>) {
+  return request.get<any>({
+    url: '/api/system/track/user/api-body',
+    params,
+    skipEnvelope: true,
+    showErrorMessage: false
+  })
+}
+
 // ===== 符号表（sourcemap，G101） =====
 /** 分页（appKey 必填，release 可选精确筛）；records 为行投影（不含存储坐标） */
 export function fetchTrackSourcemapPage(params: Record<string, any>) {

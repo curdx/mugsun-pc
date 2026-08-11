@@ -5,6 +5,7 @@
     :title="type === 'add' ? '新增应用' : '编辑应用'"
     width="520px"
     align-center
+    class="track-app-dialog"
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="96px">
       <ElFormItem label="应用名称" prop="appName">
@@ -46,6 +47,31 @@
           <ElInputNumber v-model="formData.replayRetentionDays" :min="1" :max="30" :precision="0" />
           <span class="track-form-hint">单位：天，最长 30 天</span>
         </ElFormItem>
+      </template>
+      <ElFormItem label="接口监控" prop="apiMonitorEnabled">
+        <ElSwitch v-model="formData.apiMonitorEnabled" :active-value="1" :inactive-value="0" />
+        <span class="track-form-hint">开启后 SDK 记录页面接口调用（下次启动生效）</span>
+      </ElFormItem>
+      <template v-if="formData.apiMonitorEnabled === 1">
+        <ElFormItem label="响应体采集" prop="apiBodyEnabled">
+          <ElSwitch v-model="formData.apiBodyEnabled" :active-value="1" :inactive-value="0" />
+          <span class="track-form-hint">仅 JSON 接口，经独立通道上传；凭证端点永不采集</span>
+        </ElFormItem>
+        <template v-if="formData.apiBodyEnabled === 1">
+          <ElFormItem label="响应体脱敏" prop="apiBodyMaskEnabled">
+            <ElSwitch v-model="formData.apiBodyMaskEnabled" :active-value="1" :inactive-value="0" />
+            <span class="track-form-hint">开启后 password/token/手机号等字段替换为 ***</span>
+          </ElFormItem>
+          <ElFormItem label="响应体保留期" prop="apiBodyRetentionDays">
+            <ElInputNumber
+              v-model="formData.apiBodyRetentionDays"
+              :min="1"
+              :max="30"
+              :precision="0"
+            />
+            <span class="track-form-hint">单位：天，最长 30 天</span>
+          </ElFormItem>
+        </template>
       </template>
       <ElFormItem label="错误告警" prop="alertEnabled">
         <ElSwitch v-model="formData.alertEnabled" :active-value="1" :inactive-value="0" />
@@ -102,6 +128,10 @@
     replayEnabled: 0,
     replaySampleRate: 10,
     replayRetentionDays: 14,
+    apiMonitorEnabled: 0,
+    apiBodyEnabled: 0,
+    apiBodyMaskEnabled: 0,
+    apiBodyRetentionDays: 7,
     alertEnabled: 0,
     alertThreshold: 10,
     remark: ''
@@ -113,6 +143,7 @@
     retentionDays: [{ required: true, message: '请设置数据保留期', trigger: 'blur' }],
     replaySampleRate: [{ required: true, message: '请设置回放采样率', trigger: 'blur' }],
     replayRetentionDays: [{ required: true, message: '请设置回放保留期', trigger: 'blur' }],
+    apiBodyRetentionDays: [{ required: true, message: '请设置响应体保留期', trigger: 'blur' }],
     alertThreshold: [{ required: true, message: '请设置告警阈值', trigger: 'blur' }]
   }
 
@@ -132,6 +163,10 @@
             replayEnabled: 0,
             replaySampleRate: 10,
             replayRetentionDays: 14,
+            apiMonitorEnabled: 0,
+            apiBodyEnabled: 0,
+            apiBodyMaskEnabled: 0,
+            apiBodyRetentionDays: 7,
             alertEnabled: 0,
             alertThreshold: 10,
             remark: ''
@@ -159,5 +194,13 @@
     margin-left: 10px;
     font-size: 12px;
     color: var(--el-text-color-secondary);
+  }
+</style>
+
+<!-- 弹窗内容 teleport 到 body，超高表单项（G102 接口监控区块）需非 scoped 类限定滚动，防挤出视口 -->
+<style>
+  .track-app-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

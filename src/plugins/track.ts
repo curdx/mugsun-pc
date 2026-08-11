@@ -14,12 +14,17 @@
  * rrweb 再由插件内部懒加载），主包不含录制实现；是否录制由 SDK 按 config 下发的
  * replayEnabled/replaySampleRate 自决（远端开启后下次启动生效），前端零判断。
  *
+ * 接口监控（G102）：api-monitor 不在 SDK 默认插件集，此处显式注册进 plugins 序列；
+ * 是否包装 fetch/XHR、是否采集响应体由 SDK 按 config 下发的
+ * apiMonitorEnabled/apiBodyEnabled/apiBodyMaskEnabled 自决（远端开启后下次启动生效），前端零判断。
+ *
  * @module plugins/track
  * @author Mugsun
  */
 import type { App } from 'vue'
 import MugsunTrack from '@mugsun/track-web/vue'
 import {
+  apiMonitorPlugin,
   autocapturePlugin,
   errorPlugin,
   exposurePlugin,
@@ -85,6 +90,8 @@ export function setupTrack(app: App): void {
       exposurePlugin(),
       webVitalsPlugin(),
       errorPlugin(),
+      // 接口监控（G102）：不在 SDK 默认插件集，显式注册；启停/body 采集由 /track/config 下发自决
+      apiMonitorPlugin(),
       replayBridgePlugin()
     ],
     // 上报携带登录 token 供服务端身份裁定；beacon 冲刷场景无法自定义头，按匿名处理，不阻断采集
