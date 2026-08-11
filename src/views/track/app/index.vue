@@ -1,4 +1,4 @@
-<!-- 埋点应用：应用 CRUD（appKey 复制 + 新增成功展示接入片段）+ 事件定义管理 tab -->
+<!-- 埋点应用：应用 CRUD（appKey 复制 + 新增成功展示接入片段）+ 事件定义/符号表/圈选规则（G104）管理 tab -->
 <template>
   <div class="track-app-page art-full-height">
     <ElCard class="art-table-card">
@@ -98,6 +98,95 @@
           >
           </ArtTable>
         </ElTabPane>
+
+        <!-- ===== 圈选规则（G104 可视化埋点） ===== -->
+        <ElTabPane label="圈选规则" name="visual" lazy>
+          <div class="track-app-toolbar">
+            <ElSelect
+              v-model="appKey"
+              :loading="appsLoading"
+              placeholder="请选择应用"
+              class="track-app-select"
+            >
+              <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
+            </ElSelect>
+            <ElButton v-perm="'sys:track-visual:edit'" type="primary" @click="enterVisual" v-ripple>
+              <ArtSvgIcon icon="ri:crosshair-2-line" class="track-visual-enter-icon" />进入圈选
+            </ElButton>
+            <ElSelect v-model="vrStatus" placeholder="状态" class="track-def-status">
+              <ElOption label="全部" value="" />
+              <ElOption label="启用" :value="1" />
+              <ElOption label="停用" :value="0" />
+            </ElSelect>
+            <ElButton @click="loadVisualRules" v-ripple>查询</ElButton>
+            <span class="track-visual-hint">规则确认后实时下发，接入端下次启动生效</span>
+          </div>
+
+          <!-- 圈选草稿条：令牌有效期内常驻，3s 轮询草稿；令牌仅存内存，刷新即失效 -->
+          <ElAlert
+            v-if="visualToken"
+            type="info"
+            show-icon
+            :closable="false"
+            class="track-visual-bar"
+          >
+            <template #title>
+              <span class="track-visual-bar-text">
+                圈选进行中，令牌 {{ visualRemainMin }} 分钟内有效（刷新页面即失效，需重新进入圈选）
+              </span>
+              <ElButton size="small" class="track-visual-bar-end" @click="endVisual">
+                结束圈选
+              </ElButton>
+            </template>
+          </ElAlert>
+
+          <!-- 草稿列表：有草稿才显示 -->
+          <div v-if="visualDrafts.length" class="track-visual-drafts">
+            <div v-for="d in visualDrafts" :key="d.draftId" class="track-visual-draft">
+              <ElTag size="small" effect="plain" class="track-visual-draft-name">
+                {{ d.eventName || '未命名' }}
+              </ElTag>
+              <ElTooltip :content="d.selector" placement="top">
+                <span class="track-visual-draft-selector">{{ d.selector }}</span>
+              </ElTooltip>
+              <span class="track-visual-draft-text">{{ d.matchText || '-' }}</span>
+              <span class="track-visual-draft-route">{{ d.routePath || d.urlPath || '-' }}</span>
+              <span class="track-visual-draft-time">
+                {{ fmtTrackTimeAuto(d.ts ?? d.createTime) }}
+              </span>
+              <span class="track-visual-draft-ops">
+                <ElButton
+                  v-perm="'sys:track-visual:edit'"
+                  link
+                  type="primary"
+                  size="small"
+                  @click="confirmDraft(d)"
+                >
+                  确认
+                </ElButton>
+                <ElButton
+                  v-perm="'sys:track-visual:edit'"
+                  link
+                  type="danger"
+                  size="small"
+                  @click="discardDraft(d)"
+                >
+                  丢弃
+                </ElButton>
+              </span>
+            </div>
+          </div>
+
+          <ArtTable
+            :loading="vrLoading"
+            :data="vrData as any[]"
+            :columns="vrColumns"
+            :pagination="vrPagination"
+            @pagination:size-change="handleVrSizeChange"
+            @pagination:current-change="handleVrCurrentChange"
+          >
+          </ArtTable>
+        </ElTabPane>
       </ElTabs>
 
       <AppDialog
@@ -117,6 +206,12 @@
         v-model:visible="smUploadVisible"
         :app-key="appKey"
         @submit="onSubmitSourcemap"
+      />
+
+      <VisualRuleDialog
+        v-model:visible="vrDialogVisible"
+        :rule-data="currentRule"
+        @submit="onSubmitRule"
       />
 
       <!-- 新增成功：展示 appKey + 接入代码片段 -->
@@ -149,25 +244,36 @@
   import {
     fetchRemoveTrackApp,
     fetchRemoveTrackSourcemap,
+    fetchRemoveTrackVisualRule,
     fetchSaveTrackApp,
     fetchSaveTrackEventDef,
+    fetchSaveTrackVisualRule,
     fetchTrackAppPage,
     fetchTrackEventDefPage,
     fetchTrackSourcemapPage,
+    fetchTrackVisualConfirm,
+    fetchTrackVisualDiscard,
+    fetchTrackVisualDrafts,
+    fetchTrackVisualRulePage,
+    fetchTrackVisualToken,
     fetchUploadTrackSourcemap
   } from '@/api/track'
   import { fmtTrackSize, fmtTrackTimeAuto, useTrackApp } from '@/views/track/shared/useTrackApp'
   import { hasPerm } from '@/utils/permission'
+  import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import AppDialog from './modules/app-dialog.vue'
   import EventDefDialog from './modules/event-def-dialog.vue'
   import SourcemapUploadDialog from './modules/sourcemap-upload-dialog.vue'
+  import VisualRuleDialog from './modules/visual-rule-dialog.vue'
   import {
+    ElAlert,
     ElButton,
     ElInput,
     ElMessage,
     ElMessageBox,
     ElOption,
     ElSelect,
+    ElSwitch,
     ElTag,
     ElTooltip
   } from 'element-plus'
@@ -516,6 +622,277 @@ const track = createTracker({
     ElMessage.success('已删除')
     await fetchSourcemaps()
   }
+
+  // ===== 圈选规则 tab（G104）：进入圈选 → 令牌内 3s 轮询草稿 → 确认/丢弃；规则表 CRUD =====
+  // 与后端 CUSTOM_EVENT_NAME 同正则（$ 前缀必拒，最长 64 位）
+  const EVENT_NAME_PATTERN = /^[A-Za-z][A-Za-z0-9_]{0,63}$/
+  const vrStatus = ref<number | ''>('')
+  const vrDialogVisible = ref(false)
+  const currentRule = ref<Record<string, any>>({})
+
+  /** 圈选令牌（仅组件内存：刷新即失效，与 Redis 短时令牌语义一致，草稿条文案已注明） */
+  const visualToken = ref('')
+  /** 令牌到期时刻（epoch ms）：到期/手动结束即停轮询并清草稿条 */
+  const visualExpireAt = ref(0)
+  const visualRemainMin = ref(0)
+  const visualDrafts = ref<Array<Record<string, any>>>([])
+
+  const syncRemainMin = (): void => {
+    visualRemainMin.value = Math.max(0, Math.ceil((visualExpireAt.value - Date.now()) / 60000))
+  }
+
+  const pollDrafts = async (): Promise<void> => {
+    if (!visualToken.value) return
+    if (Date.now() >= visualExpireAt.value) {
+      endVisual()
+      ElMessage.info('圈选令牌已到期，如需继续请重新进入圈选')
+      return
+    }
+    syncRemainMin()
+    try {
+      visualDrafts.value = (await fetchTrackVisualDrafts({ token: visualToken.value })) ?? []
+    } catch {
+      /* 轮询失败静默（showErrorMessage 已关），下一周期重试 */
+    }
+  }
+
+  const { pause: pauseDraftPoll, resume: resumeDraftPoll } = useIntervalFn(pollDrafts, 3000, {
+    immediate: false
+  })
+
+  const enterVisual = async (): Promise<void> => {
+    if (!appKey.value) {
+      ElMessage.warning('请先选择应用')
+      return
+    }
+    let targetUrl: string
+    try {
+      const { value } = await ElMessageBox.prompt(
+        '请输入圈选目标页面 URL（将在新窗口打开并进入圈选模式）',
+        '进入圈选',
+        {
+          confirmButtonText: '进入',
+          cancelButtonText: '取消',
+          inputValue: window.location.origin,
+          inputPattern: /^https?:\/\/.+/,
+          inputErrorMessage: '仅支持 http(s) 开头的 URL'
+        }
+      )
+      targetUrl = value
+    } catch {
+      return // 用户取消
+    }
+    const resp: any = await fetchTrackVisualToken({ appKey: appKey.value, targetUrl })
+    if (!resp?.token) return
+    window.open(resp.url, '_blank')
+    visualToken.value = resp.token
+    visualExpireAt.value = Date.now() + (resp.expireSeconds ?? 1800) * 1000
+    visualDrafts.value = []
+    syncRemainMin()
+    pollDrafts()
+    resumeDraftPoll()
+  }
+
+  /** 结束圈选（手动按钮或到期）：停轮询 + 清草稿条 */
+  const endVisual = (): void => {
+    pauseDraftPoll()
+    visualToken.value = ''
+    visualExpireAt.value = 0
+    visualDrafts.value = []
+  }
+
+  // keepAlive 切走暂停轮询，切回且令牌仍在时恢复（到期由下一轮 pollDrafts 自行清理）
+  onDeactivated(pauseDraftPoll)
+  onActivated(() => {
+    if (visualToken.value) resumeDraftPoll()
+  })
+
+  const confirmDraft = async (draft: Record<string, any>): Promise<void> => {
+    let eventName: string
+    try {
+      const { value } = await ElMessageBox.prompt(
+        '确认事件名（确认后生成圈选规则并进入事件定义）',
+        '确认草稿',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          inputValue: draft.eventName,
+          inputValidator: (v: string) => {
+            if (!EVENT_NAME_PATTERN.test(v ?? '')) {
+              ElMessage.error('事件名须字母开头，仅字母/数字/下划线，最长 64 位')
+              return false
+            }
+            return true
+          }
+        }
+      )
+      eventName = value
+    } catch {
+      return // 用户取消
+    }
+    await fetchTrackVisualConfirm({ token: visualToken.value, draftId: draft.draftId, eventName })
+    visualDrafts.value = visualDrafts.value.filter((d) => d.draftId !== draft.draftId)
+    ElMessage.success('已确认为圈选规则')
+    await refreshVisualRules()
+  }
+
+  const discardDraft = async (draft: Record<string, any>): Promise<void> => {
+    await fetchTrackVisualDiscard({ token: visualToken.value, draftId: draft.draftId })
+    visualDrafts.value = visualDrafts.value.filter((d) => d.draftId !== draft.draftId)
+    ElMessage.success('已丢弃')
+  }
+
+  const {
+    columns: vrColumns,
+    data: vrData,
+    loading: vrLoading,
+    pagination: vrPagination,
+    handleSizeChange: handleVrSizeChange,
+    handleCurrentChange: handleVrCurrentChange,
+    fetchData: fetchVisualRules,
+    refreshData: refreshVisualRules,
+    replaceSearchParams: replaceVrParams
+  } = useTable({
+    core: {
+      apiFn: fetchTrackVisualRulePage,
+      apiParams: { pageNum: 1, pageSize: 20 },
+      // 首载等切到该 tab 且 appKey 就绪后手动触发
+      immediate: false,
+      paginationKey: { current: 'pageNum', size: 'pageSize' },
+      columnsFactory: () => [
+        { type: 'index', width: 60, label: '序号' },
+        { prop: 'eventName', label: '事件名', minWidth: 140, showOverflowTooltip: true },
+        {
+          prop: 'selector',
+          label: '选择器',
+          minWidth: 220,
+          // 代码体 + 省略 + 悬浮全量；样式走 :deep()（formatter 产物不带本页 scopeId）
+          formatter: (row: any) =>
+            h(
+              ElTooltip,
+              { content: row.selector, placement: 'top' },
+              { default: () => h('span', { class: 'track-visual-selector-cell' }, row.selector) }
+            )
+        },
+        {
+          prop: 'routePath',
+          label: '路由',
+          minWidth: 130,
+          showOverflowTooltip: true,
+          formatter: (row: any) => row.routePath || '全站'
+        },
+        {
+          prop: 'matchText',
+          label: '匹配文本',
+          minWidth: 120,
+          showOverflowTooltip: true,
+          formatter: (row: any) => row.matchText || '不限'
+        },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 90,
+          formatter: (row: any) =>
+            hasPerm('sys:track-visual:edit')
+              ? h(ElSwitch, {
+                  modelValue: row.status,
+                  activeValue: 1,
+                  inactiveValue: 0,
+                  onChange: (v: string | number | boolean) => toggleRuleStatus(row, Number(v))
+                })
+              : enabledTag(row.status)
+        },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          minWidth: 150,
+          formatter: (row: any) => fmtTrackTimeAuto(row.createTime)
+        },
+        {
+          prop: 'operation',
+          label: '操作',
+          width: 130,
+          fixed: 'right',
+          // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
+          formatter: (row: any) =>
+            h('div', [
+              hasPerm('sys:track-visual:edit')
+                ? h(ArtButtonTable, { type: 'edit', onClick: () => showRuleDialog(row) })
+                : null,
+              hasPerm('sys:track-visual:edit')
+                ? h(ArtButtonTable, { type: 'delete', onClick: () => handleRuleDelete(row) })
+                : null
+            ])
+        }
+      ]
+    },
+    transform: {
+      responseAdapter: (resp: any) => ({
+        records: resp?.records ?? [],
+        total: resp?.totalRow ?? 0,
+        current: resp?.pageNumber ?? 1,
+        size: resp?.pageSize ?? 20
+      })
+    }
+  })
+
+  const loadVisualRules = async (): Promise<void> => {
+    if (tab.value !== 'visual' || !appKey.value) return
+    const params: Record<string, any> = { appKey: appKey.value, pageNum: 1, pageSize: 20 }
+    if (vrStatus.value !== '') params.status = vrStatus.value
+    replaceVrParams(params)
+    await fetchVisualRules()
+  }
+
+  // 切到圈选规则 tab / 应用变化时加载（首载在 appKey 就绪后触发）
+  watch([tab, appKey], loadVisualRules, { immediate: true })
+
+  /** 状态开关：整行提交（后端契约 eventName/routePath/matchText/status 可改，selector 只读） */
+  const toggleRuleStatus = async (row: Record<string, any>, status: number): Promise<void> => {
+    try {
+      await fetchSaveTrackVisualRule({
+        id: row.id,
+        eventName: row.eventName,
+        routePath: row.routePath,
+        matchText: row.matchText,
+        status
+      })
+      row.status = status
+      ElMessage.success(status === 1 ? '已启用' : '已停用')
+    } catch {
+      // 开关为受控渲染（不绑 update:modelValue），失败刷新整表对齐服务端
+      await refreshVisualRules()
+    }
+  }
+
+  const showRuleDialog = (row: Record<string, any>): void => {
+    currentRule.value = { ...row }
+    vrDialogVisible.value = true
+  }
+
+  const onSubmitRule = async (form: Record<string, any>): Promise<void> => {
+    await fetchSaveTrackVisualRule({
+      id: form.id,
+      eventName: form.eventName,
+      routePath: form.routePath,
+      matchText: form.matchText,
+      status: form.status
+    })
+    vrDialogVisible.value = false
+    ElMessage.success('保存成功')
+    await refreshVisualRules()
+  }
+
+  const handleRuleDelete = async (row: Record<string, any>): Promise<void> => {
+    await ElMessageBox.confirm(`确认删除圈选规则「${row.eventName}」？`, '删除确认', {
+      type: 'warning',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消'
+    })
+    await fetchRemoveTrackVisualRule(row.id)
+    ElMessage.success('已删除')
+    await refreshVisualRules()
+  }
 </script>
 
 <style lang="scss" scoped>
@@ -559,6 +936,85 @@ const track = createTracker({
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+    }
+
+    .track-visual-enter-icon {
+      margin-right: 4px;
+    }
+
+    .track-visual-hint {
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+    }
+
+    .track-visual-bar {
+      margin-bottom: 12px;
+
+      .track-visual-bar-end {
+        margin-left: 12px;
+      }
+    }
+
+    .track-visual-drafts {
+      padding: 4px 12px;
+      margin-bottom: 12px;
+      background: var(--el-fill-color-lighter);
+      border-radius: 6px;
+
+      .track-visual-draft {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 8px 0;
+        font-size: 13px;
+
+        & + .track-visual-draft {
+          border-top: 1px dashed var(--el-border-color-lighter);
+        }
+
+        .track-visual-draft-name {
+          flex-shrink: 0;
+        }
+
+        .track-visual-draft-selector {
+          max-width: 260px;
+          overflow: hidden;
+          font-family: monospace;
+          font-size: 12px;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .track-visual-draft-text,
+        .track-visual-draft-route {
+          max-width: 160px;
+          overflow: hidden;
+          color: var(--el-text-color-secondary);
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .track-visual-draft-time {
+          color: var(--el-text-color-placeholder);
+        }
+
+        .track-visual-draft-ops {
+          flex-shrink: 0;
+          margin-left: auto;
+        }
+      }
+    }
+
+    // 规则表选择器列：formatter 产物不带本页 scopeId，须走 :deep()
+    :deep(.track-visual-selector-cell) {
+      display: inline-block;
+      max-width: 100%;
+      overflow: hidden;
+      font-family: monospace;
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
     }
 
     .track-created-appkey {

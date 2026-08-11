@@ -121,3 +121,64 @@ export function fetchTrackEventDefPage(params: Record<string, any>) {
 export function fetchSaveTrackEventDef(data: Record<string, any>) {
   return request.post<void>({ url: '/api/system/track/event-def/submit', data })
 }
+
+// ===== 漏斗分析（G103） =====
+/**
+ * 有序漏斗：{steps: [{eventName, count}], days, windowHours}——actor 经 identity 归并，
+ * 有序非紧邻匹配，首步后 windowHours 内依次触达才算转化；steps 2-5 步、days ≤30（超界 400）。
+ */
+export function fetchTrackFunnel(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/track/funnel', params })
+}
+
+// ===== 留存分析（G103） =====
+/**
+ * 新客留存网格：{rows: [{cohortDate, cohortSize, retained: {offset: n}}]}——
+ * cohort=窗口内新客（首活跃日 > 回看窗首日，截断保守排除），活跃=当天任意事件，UTC 日切；days ≤30。
+ */
+export function fetchTrackRetention(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/track/retention', params })
+}
+
+// ===== 回放会话事件（G105） =====
+/** 会话事件流（打点用）：[{eventName, ts(epochMs), urlPath}] 按 ts 升序 ≤500；空会话返回空数组 */
+export function fetchTrackReplayEvents(params: Record<string, any>) {
+  return request.get<any[]>({
+    url: '/api/system/track/replay/events',
+    params,
+    showErrorMessage: false
+  })
+}
+
+// ===== 圈选式可视化埋点（G104） =====
+/** 签发圈选令牌：{token, url, expireSeconds}；targetUrl 可空=平台 origin，url 已拼 __mst_inspect 参数 */
+export function fetchTrackVisualToken(data: Record<string, any>) {
+  return request.post<any>({ url: '/api/system/track/visual/token', data })
+}
+/** 草稿列表（令牌有效期内；3s 轮询用，失败不弹提示） */
+export function fetchTrackVisualDrafts(params: Record<string, any>) {
+  return request.get<any[]>({
+    url: '/api/system/track/visual/drafts',
+    params,
+    showErrorMessage: false
+  })
+}
+/** 草稿确认成规则（eventName 可改） */
+export function fetchTrackVisualConfirm(data: Record<string, any>) {
+  return request.post<any>({ url: '/api/system/track/visual/drafts/confirm', data })
+}
+/** 草稿丢弃 */
+export function fetchTrackVisualDiscard(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/track/visual/drafts/discard', data })
+}
+/** 圈选规则分页 */
+export function fetchTrackVisualRulePage(params: Record<string, any>) {
+  return request.get<any>({ url: '/api/system/track/visual/rule/page', params })
+}
+/** 规则编辑（eventName/routePath/matchText/status 可改，selector 只读） */
+export function fetchSaveTrackVisualRule(data: Record<string, any>) {
+  return request.post<void>({ url: '/api/system/track/visual/rule/submit', data })
+}
+export function fetchRemoveTrackVisualRule(id: number | string) {
+  return request.post<void>({ url: '/api/system/track/visual/rule/remove', data: { id } })
+}

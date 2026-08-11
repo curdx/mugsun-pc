@@ -80,6 +80,28 @@ export const trackRoutes: AppRouteRecord = {
       }
     },
     {
+      path: 'funnel',
+      name: 'TrackFunnel',
+      component: '/track/funnel',
+      meta: {
+        title: '漏斗分析',
+        icon: 'ri:filter-3-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
+      path: 'retention',
+      name: 'TrackRetention',
+      component: '/track/retention',
+      meta: {
+        title: '留存分析',
+        icon: 'ri:user-heart-line',
+        keepAlive: true,
+        roles: ['R_SUPER', 'R_ADMIN']
+      }
+    },
+    {
       path: 'app',
       name: 'TrackApp',
       component: '/track/app',
