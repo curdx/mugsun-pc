@@ -256,6 +256,15 @@
 
 <style lang="scss" scoped>
   .track-event-page {
+    // 双卡均为 flex:1 会互挤：视口偏矮时实时流卡片（表头 24 + 表 320 + 内边距）
+    // 超出分得高度，被全局 .art-table-card .el-card__body 的 overflow:hidden 把表尾横向切断。
+    // 改为卡片自然高度 + 页面级纵向滚动
+    overflow-y: auto;
+
+    .art-table-card {
+      flex: none;
+    }
+
     .track-toolbar {
       display: flex;
       flex-wrap: wrap;

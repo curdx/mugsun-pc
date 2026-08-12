@@ -340,8 +340,13 @@
 
 <style lang="scss" scoped>
   .track-funnel-page {
+    // 步骤构建器（最多 5 步）+ 结果区为自由增长内容：art-full-height 定高下
+    // 页面须自备纵向滚动，否则 5 步时结果区底部被视口切断且无法到达
+    overflow-y: auto;
+
     .track-toolbar {
       display: flex;
+      flex-shrink: 0;
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
@@ -362,6 +367,7 @@
     }
 
     .track-funnel-builder {
+      flex-shrink: 0;
       padding: 16px;
 
       .track-funnel-steps {
@@ -407,6 +413,7 @@
     }
 
     .track-funnel-result {
+      flex-shrink: 0;
       min-height: 240px;
       margin-top: 16px;
 

@@ -202,8 +202,17 @@
 
 <style lang="scss" scoped>
   .track-perf-page {
+    // 指标卡行 + 分位明细卡为自然高度内容：视口偏矮时明细卡被全局
+    // .art-table-card .el-card__body 的 overflow:hidden 横切，页面须自备纵向滚动
+    overflow-y: auto;
+
+    .el-row {
+      flex-shrink: 0;
+    }
+
     .track-toolbar {
       display: flex;
+      flex-shrink: 0;
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
@@ -273,7 +282,9 @@
       }
     }
 
+    // 明细卡改自然高度（覆盖全局 .art-table-card 的 flex:1，否则卡片仍被压扁裁切）
     .track-detail-card {
+      flex: none;
       margin-top: 16px;
 
       .track-detail-head {

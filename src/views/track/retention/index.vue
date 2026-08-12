@@ -177,8 +177,13 @@
 
 <style lang="scss" scoped>
   .track-retention-page {
+    // 留存网格行数随天数窗口增长（近 30 天可达 30 个 cohort 行，约 1500px）：
+    // art-full-height 定高下页面须自备纵向滚动，否则网格下半被视口切断无法到达
+    overflow-y: auto;
+
     .track-toolbar {
       display: flex;
+      flex-shrink: 0;
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
@@ -195,6 +200,7 @@
     }
 
     .track-retention-card {
+      flex-shrink: 0;
       min-height: 240px;
       padding: 16px;
 

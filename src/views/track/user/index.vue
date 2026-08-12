@@ -466,7 +466,11 @@
     }
 
     .track-timeline {
+      // 时间线为自由增长内容，须自备滚动：全局 .art-table-card .el-card__body 是
+      // height:100% + overflow:hidden 裁剪，内部不提供滚动则长列表整体够不到
+      height: 100%;
       min-height: 240px;
+      overflow-y: auto;
 
       .track-session {
         margin-bottom: 16px;

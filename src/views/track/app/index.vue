@@ -897,6 +897,14 @@ const track = createTracker({
 
 <style lang="scss" scoped>
   .track-app-page {
+    // 视口偏矮时事件定义等 tab 的表格+分页超出卡片分得高度，被全局
+    // .art-table-card .el-card__body 的 overflow:hidden 横切：卡片改自然高度 + 页面级纵向滚动
+    overflow-y: auto;
+
+    > .art-table-card {
+      flex: none;
+    }
+
     .track-app-toolbar {
       display: flex;
       flex-wrap: wrap;
