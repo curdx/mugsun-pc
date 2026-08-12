@@ -27,6 +27,8 @@ let hisA = ''
 let hisB = ''
 /** 留存 cohort 日（UTC，yyyy-MM-dd；W12-3 动态选取窗口内零事件日） */
 let cohortDate = ''
+/** 选取 cohort 日时的 todayUtc（yyyy-MM-dd；W12-4 据此判定未来格边界） */
+let todayUtc = ''
 
 function psqlTrack(sql: string): string {
   return execSync(`docker exec mugsun-pg psql -U mugsun -d mugsun_track -t -c "${sql}"`, {
@@ -193,7 +195,7 @@ test('W12-3 留存数据直灌：零事件日双 actor cohort（his_a D0/D+1/D+2
     .split('\n')
     .map((d) => d.trim())
     .filter(Boolean)
-  const todayUtc = psqlTrack(`SELECT to_char((now() AT TIME ZONE 'UTC')::date, 'YYYY-MM-DD')`)
+  todayUtc = psqlTrack(`SELECT to_char((now() AT TIME ZONE 'UTC')::date, 'YYYY-MM-DD')`)
   for (let back = 2; back <= 6 && !cohortDate; back++) {
     const candidate = psqlTrack(
       `SELECT to_char((now() AT TIME ZONE 'UTC')::date - ${back}, 'YYYY-MM-DD')`
@@ -206,7 +208,9 @@ test('W12-3 留存数据直灌：零事件日双 actor cohort（his_a D0/D+1/D+2
   }
   console.log(`[w12-track-analysis] 留存 cohort 日 = ${cohortDate}（todayUtc = ${todayUtc}）`)
 
-  // 直灌历史事件：received_at 决定 UTC 日切与分区归属（锚定当日 10:00 UTC，D+2 = now 恒落今日）
+  // 直灌历史事件：received_at 决定 UTC 日切与分区归属（锚定当日 10:00 UTC）。
+  // his_a 的 D+2 锚定 cohort+2 而非恒 now()：cohort 日回退超过 2 天时 now() 会错落到 D+3 列，D+2 格真实为 0；
+  // 又 retention SQL 有 received_at <= now 上界，cohort+2 = 今日时 10:00 可能在未来被排除——故取 LEAST(d(2), now()) 两态兼容
   const d = (offsetDays: number) =>
     `(('${cohortDate}'::date + interval '${offsetDays} days' + interval '10 hours')::timestamp AT TIME ZONE 'UTC')`
   const row = (actor: string, session: string, tsExpr: string) =>
@@ -219,7 +223,7 @@ test('W12-3 留存数据直灌：零事件日双 actor cohort（his_a D0/D+1/D+2
       [
         row(hisA, `e2e-his-a-0-${testStart}`, d(0)),
         row(hisA, `e2e-his-a-1-${testStart}`, d(1)),
-        row(hisA, `e2e-his-a-2-${testStart}`, 'now()'),
+        row(hisA, `e2e-his-a-2-${testStart}`, `LEAST(${d(2)}, now())`),
         row(hisB, `e2e-his-b-0-${testStart}`, d(0))
       ].join(', ')
   )
@@ -252,12 +256,16 @@ test('W12-4 留存页：cohort 网格精确值（100/50/50/未来格）+ tooltip
   const row = page.locator('.track-retention-grid tbody tr', { hasText: cohortDate })
   await expect(row).toBeVisible({ timeout: 15_000 })
   await expect(row.locator('.track-retention-cohort-size')).toHaveText('新客 2 人')
-  // 单元格：D+0=100.0%（2/2）、D+1=50.0%（his_a）、D+2=50.0%（his_a）、D+3 起未来格占位「·」
+  // 单元格：D+0=100.0%（2/2）、D+1=50.0%（his_a）、D+2=50.0%（his_a）；
+  // D+3 格随 cohort 日回退深度而定——cohort=todayUtc-2 时为未来格占位「·」，回退更深时该格已过去/今日（无回访 0.0%）
   const cells = row.locator('td.track-retention-cell')
   await expect(cells.nth(0)).toHaveText('100.0%')
   await expect(cells.nth(1)).toHaveText('50.0%')
   await expect(cells.nth(2)).toHaveText('50.0%')
-  await expect(cells.nth(3)).toHaveText('·')
+  const dayDiff = Math.round(
+    (Date.parse(`${todayUtc}T00:00:00Z`) - Date.parse(`${cohortDate}T00:00:00Z`)) / 86_400_000
+  )
+  await expect(cells.nth(3)).toHaveText(dayDiff >= 3 ? '0.0%' : '·')
 
   // tooltip：hover D+1 单元格 → 「D+1 留存 1/2 = 50.0%」（EP 2.x popper role=tooltip）
   await cells.nth(1).locator('.track-retention-cell-text').hover()
