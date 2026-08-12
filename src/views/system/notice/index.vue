@@ -42,6 +42,7 @@
   import ReadRecordDialog from './modules/read-record-dialog.vue'
   import { ElButton, ElTag, ElMessageBox, ElMessage } from 'element-plus'
   import { DICT_CODE } from '@/utils/constants'
+  import { formatTableTime } from '@/utils/date'
   import { hasPerm } from '@/utils/permission'
   import { DialogType } from '@/types'
 
@@ -97,7 +98,12 @@
         },
         { prop: 'viewUv', label: '阅读人数', width: 90 },
         { prop: 'viewPv', label: '阅读次数', width: 90 },
-        { prop: 'releaseTime', label: '发布时间', minWidth: 170 },
+        {
+          prop: 'releaseTime',
+          label: '发布时间',
+          minWidth: 170,
+          formatter: (row: any) => formatTableTime(row.releaseTime)
+        },
         {
           prop: 'operation',
           label: '操作',

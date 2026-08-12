@@ -5,7 +5,7 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData" />
 
       <ArtTable
-        :loading="loading"
+        :loading="loading || detailLoading"
         :data="data as any[]"
         :columns="columns"
         :pagination="pagination"
@@ -74,6 +74,7 @@
   const bizLabel = (t: string): string => BIZ_LABELS[t] ?? t
 
   const detailVisible = ref(false)
+  const detailLoading = ref(false)
   const current = ref<Record<string, any>>({})
   const changes = ref<FieldChange[]>([])
   const diffHtmlStr = ref('')
@@ -105,12 +106,18 @@
   }
 
   const showDetail = async (row: Record<string, any>): Promise<void> => {
-    const res: any = await fetchDataAuditDetail({ id: row.id })
-    const detail = res ?? row
-    current.value = detail
-    changes.value = parseChanges(detail.changeContent)
-    diffHtmlStr.value = buildDiff(detail.beforeData, detail.afterData)
-    detailVisible.value = true
+    // 详情需二次请求快照，加载期间给表格遮罩反馈（失败提示由 http 拦截器统一弹出）
+    detailLoading.value = true
+    try {
+      const res: any = await fetchDataAuditDetail({ id: row.id })
+      const detail = res ?? row
+      current.value = detail
+      changes.value = parseChanges(detail.changeContent)
+      diffHtmlStr.value = buildDiff(detail.beforeData, detail.afterData)
+      detailVisible.value = true
+    } finally {
+      detailLoading.value = false
+    }
   }
 
   const summary = (row: Record<string, any>): string => {

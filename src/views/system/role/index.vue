@@ -30,6 +30,7 @@
         v-model:visible="dialogVisible"
         :type="dialogType"
         :role-data="currentData"
+        :saving="dialogSaving"
         @submit="handleDialogSubmit"
       />
 
@@ -87,6 +88,7 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentData = ref<Record<string, any>>({})
+  const dialogSaving = ref(false)
   const permissionVisible = ref(false)
   const currentPermRole = ref<Record<string, any>>({})
 
@@ -201,9 +203,14 @@
   }
 
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
-    await saveRole(form)
-    dialogVisible.value = false
-    ElMessage.success('保存成功')
-    refreshData()
+    dialogSaving.value = true
+    try {
+      await saveRole(form)
+      dialogVisible.value = false
+      ElMessage.success('保存成功')
+      refreshData()
+    } finally {
+      dialogSaving.value = false
+    }
   }
 </script>

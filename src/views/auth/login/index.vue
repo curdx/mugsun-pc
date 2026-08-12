@@ -70,6 +70,14 @@
                   alt="验证码"
                   @click="loadCaptcha"
                 />
+                <div
+                  v-else
+                  class="captcha-img captcha-reload"
+                  title="点击重新加载"
+                  @click="loadCaptcha"
+                >
+                  加载失败
+                </div>
               </div>
             </ElFormItem>
 
@@ -141,9 +149,18 @@
                   v-if="captchaImage"
                   :src="captchaImage"
                   class="captcha-img"
+                  title="点击刷新验证码"
                   alt="验证码"
                   @click="loadCaptcha"
                 />
+                <div
+                  v-else
+                  class="captcha-img captcha-reload"
+                  title="点击重新加载"
+                  @click="loadCaptcha"
+                >
+                  加载失败
+                </div>
               </div>
             </ElFormItem>
 
@@ -182,7 +199,7 @@
             </ElButton>
           </div>
 
-          <div class="mt-5 text-sm text-gray-600">
+          <div class="mt-5 text-sm text-g-600">
             <span>{{ $t('login.noAccount') }}</span>
             <RouterLink class="text-theme" :to="{ name: 'Register' }">{{
               $t('login.register')
@@ -496,15 +513,6 @@
 <style lang="scss" scoped>
   :deep(.el-select__wrapper) {
     height: 40px !important;
-  }
-
-  .captcha-img {
-    flex-shrink: 0;
-    width: 125px;
-    height: 43px;
-    cursor: pointer;
-    border: 1px solid var(--art-border-color);
-    border-radius: 6px;
   }
 
   .sms-code-btn {

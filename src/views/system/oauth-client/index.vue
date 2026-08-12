@@ -2,55 +2,73 @@
 <template>
   <div class="oauth-client-page art-full-height">
     <ElCard class="art-table-card">
-      <div class="oauth-toolbar">
-        <ElButton v-perm="'sys:oauth:manage'" type="primary" @click="showCreate"
-          >新建客户端</ElButton
-        >
-      </div>
+      <!-- 卡片体为定高裁剪（全局 overflow:hidden），内容须自备内部滚动，防矮视口裁切 -->
+      <div class="oauth-body-scroll">
+        <div class="oauth-toolbar">
+          <ElButton v-perm="'sys:oauth:manage'" type="primary" @click="showCreate"
+            >新建客户端</ElButton
+          >
+        </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="name" label="名称" min-width="100" />
-        <ElTableColumn prop="clientId" label="ClientId" min-width="160" show-overflow-tooltip />
-        <ElTableColumn prop="clientSecret" label="ClientSecret" min-width="130" />
-        <ElTableColumn label="授权类型" min-width="180">
-          <template #default="{ row }">
-            <ElTag
-              v-for="g in (row.grantTypes || '').split(',').filter(Boolean)"
-              :key="g"
-              size="small"
-              class="oauth-tag"
-            >
-              {{ grantLabel(g) }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="scopes" label="授权范围" min-width="85" show-overflow-tooltip />
-        <ElTableColumn label="有效期(秒)" width="100" prop="accessTokenValidity" />
-        <ElTableColumn label="状态" width="80">
-          <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'info'">
-              {{ row.status === 1 ? '启用' : '停用' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="操作" width="230" fixed="right">
-          <template #default="{ row }">
-            <ElButton v-perm="'sys:oauth:manage'" link type="primary" @click="showEdit(row)"
-              >编辑</ElButton
-            >
-            <ElButton v-perm="'sys:oauth:manage'" link type="warning" @click="resetSecret(row)"
-              >重置密钥</ElButton
-            >
-            <ElButton v-perm="'sys:oauth:manage'" link type="info" @click="toggle(row)">
-              {{ row.status === 1 ? '停用' : '启用' }}
-            </ElButton>
-            <ElButton v-perm="'sys:oauth:manage'" link type="danger" @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+        <ElTable :data="tableData" border v-loading="loading">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="name" label="名称" min-width="100" />
+          <ElTableColumn prop="clientId" label="ClientId" min-width="160" show-overflow-tooltip />
+          <ElTableColumn
+            prop="clientSecret"
+            label="ClientSecret"
+            min-width="130"
+            show-overflow-tooltip
+          />
+          <ElTableColumn label="授权类型" min-width="180">
+            <template #default="{ row }">
+              <ElTag
+                v-for="g in (row.grantTypes || '').split(',').filter(Boolean)"
+                :key="g"
+                size="small"
+                class="oauth-tag"
+              >
+                {{ grantLabel(g) }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="scopes" label="授权范围" min-width="85" show-overflow-tooltip />
+          <ElTableColumn label="有效期(秒)" width="100" prop="accessTokenValidity" />
+          <ElTableColumn label="状态" width="80">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'info'">
+                {{ row.status === 1 ? '启用' : '停用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="230" fixed="right">
+            <template #default="{ row }">
+              <ElButton v-perm="'sys:oauth:manage'" link type="primary" @click="showEdit(row)"
+                >编辑</ElButton
+              >
+              <ElButton v-perm="'sys:oauth:manage'" link type="warning" @click="resetSecret(row)"
+                >重置密钥</ElButton
+              >
+              <ElButton v-perm="'sys:oauth:manage'" link type="info" @click="toggle(row)">
+                {{ row.status === 1 ? '停用' : '启用' }}
+              </ElButton>
+              <ElButton v-perm="'sys:oauth:manage'" link type="danger" @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+
+        <div class="oauth-pager">
+          <ElPagination
+            layout="total, prev, pager, next"
+            :total="total"
+            :page-size="pageSize"
+            :current-page="pageNum"
+            @current-change="onPage"
+          />
+        </div>
+      </div>
     </ElCard>
 
     <!-- 新建/编辑 -->
@@ -94,7 +112,7 @@
       </ElForm>
       <template #footer>
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">保存</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submit">保存</ElButton>
       </template>
     </ElDialog>
 
@@ -130,6 +148,10 @@
   const scopeOptions = ['user:read', 'user:write']
   const tableData = ref<any[]>([])
   const loading = ref(false)
+  const submitting = ref(false)
+  const total = ref(0)
+  const pageNum = ref(1)
+  const pageSize = ref(10)
   const dialogVisible = ref(false)
   const resultVisible = ref(false)
   const generated = ref<Record<string, any>>({})
@@ -164,11 +186,17 @@
   const loadData = async (): Promise<void> => {
     loading.value = true
     try {
-      const resp = await fetchOauthClientPage({ pageNum: 1, pageSize: 50 })
+      const resp = await fetchOauthClientPage({ pageNum: pageNum.value, pageSize: pageSize.value })
       tableData.value = resp?.records ?? []
+      total.value = resp?.totalRow ?? 0
     } finally {
       loading.value = false
     }
+  }
+
+  const onPage = (p: number): void => {
+    pageNum.value = p
+    loadData()
   }
 
   onMounted(loadData)
@@ -210,21 +238,26 @@
     form.grantTypes = grantList.value.join(',')
     await formRef.value.validate(async (valid) => {
       if (!valid) return
-      const payload = {
-        ...form,
-        grantTypes: grantList.value.join(','),
-        scopes: scopeList.value.join(',')
+      submitting.value = true
+      try {
+        const payload = {
+          ...form,
+          grantTypes: grantList.value.join(','),
+          scopes: scopeList.value.join(',')
+        }
+        const saved = (await fetchSaveOauthClient(payload)) || {}
+        dialogVisible.value = false
+        // 新建返回明文密钥
+        if (!form.id && saved.clientSecret && !saved.clientSecret.includes('*')) {
+          generated.value = saved
+          resultVisible.value = true
+        } else {
+          ElMessage.success('保存成功')
+        }
+        loadData()
+      } finally {
+        submitting.value = false
       }
-      const saved = (await fetchSaveOauthClient(payload)) || {}
-      dialogVisible.value = false
-      // 新建返回明文密钥
-      if (!form.id && saved.clientSecret && !saved.clientSecret.includes('*')) {
-        generated.value = saved
-        resultVisible.value = true
-      } else {
-        ElMessage.success('保存成功')
-      }
-      loadData()
     })
   }
 
@@ -240,15 +273,28 @@
     })
   }
 
-  const toggle = async (row: any): Promise<void> => {
+  const toggle = (row: any): void => {
+    // 停用会使该客户端令牌立即失效，需二次确认；启用无风险直接执行
     if (row.status === 1) {
-      await fetchDisableOauthClient(row.id)
-      ElMessage.success('已停用')
+      ElMessageBox.confirm(
+        `确定停用客户端"${row.name}"吗？停用后其访问令牌将立即失效。`,
+        '停用客户端',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).then(async () => {
+        await fetchDisableOauthClient(row.id)
+        ElMessage.success('已停用')
+        loadData()
+      })
     } else {
-      await fetchEnableOauthClient(row.id)
-      ElMessage.success('已启用')
+      fetchEnableOauthClient(row.id).then(() => {
+        ElMessage.success('已启用')
+        loadData()
+      })
     }
-    loadData()
   }
 
   const remove = (row: any): void => {
@@ -265,8 +311,21 @@
 </script>
 
 <style scoped>
+  /* 卡片体为定高裁剪（全局 overflow:hidden），内容须自备内部滚动，防矮视口裁切 */
+  .oauth-body-scroll {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
   .oauth-toolbar {
     margin-bottom: 12px;
+  }
+
+  .oauth-pager {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
   }
 
   .oauth-tag {
@@ -275,6 +334,11 @@
 
   .oauth-result {
     margin-top: 14px;
+
+    /* 密钥为无空格长串，允许折行防撑破弹窗 */
+    :deep(.el-descriptions__content) {
+      word-break: break-all;
+    }
   }
 
   .oauth-hint {

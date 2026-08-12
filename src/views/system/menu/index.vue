@@ -14,63 +14,72 @@
         <ElButton v-perm="'sys:menu:save'" @click="showDialog('add')" v-ripple>新增菜单</ElButton>
       </div>
 
-      <ElTable :data="treeData" row-key="id" default-expand-all border>
-        <ElTableColumn prop="menuName" label="菜单名称" min-width="200" />
-        <ElTableColumn label="图标" width="80" align="center">
-          <template #default="{ row }">
-            <span v-if="row.icon" class="menu-icon" :data-icon="row.icon">
-              <ArtSvgIcon :icon="row.icon" class="text-lg" />
-            </span>
-            <span v-else>—</span>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="类型" width="90">
-          <template #default="{ row }">{{ TYPE_LABELS[row.menuType] ?? row.menuType }}</template>
-        </ElTableColumn>
-        <ElTableColumn prop="path" label="路由地址" min-width="160" />
-        <ElTableColumn prop="permission" label="权限标识" min-width="200" show-overflow-tooltip />
-        <ElTableColumn prop="sort" label="排序" width="80" />
-        <ElTableColumn label="隐藏" width="80" align="center">
-          <template #default="{ row }">
-            <ElTag :type="row.isHide === 1 ? 'danger' : 'success'">
-              {{ row.isHide === 1 ? '隐藏' : '显示' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="缓存" width="80" align="center">
-          <template #default="{ row }">
-            <ElTag :type="row.isKeepAlive === 1 ? 'success' : 'info'">
-              {{ row.isKeepAlive === 1 ? '是' : '否' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="外链" width="80" align="center">
-          <template #default="{ row }">
-            <ElTag :type="row.isExternal === 1 ? 'warning' : 'info'">
-              {{ row.isExternal === 1 ? '是' : '否' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="操作" width="240">
-          <template #default="{ row }">
-            <ElButton v-perm="'sys:menu:save'" link type="primary" @click="showDialog('add', row)"
-              >新增下级</ElButton
-            >
-            <ElButton v-perm="'sys:menu:save'" link type="primary" @click="showDialog('edit', row)"
-              >编辑</ElButton
-            >
-            <ElButton v-perm="'sys:menu:remove'" link type="danger" @click="deleteRow(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 树表为自由增长内容：art-table-card 卡片体是 height:100%+overflow:hidden 裁剪，
+           内部须自备滚动，否则矮视口下深层节点被切断且不可达（同 track/user 修法） -->
+      <div v-loading="loading" class="menu-table-wrap">
+        <ElTable :data="treeData" row-key="id" default-expand-all border>
+          <ElTableColumn prop="menuName" label="菜单名称" min-width="200" />
+          <ElTableColumn label="图标" width="80" align="center">
+            <template #default="{ row }">
+              <span v-if="row.icon" class="menu-icon" :data-icon="row.icon">
+                <ArtSvgIcon :icon="row.icon" class="text-lg" />
+              </span>
+              <span v-else>—</span>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="类型" width="90">
+            <template #default="{ row }">{{ TYPE_LABELS[row.menuType] ?? row.menuType }}</template>
+          </ElTableColumn>
+          <ElTableColumn prop="path" label="路由地址" min-width="160" />
+          <ElTableColumn prop="permission" label="权限标识" min-width="200" show-overflow-tooltip />
+          <ElTableColumn prop="sort" label="排序" width="80" />
+          <ElTableColumn label="隐藏" width="80" align="center">
+            <template #default="{ row }">
+              <ElTag :type="row.isHide === 1 ? 'danger' : 'success'">
+                {{ row.isHide === 1 ? '隐藏' : '显示' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="缓存" width="80" align="center">
+            <template #default="{ row }">
+              <ElTag :type="row.isKeepAlive === 1 ? 'success' : 'info'">
+                {{ row.isKeepAlive === 1 ? '是' : '否' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="外链" width="80" align="center">
+            <template #default="{ row }">
+              <ElTag :type="row.isExternal === 1 ? 'warning' : 'info'">
+                {{ row.isExternal === 1 ? '是' : '否' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="240">
+            <template #default="{ row }">
+              <ElButton v-perm="'sys:menu:save'" link type="primary" @click="showDialog('add', row)"
+                >新增下级</ElButton
+              >
+              <ElButton
+                v-perm="'sys:menu:save'"
+                link
+                type="primary"
+                @click="showDialog('edit', row)"
+                >编辑</ElButton
+              >
+              <ElButton v-perm="'sys:menu:remove'" link type="danger" @click="deleteRow(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
 
       <MenuDialog
         v-model:visible="dialogVisible"
         :type="dialogType"
         :menu-data="currentData"
         :menu-tree="treeData"
+        :saving="dialogSaving"
         @submit="handleDialogSubmit"
       />
     </ElCard>
@@ -119,9 +128,11 @@
   ])
 
   const treeData = ref<any[]>([])
+  const loading = ref(false)
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentData = ref<Record<string, any>>({})
+  const dialogSaving = ref(false)
 
   const loadData = async (): Promise<void> => {
     // 仅携带已填条件（空值不下发，后端按非空拼条件）
@@ -130,7 +141,12 @@
     if (searchForm.value.isHide !== undefined && searchForm.value.isHide !== null) {
       params.isHide = searchForm.value.isHide
     }
-    treeData.value = (await fetchMenuTree(params)) || []
+    loading.value = true
+    try {
+      treeData.value = (await fetchMenuTree(params)) || []
+    } finally {
+      loading.value = false
+    }
   }
 
   onMounted(loadData)
@@ -163,15 +179,33 @@
   }
 
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
-    await fetchSaveMenu(form)
-    dialogVisible.value = false
-    ElMessage.success('保存成功')
-    loadData()
+    dialogSaving.value = true
+    try {
+      await fetchSaveMenu(form)
+      dialogVisible.value = false
+      ElMessage.success('保存成功')
+      loadData()
+    } finally {
+      dialogSaving.value = false
+    }
   }
 </script>
 
 <style scoped>
+  /* 卡片体改为纵向 flex，树表滚动区占满剩余高度（滚动区见模板注释） */
+  .menu-page :deep(.art-table-card > .el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
   .menu-toolbar {
+    flex-shrink: 0;
     margin-bottom: 12px;
+  }
+
+  .menu-table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 </style>

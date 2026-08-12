@@ -41,7 +41,7 @@
               />
             </ElFormItem>
             <ElFormItem>
-              <ElButton type="primary" @click="saveInfo">保存</ElButton>
+              <ElButton type="primary" :loading="infoSaving" @click="saveInfo">保存</ElButton>
             </ElFormItem>
           </ElForm>
         </ElCard>
@@ -74,7 +74,7 @@
               />
             </ElFormItem>
             <ElFormItem>
-              <ElButton type="primary" @click="savePassword">保存</ElButton>
+              <ElButton type="primary" :loading="pwdSaving" @click="savePassword">保存</ElButton>
             </ElFormItem>
           </ElForm>
         </ElCard>
@@ -138,17 +138,23 @@
 
   const infoRef = ref<FormInstance>()
   const infoForm = reactive({ nickname: info.value.nickName || '' })
+  const infoSaving = ref(false)
   const infoRules: FormRules = {
     nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }]
   }
 
   const saveInfo = async (): Promise<void> => {
-    if (!infoRef.value) return
+    if (!infoRef.value || infoSaving.value) return
     await infoRef.value.validate(async (valid) => {
       if (!valid) return
-      await fetchUpdateInfo({ nickname: infoForm.nickname })
-      userStore.setUserInfo({ ...(userStore.getUserInfo as any), nickName: infoForm.nickname })
-      ElMessage.success('昵称已修改')
+      infoSaving.value = true
+      try {
+        await fetchUpdateInfo({ nickname: infoForm.nickname })
+        userStore.setUserInfo({ ...(userStore.getUserInfo as any), nickName: infoForm.nickname })
+        ElMessage.success('昵称已修改')
+      } finally {
+        infoSaving.value = false
+      }
     })
   }
 
@@ -186,6 +192,7 @@
 
   const pwdRef = ref<FormInstance>()
   const pwdForm = reactive({ oldPassword: '', newPassword: '', confirmPassword: '' })
+  const pwdSaving = ref(false)
   const pwdRules: FormRules = {
     oldPassword: [{ required: true, message: '请输入原密码', trigger: 'blur' }],
     newPassword: [
@@ -206,21 +213,26 @@
   }
 
   const savePassword = async (): Promise<void> => {
-    if (!pwdRef.value) return
+    if (!pwdRef.value || pwdSaving.value) return
     await pwdRef.value.validate(async (valid) => {
       if (!valid) return
-      await fetchUpdatePassword({
-        oldPassword: await encryptPassword(pwdForm.oldPassword),
-        newPassword: await encryptPassword(pwdForm.newPassword)
-      })
-      ElMessage.success('密码已修改，请重新登录')
-      pwdForm.oldPassword = ''
-      pwdForm.newPassword = ''
-      pwdForm.confirmPassword = ''
-      // 后端改密即全端下线，前端同步清理并回登录页
-      setTimeout(() => {
-        userStore.logOut()
-      }, 800)
+      pwdSaving.value = true
+      try {
+        await fetchUpdatePassword({
+          oldPassword: await encryptPassword(pwdForm.oldPassword),
+          newPassword: await encryptPassword(pwdForm.newPassword)
+        })
+        ElMessage.success('密码已修改，请重新登录')
+        pwdForm.oldPassword = ''
+        pwdForm.newPassword = ''
+        pwdForm.confirmPassword = ''
+        // 后端改密即全端下线，前端同步清理并回登录页
+        setTimeout(() => {
+          userStore.logOut()
+        }, 800)
+      } finally {
+        pwdSaving.value = false
+      }
     })
   }
 
@@ -253,6 +265,16 @@
 </script>
 
 <style scoped>
+  /* 个人信息 + 三张表单卡为自由增长内容：art-full-height 定高下页面须自备纵向滚动，
+     否则矮视口下修改密码卡底部被视口切断且无法到达（同 track/funnel 修法） */
+  .user-center-page {
+    overflow-y: auto;
+  }
+
+  .user-center-page > .el-row {
+    flex-shrink: 0;
+  }
+
   .uc-form-card {
     margin-bottom: 16px;
   }
@@ -268,7 +290,7 @@
     width: 56px;
     height: 56px;
     object-fit: cover;
-    border: 1px solid var(--art-border-color);
+    border: 1px solid var(--default-border);
     border-radius: 50%;
   }
 

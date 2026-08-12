@@ -29,6 +29,7 @@
       :title="form.id ? '编辑更新记录' : '新增更新记录'"
       width="780px"
       top="6vh"
+      class="changelog-dialog"
     >
       <ElForm :model="form" label-width="80px">
         <ElFormItem label="版本号" required>
@@ -59,7 +60,7 @@
       </ElForm>
       <template #footer>
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">确定</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submit">确定</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -174,6 +175,7 @@
   })
 
   const dialogVisible = ref(false)
+  const submitting = ref(false)
   const form = reactive<any>({
     id: undefined,
     version: '',
@@ -214,10 +216,15 @@
     if (!form.version?.trim() || !form.title?.trim()) {
       return ElMessage.warning('请填写版本号与标题')
     }
-    await fetchSaveChangelog({ ...form })
-    ElMessage.success('保存成功')
-    dialogVisible.value = false
-    refreshData()
+    submitting.value = true
+    try {
+      await fetchSaveChangelog({ ...form })
+      ElMessage.success('保存成功')
+      dialogVisible.value = false
+      refreshData()
+    } finally {
+      submitting.value = false
+    }
   }
 
   const remove = (row: any) => {
@@ -230,3 +237,11 @@
     })
   }
 </script>
+
+<!-- 弹窗内容 teleport 到 body，表单项+富文本叠加超高时需非 scoped 类限定滚动（同 notice-dialog 范式），防矮视口下操作按钮挤出视口 -->
+<style>
+  .changelog-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
+  }
+</style>

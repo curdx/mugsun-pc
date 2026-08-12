@@ -23,7 +23,7 @@
     <ElRow :gutter="16" v-loading="loading">
       <ElCol v-for="c in statCards" :key="c.key" :xs="12" :sm="8" :lg="4">
         <div class="art-card track-stat-card">
-          <div class="track-stat-icon" :style="{ background: c.bg }">
+          <div class="track-stat-icon" :style="{ background: c.bg, color: c.color }">
             <ArtSvgIcon :icon="c.icon" />
           </div>
           <div class="track-stat-body">
@@ -160,35 +160,53 @@
   const browserTop = ref<PieDataItem[]>([])
 
   const statCards = computed(() => [
-    { key: 'pv', label: '浏览量(PV)', value: cards.pv, icon: 'ri:eye-line', bg: '#e8f3ff' },
-    { key: 'uv', label: '访客数(UV)', value: cards.uv, icon: 'ri:user-line', bg: '#e8fff3' },
+    {
+      key: 'pv',
+      label: '浏览量(PV)',
+      value: cards.pv,
+      icon: 'ri:eye-line',
+      bg: 'var(--el-color-primary-light-9)',
+      color: 'var(--el-color-primary)'
+    },
+    {
+      key: 'uv',
+      label: '访客数(UV)',
+      value: cards.uv,
+      icon: 'ri:user-line',
+      bg: 'var(--el-color-success-light-9)',
+      color: 'var(--el-color-success)'
+    },
     {
       key: 'sessionCount',
       label: '会话数',
       value: cards.sessionCount,
       icon: 'ri:chat-1-line',
-      bg: '#fff5e8'
+      bg: 'var(--el-color-warning-light-9)',
+      color: 'var(--el-color-warning)'
     },
     {
       key: 'eventCount',
       label: '事件数',
       value: cards.eventCount,
       icon: 'ri:flashlight-line',
-      bg: '#f3e8ff'
+      bg: 'var(--el-color-danger-light-9)',
+      color: 'var(--el-color-danger)'
     },
     {
       key: 'avgSessionDurationMs',
       label: '平均会话时长',
       value: fmtTrackDuration(cards.avgSessionDurationMs),
       icon: 'ri:time-line',
-      bg: '#e8fbff'
+      bg: 'var(--el-color-info-light-9)',
+      color: 'var(--el-color-info)'
     },
     {
       key: 'bounceRate',
       label: '跳出率',
       value: `${(Number(cards.bounceRate || 0) * 100).toFixed(1)}%`,
       icon: 'ri:logout-box-line',
-      bg: '#ffe8ec'
+      bg: 'var(--el-color-error-light-9)',
+      color: 'var(--el-color-error)'
     }
   ])
 
@@ -273,8 +291,17 @@
 
 <style lang="scss" scoped>
   .track-overview-page {
+    // 指标卡 + 趋势/在线 + Top 页面/分布三行均为自然高度内容（合计约 900px+）：
+    // art-full-height 定高下页面须自备纵向滚动，否则矮视口底部卡片被切断无法到达
+    overflow-y: auto;
+
+    .el-row {
+      flex-shrink: 0;
+    }
+
     .track-toolbar {
       display: flex;
+      flex-shrink: 0;
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;

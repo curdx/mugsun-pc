@@ -2,47 +2,50 @@
 <template>
   <div class="oauth-log-page art-full-height">
     <ElCard class="art-table-card">
-      <div class="oauth-log-toolbar">
-        <ElSelect
-          v-model="statusFilter"
-          placeholder="全部状态"
-          clearable
-          style="width: 140px"
-          @change="loadData"
-        >
-          <ElOption label="放行" :value="1" />
-          <ElOption label="拒绝" :value="0" />
-        </ElSelect>
-        <ElButton type="primary" @click="loadData">刷新</ElButton>
-      </div>
+      <!-- 卡片体为定高裁剪（全局 overflow:hidden），内容须自备内部滚动，防矮视口裁切 -->
+      <div class="oauth-log-scroll">
+        <div class="oauth-log-toolbar">
+          <ElSelect
+            v-model="statusFilter"
+            placeholder="全部状态"
+            clearable
+            style="width: 140px"
+            @change="loadData"
+          >
+            <ElOption label="放行" :value="1" />
+            <ElOption label="拒绝" :value="0" />
+          </ElSelect>
+          <ElButton type="primary" @click="loadData">刷新</ElButton>
+        </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="clientId" label="ClientId" min-width="170" />
-        <ElTableColumn prop="apiPath" label="接口" min-width="180" />
-        <ElTableColumn prop="scope" label="所需范围" min-width="110" />
-        <ElTableColumn label="结果" width="90">
-          <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'danger'">
-              {{ row.status === 1 ? '放行' : '拒绝' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="msg" label="说明" min-width="180" show-overflow-tooltip />
-        <ElTableColumn prop="ip" label="IP" width="130" />
-        <ElTableColumn prop="createTime" label="时间" min-width="170">
-          <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
-        </ElTableColumn>
-      </ElTable>
+        <ElTable :data="tableData" border v-loading="loading">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="clientId" label="ClientId" min-width="170" />
+          <ElTableColumn prop="apiPath" label="接口" min-width="180" />
+          <ElTableColumn prop="scope" label="所需范围" min-width="110" />
+          <ElTableColumn label="结果" width="90">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'danger'">
+                {{ row.status === 1 ? '放行' : '拒绝' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="msg" label="说明" min-width="180" show-overflow-tooltip />
+          <ElTableColumn prop="ip" label="IP" width="130" />
+          <ElTableColumn prop="createTime" label="时间" min-width="170">
+            <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+          </ElTableColumn>
+        </ElTable>
 
-      <div class="oauth-log-pager">
-        <ElPagination
-          layout="total, prev, pager, next"
-          :total="total"
-          :page-size="pageSize"
-          :current-page="pageNum"
-          @current-change="onPage"
-        />
+        <div class="oauth-log-pager">
+          <ElPagination
+            layout="total, prev, pager, next"
+            :total="total"
+            :page-size="pageSize"
+            :current-page="pageNum"
+            @current-change="onPage"
+          />
+        </div>
       </div>
     </ElCard>
   </div>
@@ -86,6 +89,13 @@
 </script>
 
 <style scoped>
+  /* 卡片体为定高裁剪（全局 overflow:hidden），内容须自备内部滚动，防矮视口裁切 */
+  .oauth-log-scroll {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
   .oauth-log-toolbar {
     display: flex;
     gap: 12px;

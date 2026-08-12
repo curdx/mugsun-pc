@@ -38,6 +38,7 @@
   import { sm4 } from 'sm-crypto'
   import { ElMessage } from 'element-plus'
   import request from '@/utils/http'
+  import { isHttpError } from '@/utils/http/error'
 
   defineOptions({ name: 'CryptoDemo' })
 
@@ -95,7 +96,8 @@
         decrypted.value = JSON.stringify(json.data)
       }
     } catch (e) {
-      ElMessage.error('加解密请求失败')
+      // 网络/服务端错误已由请求层统一弹提示，这里仅兜底本地加解密异常，避免双重 toast
+      if (!isHttpError(e)) ElMessage.error('加解密失败')
       console.error('[CryptoDemo]', e)
     } finally {
       loading.value = false

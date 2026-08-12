@@ -21,7 +21,7 @@
     <ElDialog v-model="viewVisible" :title="current.title" width="640px" align-center>
       <div class="notice-meta">
         <ArtDictTag :code="DICT_CODE.NOTICE_CATEGORY" :value="current.category" />
-        <span>{{ (current.releaseTime || '').slice(0, 19).replace('T', ' ') }}</span>
+        <span>{{ formatTableTime(current.releaseTime) }}</span>
       </div>
       <div class="notice-content" v-safe-html="current.content"></div>
     </ElDialog>
@@ -35,6 +35,7 @@
   import { useTable } from '@/hooks/core/useTable'
   import { fetchMyNoticePage, fetchReadNotice } from '@/api/system-manage'
   import { DICT_CODE } from '@/utils/constants'
+  import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'MyNotice' })
 
@@ -90,7 +91,12 @@
               row.readFlag ? '已读' : '未读'
             )
         },
-        { prop: 'releaseTime', label: '发布时间', minWidth: 180 },
+        {
+          prop: 'releaseTime',
+          label: '发布时间',
+          minWidth: 180,
+          formatter: (row: any) => formatTableTime(row.releaseTime)
+        },
         {
           prop: 'operation',
           label: '操作',
@@ -148,6 +154,9 @@
   }
 
   .notice-content {
+    // 富文本公告可能很长：限高 + 内部滚动，防矮视口下弹窗整体挤出视口
+    max-height: 60vh;
+    overflow-y: auto;
     line-height: 1.7;
   }
 </style>

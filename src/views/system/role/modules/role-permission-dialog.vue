@@ -3,6 +3,7 @@
   <ElDialog v-model="dialogVisible" title="菜单授权" width="460px" align-center>
     <ElTree
       ref="treeRef"
+      class="perm-tree"
       :data="menuTree"
       node-key="id"
       show-checkbox
@@ -12,7 +13,7 @@
     <template #footer>
       <div class="dialog-footer">
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">保存</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="handleSubmit">保存</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -43,6 +44,7 @@
 
   const treeRef = ref<any>()
   const menuTree = ref<any[]>([])
+  const submitting = ref(false)
 
   watch(
     () => props.visible,
@@ -58,9 +60,22 @@
   const handleSubmit = async () => {
     if (!treeRef.value || !props.roleData?.id) return
     const menuIds = [...treeRef.value.getCheckedKeys(false), ...treeRef.value.getHalfCheckedKeys()]
-    await grantRole(props.roleData.id, menuIds)
-    ElMessage.success('授权成功')
-    dialogVisible.value = false
-    emit('success')
+    submitting.value = true
+    try {
+      await grantRole(props.roleData.id, menuIds)
+      ElMessage.success('授权成功')
+      dialogVisible.value = false
+      emit('success')
+    } finally {
+      submitting.value = false
+    }
   }
 </script>
+
+<style scoped>
+  /* 全量菜单树 default-expand-all 展开后远超视口：限高内滚，防弹窗顶出视口 */
+  .perm-tree {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+</style>

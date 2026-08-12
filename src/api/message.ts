@@ -36,9 +36,12 @@ export function fetchSendMessage(data: Record<string, any>) {
   return request.post<void>({ url: '/api/system/message/send', data })
 }
 
-/** 用户下拉（收件人选择） */
-export function fetchUserSelect() {
-  return request.get<Array<{ label: string; value: number }>>({ url: '/api/system/user/select' })
+/** 用户下拉（收件人选择）：keyword 远程搜索（用户名/昵称模糊，后端封顶 50 条）；ids 精确取（编辑回显） */
+export function fetchUserSelect(params?: { keyword?: string; ids?: string }) {
+  return request.get<Array<{ label: string; value: number }>>({
+    url: '/api/system/user/select',
+    params
+  })
 }
 
 // ------------------------- 消息模板 -------------------------

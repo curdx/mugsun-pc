@@ -16,31 +16,39 @@
         >
       </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="name" label="套餐名称" min-width="150" />
-        <ElTableColumn label="功能菜单数" width="110">
-          <template #default="{ row }">{{ keyCount(row.menuKeys) }}</template>
-        </ElTableColumn>
-        <ElTableColumn label="状态" width="90">
-          <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'info'">
-              {{ row.status === 1 ? '启用' : '停用' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="remark" label="备注" min-width="160" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="150" fixed="right">
-          <template #default="{ row }">
-            <ElButton v-perm="'sys:tenant-package:save'" link type="primary" @click="showEdit(row)"
-              >编辑</ElButton
-            >
-            <ElButton v-perm="'sys:tenant-package:remove'" link type="danger" @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 表格为自由增长内容：art-table-card 卡片体是 height:100%+overflow:hidden 裁剪，
+           内部须自备滚动，否则矮视口下底部行被切断且不可达（同 track/user 修法） -->
+      <div v-loading="loading" class="tpkg-table-wrap">
+        <ElTable :data="tableData" border>
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="name" label="套餐名称" min-width="150" />
+          <ElTableColumn label="功能菜单数" width="110">
+            <template #default="{ row }">{{ keyCount(row.menuKeys) }}</template>
+          </ElTableColumn>
+          <ElTableColumn label="状态" width="90">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'info'">
+                {{ row.status === 1 ? '启用' : '停用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="remark" label="备注" min-width="160" show-overflow-tooltip />
+          <ElTableColumn label="操作" width="150" fixed="right">
+            <template #default="{ row }">
+              <ElButton
+                v-perm="'sys:tenant-package:save'"
+                link
+                type="primary"
+                @click="showEdit(row)"
+                >编辑</ElButton
+              >
+              <ElButton v-perm="'sys:tenant-package:remove'" link type="danger" @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <ElDialog
@@ -48,6 +56,7 @@
       :title="form.id ? '编辑套餐' : '新建套餐'"
       width="600px"
       align-center
+      class="tpkg-dialog"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="90px">
         <ElFormItem label="套餐名称" prop="name">
@@ -73,7 +82,7 @@
       </ElForm>
       <template #footer>
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">保存</ElButton>
+        <ElButton type="primary" :loading="dialogSaving" @click="submit">保存</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -144,6 +153,7 @@
   const tableData = ref<any[]>([])
   const loading = ref(false)
   const dialogVisible = ref(false)
+  const dialogSaving = ref(false)
   const formRef = ref<FormInstance>()
   const treeRef = ref<any>()
 
@@ -203,12 +213,17 @@
     if (!formRef.value) return
     await formRef.value.validate(async (valid) => {
       if (!valid) return
-      // 仅收集叶子（勾选）节点名作为菜单标识
-      const keys: string[] = treeRef.value?.getCheckedKeys(true) ?? []
-      await fetchSubmitTenantPackage({ ...form, menuKeys: keys.join(',') })
-      ElMessage.success('保存成功')
-      dialogVisible.value = false
-      loadData()
+      dialogSaving.value = true
+      try {
+        // 仅收集叶子（勾选）节点名作为菜单标识
+        const keys: string[] = treeRef.value?.getCheckedKeys(true) ?? []
+        await fetchSubmitTenantPackage({ ...form, menuKeys: keys.join(',') })
+        ElMessage.success('保存成功')
+        dialogVisible.value = false
+        loadData()
+      } finally {
+        dialogSaving.value = false
+      }
     })
   }
 
@@ -226,8 +241,21 @@
 </script>
 
 <style scoped>
+  /* 卡片体改为纵向 flex，表格滚动区占满剩余高度（滚动区见模板注释） */
+  .tpkg-page :deep(.art-table-card > .el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
   .tpkg-toolbar {
+    flex-shrink: 0;
     margin-bottom: 12px;
+  }
+
+  .tpkg-table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .tpkg-tree {
@@ -237,5 +265,13 @@
     overflow-y: auto;
     border: 1px solid var(--el-border-color);
     border-radius: 6px;
+  }
+</style>
+
+<!-- 弹窗内容 teleport 到 body：菜单树+表单项叠加超高时需非 scoped 类限定内部滚动（同 notice-dialog 范式），防矮视口下保存按钮挤出视口 -->
+<style>
+  .tpkg-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

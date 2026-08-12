@@ -5,7 +5,7 @@
     <ElRow :gutter="16">
       <ElCol v-for="s in statTiles" :key="s.key" :xs="12" :sm="12" :md="6">
         <div class="art-card stat-tile" @click="s.path && go(s.path)">
-          <div class="stat-icon" :style="{ background: s.bg }">
+          <div class="stat-icon" :style="{ background: s.bg, color: s.color }">
             <ArtSvgIcon :icon="s.icon" />
           </div>
           <div class="stat-body">
@@ -19,13 +19,15 @@
     <!-- 图表 -->
     <ElRow :gutter="16" class="mt-4">
       <ElCol :xs="24" :lg="12">
-        <div class="art-card chart-card">
+        <div class="art-card chart-card" v-loading="overviewLoading">
           <p class="card-title">用户状态分布</p>
-          <div ref="pieRef" class="chart-box"></div>
+          <!-- 与柱状图同款：空数据时 echarts 只画空环，以 ElEmpty 替代；v-show 保挂载 -->
+          <ElEmpty v-if="pieEmpty" description="暂无数据" :image-size="60" />
+          <div v-show="!pieEmpty" ref="pieRef" class="chart-box"></div>
         </div>
       </ElCol>
       <ElCol :xs="24" :lg="12" class="mt-4 mt-lg-0">
-        <div class="art-card chart-card">
+        <div class="art-card chart-card" v-loading="overviewLoading">
           <p class="card-title">租户用户数</p>
           <!-- 空数据时 echarts 只画一条轴线，以 ElEmpty 替代；图表容器 v-show 保挂载，有数据后再 init -->
           <ElEmpty v-if="barEmpty" description="暂无数据" :image-size="60" />
@@ -84,11 +86,19 @@
 
       <ElCol :xs="24" :lg="8" class="mt-4 mt-lg-0">
         <ArtTimelineListCard
+          v-if="changelogList.length"
           title="更新日志"
           subtitle="最近版本变更"
           :list="changelogList"
           :max-count="6"
         />
+        <!-- ArtTimelineListCard 无内置空态，空列表时以同款标题卡兜底 -->
+        <div v-else class="art-card list-card" v-loading="changelogLoading">
+          <div class="card-head">
+            <span class="card-title">更新日志</span>
+          </div>
+          <ElEmpty v-if="!changelogLoading" description="暂无更新日志" :image-size="60" />
+        </div>
       </ElCol>
     </ElRow>
 
@@ -136,11 +146,13 @@
     fetchWorkbenchShortcuts,
     saveWorkbenchShortcuts
   } from '@/api/workbench'
+  import { useSettingStore } from '@/store/modules/setting'
 
   defineOptions({ name: 'Console' })
 
   const router = useRouter()
   const go = (path: string) => router.push(path)
+  const { isDark } = storeToRefs(useSettingStore())
 
   // ===== 快捷入口候选目录（真实路由，验证过 path）=====
   const CATALOG = [
@@ -186,7 +198,8 @@
       label: '用户数',
       count: overview.userCount,
       path: '/system/user',
-      bg: '#e8f3ff',
+      bg: 'var(--el-color-primary-light-9)',
+      color: 'var(--el-color-primary)',
       icon: 'ri:user-3-line'
     },
     {
@@ -194,7 +207,8 @@
       label: '部门数',
       count: overview.deptCount,
       path: '/system/dept',
-      bg: '#e8fff3',
+      bg: 'var(--el-color-success-light-9)',
+      color: 'var(--el-color-success)',
       icon: 'ri:building-line'
     },
     {
@@ -202,7 +216,8 @@
       label: '角色数',
       count: overview.roleCount,
       path: '/system/role',
-      bg: '#fff5e8',
+      bg: 'var(--el-color-warning-light-9)',
+      color: 'var(--el-color-warning)',
       icon: 'ri:key-2-line'
     },
     {
@@ -210,7 +225,8 @@
       label: '我的待办',
       count: overview.todoCount,
       path: '/system/flow-todo',
-      bg: '#ffe8ec',
+      bg: 'var(--el-color-danger-light-9)',
+      color: 'var(--el-color-danger)',
       icon: 'ri:file-list-3-line'
     }
   ])
@@ -218,9 +234,13 @@
   // ===== echarts =====
   const pieRef = ref<HTMLElement>()
   const barRef = ref<HTMLElement>()
+  const pieEmpty = ref(false)
   const barEmpty = ref(false)
   let pieChart: echarts.ECharts | null = null
   let barChart: echarts.ECharts | null = null
+  // 缓存最近一次图表数据：主题切换时按明暗重建 option（track/funnel 同款）
+  let pieData: any[] = []
+  let barData: any[] = []
   const COLORS = ['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399', '#9c6cff']
 
   const renderPie = (data: any[]) => {
@@ -229,14 +249,14 @@
     pieChart.setOption({
       color: COLORS,
       tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-      legend: { bottom: 0 },
+      legend: { bottom: 0, textStyle: { color: isDark.value ? '#fff' : '#333' } },
       series: [
         {
           type: 'pie',
           radius: ['45%', '70%'],
           center: ['50%', '45%'],
           data: data.map((d) => ({ name: d.name, value: Number(d.value) })),
-          label: { formatter: '{b}\n{c}' }
+          label: { formatter: '{b}\n{c}', color: isDark.value ? '#fff' : '#333' }
         }
       ]
     })
@@ -249,8 +269,16 @@
       color: COLORS,
       tooltip: { trigger: 'axis' },
       grid: { left: 40, right: 20, top: 20, bottom: 40 },
-      xAxis: { type: 'category', data: data.map((d) => d.name), axisLabel: { interval: 0 } },
-      yAxis: { type: 'value', minInterval: 1 },
+      xAxis: {
+        type: 'category',
+        data: data.map((d) => d.name),
+        axisLabel: { interval: 0, color: isDark.value ? '#fff' : '#333' }
+      },
+      yAxis: {
+        type: 'value',
+        minInterval: 1,
+        axisLabel: { color: isDark.value ? '#fff' : '#333' }
+      },
       series: [{ type: 'bar', barMaxWidth: 40, data: data.map((d) => Number(d.value)) }]
     })
   }
@@ -266,25 +294,40 @@
   const noticeList = ref<any[]>([])
   const noticeLoading = ref(false)
   const changelogList = ref<any[]>([])
+  const changelogLoading = ref(false)
+  const overviewLoading = ref(false)
 
   const typeColor = (type: string) =>
     type === 'fix' ? '#f56c6c' : type === 'optimize' ? '#e6a23c' : '#409eff'
 
   const loadOverview = async () => {
-    const d = (await fetchWorkbenchOverview()) || {}
-    Object.assign(overview, {
-      userCount: d.userCount ?? 0,
-      deptCount: d.deptCount ?? 0,
-      roleCount: d.roleCount ?? 0,
-      todoCount: d.todoCount ?? 0,
-      noticeUnread: d.noticeUnread ?? 0
-    })
-    const barData = d.charts?.tenantUser || []
-    barEmpty.value = barData.length === 0
-    await nextTick()
-    renderPie(d.charts?.userStatus || [])
-    if (!barEmpty.value) renderBar(barData)
+    overviewLoading.value = true
+    try {
+      const d = (await fetchWorkbenchOverview()) || {}
+      Object.assign(overview, {
+        userCount: d.userCount ?? 0,
+        deptCount: d.deptCount ?? 0,
+        roleCount: d.roleCount ?? 0,
+        todoCount: d.todoCount ?? 0,
+        noticeUnread: d.noticeUnread ?? 0
+      })
+      pieData = d.charts?.userStatus || []
+      barData = d.charts?.tenantUser || []
+      pieEmpty.value = pieData.length === 0
+      barEmpty.value = barData.length === 0
+      await nextTick()
+      if (!pieEmpty.value) renderPie(pieData)
+      if (!barEmpty.value) renderBar(barData)
+    } finally {
+      overviewLoading.value = false
+    }
   }
+
+  // 主题切换重绘：echarts 默认文字色在暗色下不可读，按明暗重建 option
+  watch(isDark, () => {
+    if (pieData.length) renderPie(pieData)
+    if (barData.length) renderBar(barData)
+  })
 
   const loadTodo = async () => {
     todoLoading.value = true
@@ -306,13 +349,18 @@
   }
 
   const loadChangelog = async () => {
-    const rows = (await fetchChangelogRecent(6)) || []
-    changelogList.value = rows.map((r: any) => ({
-      time: (r.publishTime || r.createTime || '').slice(0, 10),
-      content: r.title,
-      status: typeColor(r.type),
-      code: r.version
-    }))
+    changelogLoading.value = true
+    try {
+      const rows = (await fetchChangelogRecent(6)) || []
+      changelogList.value = rows.map((r: any) => ({
+        time: (r.publishTime || r.createTime || '').slice(0, 10),
+        content: r.title,
+        status: typeColor(r.type),
+        code: r.version
+      }))
+    } finally {
+      changelogLoading.value = false
+    }
   }
 
   // ===== 快捷入口 =====
@@ -413,7 +461,6 @@
         width: 48px;
         height: 48px;
         font-size: 22px;
-        color: var(--el-color-primary);
         border-radius: 12px;
       }
 

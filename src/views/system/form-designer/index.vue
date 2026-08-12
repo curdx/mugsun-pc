@@ -6,31 +6,34 @@
         <ElButton v-perm="'sys:form:save'" type="primary" @click="showCreate">新建表单</ElButton>
       </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="name" label="表单名称" min-width="150" />
-        <ElTableColumn prop="formKey" label="表单标识" min-width="150" />
-        <ElTableColumn label="状态" width="90">
-          <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'info'">
-              {{ row.status === 1 ? '启用' : '停用' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="280" fixed="right">
-          <template #default="{ row }">
-            <ElButton v-perm="'sys:form:save'" link type="primary" @click="openDesigner(row)"
-              >设计</ElButton
-            >
-            <ElButton link type="success" @click="openFill(row)">填报</ElButton>
-            <ElButton link type="warning" @click="openRecords(row)">记录</ElButton>
-            <ElButton v-perm="'sys:form:remove'" link type="danger" @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 表格自由增长（一页 50 条）：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
+      <div class="form-table-wrap">
+        <ElTable :data="tableData" border height="100%" v-loading="loading">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="name" label="表单名称" min-width="150" />
+          <ElTableColumn prop="formKey" label="表单标识" min-width="150" />
+          <ElTableColumn label="状态" width="90">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'info'">
+                {{ row.status === 1 ? '启用' : '停用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
+          <ElTableColumn label="操作" width="280" fixed="right">
+            <template #default="{ row }">
+              <ElButton v-perm="'sys:form:save'" link type="primary" @click="openDesigner(row)"
+                >设计</ElButton
+              >
+              <ElButton link type="success" @click="openFill(row)">填报</ElButton>
+              <ElButton link type="warning" @click="openRecords(row)">记录</ElButton>
+              <ElButton v-perm="'sys:form:remove'" link type="danger" @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <!-- 新建表单 -->
@@ -48,7 +51,7 @@
       </ElForm>
       <template #footer>
         <ElButton @click="createVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submitCreate">创建并设计</ElButton>
+        <ElButton type="primary" :loading="creating" @click="submitCreate">创建并设计</ElButton>
       </template>
     </ElDialog>
 
@@ -62,7 +65,7 @@
       <FcDesigner v-if="designerVisible" ref="designerRef" height="calc(100vh - 140px)" />
       <template #footer>
         <ElButton @click="designerVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="saveDesign">保存设计</ElButton>
+        <ElButton type="primary" :loading="designSaving" @click="saveDesign">保存设计</ElButton>
       </template>
     </ElDialog>
 
@@ -72,6 +75,7 @@
       :title="`填报 - ${current?.name || ''}`"
       width="640px"
       align-center
+      class="form-fill-dialog"
       :destroy-on-close="true"
     >
       <div v-if="fillEmpty" class="form-empty">该表单尚未设计，请先设计表单。</div>
@@ -173,17 +177,24 @@
     createVisible.value = true
   }
 
+  const creating = ref(false)
+
   const submitCreate = async (): Promise<void> => {
-    if (!createRef.value) return
+    if (!createRef.value || creating.value) return
     await createRef.value.validate(async (valid) => {
       if (!valid) return
-      await fetchSubmitForm({ ...createForm, status: 1 })
-      ElMessage.success('创建成功')
-      createVisible.value = false
-      await loadData()
-      // 直接进入设计
-      const row = tableData.value.find((f) => f.formKey === createForm.formKey)
-      if (row) openDesigner(row)
+      creating.value = true
+      try {
+        await fetchSubmitForm({ ...createForm, status: 1 })
+        ElMessage.success('创建成功')
+        createVisible.value = false
+        await loadData()
+        // 直接进入设计
+        const row = tableData.value.find((f) => f.formKey === createForm.formKey)
+        if (row) openDesigner(row)
+      } finally {
+        creating.value = false
+      }
     })
   }
 
@@ -203,22 +214,29 @@
     }
   }
 
+  const designSaving = ref(false)
+
   const saveDesign = async (): Promise<void> => {
-    if (!current.value || !designerRef.value) return
-    const rule = designerRef.value.getJson() // 规则 JSON 字符串
-    const option = JSON.stringify(designerRef.value.getOption())
-    await fetchSubmitForm({
-      id: current.value.id,
-      name: current.value.name,
-      formKey: current.value.formKey,
-      formSchema: rule,
-      formOption: option,
-      status: current.value.status ?? 1,
-      remark: current.value.remark
-    })
-    ElMessage.success('设计已保存')
-    designerVisible.value = false
-    loadData()
+    if (!current.value || !designerRef.value || designSaving.value) return
+    designSaving.value = true
+    try {
+      const rule = designerRef.value.getJson() // 规则 JSON 字符串
+      const option = JSON.stringify(designerRef.value.getOption())
+      await fetchSubmitForm({
+        id: current.value.id,
+        name: current.value.name,
+        formKey: current.value.formKey,
+        formSchema: rule,
+        formOption: option,
+        status: current.value.status ?? 1,
+        remark: current.value.remark
+      })
+      ElMessage.success('设计已保存')
+      designerVisible.value = false
+      loadData()
+    } finally {
+      designSaving.value = false
+    }
   }
 
   const openFill = async (row: any): Promise<void> => {
@@ -287,5 +305,25 @@
     font-size: 12px;
     word-break: break-all;
     white-space: pre-wrap;
+  }
+
+  /* 表格自由增长：卡片体改 flex 列布局 + 表格壳 flex:1 定高，
+     表格 height="100%" 内部滚动，防矮视口下行被 .el-card__body 裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-table-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+</style>
+
+<!-- 填报弹窗内容 teleport 到 body，表单字段数不定：非 scoped 类限定滚动（同 track-app-dialog 范式），防矮视口截断 -->
+<style>
+  .form-fill-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

@@ -30,6 +30,7 @@
         v-model:visible="dialogVisible"
         :type="dialogType"
         :post-data="currentData"
+        :saving="dialogSaving"
         @submit="handleDialogSubmit"
       />
     </ElCard>
@@ -72,6 +73,7 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentData = ref<Record<string, any>>({})
+  const dialogSaving = ref(false)
 
   const {
     columns,
@@ -160,9 +162,14 @@
   }
 
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
-    await fetchSavePost(form)
-    dialogVisible.value = false
-    ElMessage.success('保存成功')
-    refreshData()
+    dialogSaving.value = true
+    try {
+      await fetchSavePost(form)
+      dialogVisible.value = false
+      ElMessage.success('保存成功')
+      refreshData()
+    } finally {
+      dialogSaving.value = false
+    }
   }
 </script>

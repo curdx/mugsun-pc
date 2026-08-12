@@ -150,6 +150,9 @@
   }
 
   .msg-content {
+    // 消息内容可能很长：限高 + 内部滚动，防矮视口下弹窗整体挤出视口
+    max-height: 60vh;
+    overflow-y: auto;
     line-height: 1.7;
   }
 </style>

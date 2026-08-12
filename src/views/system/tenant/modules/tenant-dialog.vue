@@ -44,7 +44,7 @@
     <template #footer>
       <div class="dialog-footer">
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -57,6 +57,8 @@
     visible: boolean
     row?: Record<string, any> | null
     packages?: any[]
+    /** 父级保存进行中（防重复提交） */
+    saving?: boolean
   }
 
   interface Emits {
@@ -64,7 +66,7 @@
     (e: 'submit', form: Record<string, any>): void
   }
 
-  const props = withDefaults(defineProps<Props>(), { row: null, packages: () => [] })
+  const props = withDefaults(defineProps<Props>(), { row: null, packages: () => [], saving: false })
   const emit = defineEmits<Emits>()
 
   const dialogVisible = computed({

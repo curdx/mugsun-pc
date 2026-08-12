@@ -70,7 +70,9 @@
 
     <ElDialog v-model="viewVisible" title="缓存详情" width="560px">
       <ElDescriptions :column="1" border>
-        <ElDescriptionsItem label="键">{{ detail.key }}</ElDescriptionsItem>
+        <ElDescriptionsItem label="键"
+          ><span class="cache-key">{{ detail.key }}</span></ElDescriptionsItem
+        >
         <ElDescriptionsItem label="类型">{{ detail.type }}</ElDescriptionsItem>
         <ElDescriptionsItem label="TTL(秒)">{{ detail.ttl }}</ElDescriptionsItem>
         <ElDescriptionsItem label="值">
@@ -167,6 +169,10 @@
       .panel-title {
         font-weight: 500;
       }
+    }
+
+    .cache-key {
+      word-break: break-all;
     }
 
     .cache-value {

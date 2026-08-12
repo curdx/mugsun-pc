@@ -7,11 +7,14 @@
           >新增省级</ElButton
         >
         <ElButton @click="doExport">导出</ElButton>
-        <ElButton v-perm="'sys:region:import'" @click="triggerImport">导入</ElButton>
+        <ElButton v-perm="'sys:region:import'" :loading="importing" @click="triggerImport"
+          >导入</ElButton
+        >
         <input ref="fileInput" type="file" accept=".xlsx" style="display: none" @change="onFile" />
       </div>
 
       <ElTable
+        v-loading="loading"
         :key="tableKey"
         :data="tableData"
         row-key="code"
@@ -80,6 +83,8 @@
 
   const tableData = ref<any[]>([])
   const tableKey = ref(0)
+  const loading = ref(false)
+  const importing = ref(false)
   const dialogVisible = ref(false)
   const parentName = ref('顶级')
   const formRef = ref<FormInstance>()
@@ -98,8 +103,13 @@
   const mapNodes = (list: any[]): any[] => list.map((r) => ({ ...r, hasChildren: !r.leaf }))
 
   const loadRoot = async (): Promise<void> => {
-    tableData.value = mapNodes((await fetchRegionLazyTree('0')) || [])
-    tableKey.value++
+    loading.value = true
+    try {
+      tableData.value = mapNodes((await fetchRegionLazyTree('0')) || [])
+      tableKey.value++
+    } finally {
+      loading.value = false
+    }
   }
 
   const loadChildren = async (
@@ -156,16 +166,33 @@
   const triggerImport = (): void => fileInput.value?.click()
 
   const onFile = async (e: Event): Promise<void> => {
-    const file = (e.target as HTMLInputElement).files?.[0]
+    const input = e.target as HTMLInputElement
+    const file = input.files?.[0]
     if (!file) return
-    const count = await importRegion(file)
-    ElMessage.success(`导入完成 ${count} 条`)
-    ;(e.target as HTMLInputElement).value = ''
-    loadRoot()
+    importing.value = true
+    try {
+      const count = await importRegion(file)
+      ElMessage.success(`导入完成 ${count} 条`)
+      loadRoot()
+    } finally {
+      importing.value = false
+      // 无论成败都清空选择，导入失败后重选同一文件才能再次触发 change
+      input.value = ''
+    }
   }
 </script>
 
 <style scoped>
+  /* 懒加载树为自由增长内容：art-full-height 定高 + art-table-card 卡体 overflow:hidden 裁剪，
+     卡片取消 flex 拉伸随内容增高、页面自备纵向滚动（track/funnel 同款范式），矮视口下行不被切断 */
+  .region-page {
+    overflow-y: auto;
+  }
+
+  .region-page .art-table-card {
+    flex: none;
+  }
+
   .region-toolbar {
     display: flex;
     gap: 10px;

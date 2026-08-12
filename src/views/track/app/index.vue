@@ -737,6 +737,11 @@ const track = createTracker({
   }
 
   const discardDraft = async (draft: Record<string, any>): Promise<void> => {
+    await ElMessageBox.confirm(`确认丢弃草稿「${draft.eventName || '未命名'}」？`, '丢弃确认', {
+      type: 'warning',
+      confirmButtonText: '丢弃',
+      cancelButtonText: '取消'
+    })
     await fetchTrackVisualDiscard({ token: visualToken.value, draftId: draft.draftId })
     visualDrafts.value = visualDrafts.value.filter((d) => d.draftId !== draft.draftId)
     ElMessage.success('已丢弃')

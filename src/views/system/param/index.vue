@@ -70,8 +70,8 @@
     { type: 'index', width: 60, label: '序号' },
     { prop: 'paramName', label: '参数名称', minWidth: 160 },
     { prop: 'paramKey', label: '参数键', minWidth: 180 },
-    { prop: 'paramValue', label: '参数值', minWidth: 160 },
-    { prop: 'remark', label: '备注', minWidth: 160 },
+    { prop: 'paramValue', label: '参数值', minWidth: 160, showOverflowTooltip: true },
+    { prop: 'remark', label: '备注', minWidth: 160, showOverflowTooltip: true },
     {
       prop: 'operation',
       label: '操作',

@@ -43,44 +43,52 @@
         </ElButton>
       </div>
 
-      <ElTable :data="genList" border size="small" class="gen-list">
-        <ElTableColumn type="index" label="#" width="50" />
-        <ElTableColumn prop="tableName" label="表名" min-width="150" />
-        <ElTableColumn prop="entityName" label="实体" min-width="120" />
-        <ElTableColumn prop="moduleName" label="模块" min-width="90" />
-        <ElTableColumn prop="functionName" label="功能" min-width="140" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="280" fixed="right">
-          <template #default="{ row }">
-            <ElButton
-              v-perm="'sys:gen:edit'"
-              link
-              type="primary"
-              size="small"
-              @click="openConfig(row)"
-              >配置</ElButton
-            >
-            <ElButton
-              v-perm="'sys:gen:preview'"
-              link
-              type="primary"
-              size="small"
-              @click="openPreview(row)"
-              >预览</ElButton
-            >
-            <ElButton v-perm="'sys:gen:edit'" link type="warning" size="small" @click="doSync(row)"
-              >同步</ElButton
-            >
-            <ElButton
-              v-perm="'sys:gen:preview'"
-              link
-              type="success"
-              size="small"
-              @click="doDownload(row)"
-              >下载</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 列表自由增长：包一层 flex:1 定高壳，表格 height="100%" 内部滚动，防矮视口裁切 -->
+      <div class="gen-list-wrap">
+        <ElTable v-loading="listLoading" :data="genList" border size="small" height="100%">
+          <ElTableColumn type="index" label="#" width="50" />
+          <ElTableColumn prop="tableName" label="表名" min-width="150" />
+          <ElTableColumn prop="entityName" label="实体" min-width="120" />
+          <ElTableColumn prop="moduleName" label="模块" min-width="90" />
+          <ElTableColumn prop="functionName" label="功能" min-width="140" show-overflow-tooltip />
+          <ElTableColumn label="操作" width="280" fixed="right">
+            <template #default="{ row }">
+              <ElButton
+                v-perm="'sys:gen:edit'"
+                link
+                type="primary"
+                size="small"
+                @click="openConfig(row)"
+                >配置</ElButton
+              >
+              <ElButton
+                v-perm="'sys:gen:preview'"
+                link
+                type="primary"
+                size="small"
+                @click="openPreview(row)"
+                >预览</ElButton
+              >
+              <ElButton
+                v-perm="'sys:gen:edit'"
+                link
+                type="warning"
+                size="small"
+                @click="doSync(row)"
+                >同步</ElButton
+              >
+              <ElButton
+                v-perm="'sys:gen:preview'"
+                link
+                type="success"
+                size="small"
+                @click="doDownload(row)"
+                >下载</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <!-- 字段级配置 -->
@@ -189,6 +197,8 @@
   const tables = ref<any[]>([])
   const genList = ref<any[]>([])
   const importing = ref(false)
+  const listLoading = ref(false)
+  const configSaving = ref(false)
 
   const importForm = reactive({
     tableName: '',
@@ -231,7 +241,12 @@
   const tableLabel = (t: any): string => (t.comment ? `${t.name}（${t.comment}）` : t.name)
 
   const loadList = async (): Promise<void> => {
-    genList.value = (await fetchGenList()) || []
+    listLoading.value = true
+    try {
+      genList.value = (await fetchGenList()) || []
+    } finally {
+      listLoading.value = false
+    }
   }
 
   const onImport = async (): Promise<void> => {
@@ -253,9 +268,14 @@
   }
 
   const saveConfig = async (): Promise<void> => {
-    await fetchSaveGenMeta({ table: configTable.value, columns: configColumns.value })
-    ElMessage.success('配置已保存')
-    configVisible.value = false
+    configSaving.value = true
+    try {
+      await fetchSaveGenMeta({ table: configTable.value, columns: configColumns.value })
+      ElMessage.success('配置已保存')
+      configVisible.value = false
+    } finally {
+      configSaving.value = false
+    }
   }
 
   const doSync = async (row: any): Promise<void> => {
@@ -299,8 +319,16 @@
     color: var(--art-text-gray-600);
   }
 
-  .gen-list {
-    margin-bottom: 8px;
+  /* 列表自由增长：卡片体改 flex 列布局 + 列表壳 flex:1 定高，
+     表格 height="100%" 内部滚动，防矮视口下行被 .el-card__body 裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gen-list-wrap {
+    flex: 1;
+    min-height: 0;
   }
 
   .gen-code {

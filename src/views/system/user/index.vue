@@ -13,7 +13,7 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElButton v-perm="'sys:user:add'" @click="showDialog('add')" v-ripple>新增用户</ElButton>
-          <ElButton @click="handleExport" v-ripple>导出</ElButton>
+          <ElButton :loading="exporting" @click="handleExport" v-ripple>导出</ElButton>
           <ElButton v-perm="'sys:user:add'" @click="importVisible = true" v-ripple>导入</ElButton>
           <ElButton @click="handleResetColumns" v-ripple>恢复默认列</ElButton>
         </template>
@@ -35,6 +35,7 @@
         v-model:visible="dialogVisible"
         :type="dialogType"
         :user-data="currentUserData"
+        :saving="dialogSaving"
         @submit="handleDialogSubmit"
       />
 
@@ -123,6 +124,7 @@
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
   const currentUserData = ref<Record<string, any>>({})
+  const dialogSaving = ref(false)
   const importVisible = ref(false)
   const userRoleVisible = ref(false)
   const currentRoleUser = ref<Record<string, any>>({})
@@ -144,11 +146,17 @@
   }
 
   // 导出用户：按当前生效的查询条件导出（剔除分页参数；空值由后端忽略）
+  const exporting = ref(false)
   const handleExport = async (): Promise<void> => {
-    const conditions = { ...(searchParams as Record<string, any>) }
-    delete conditions.pageNum
-    delete conditions.pageSize
-    await exportUser(conditions)
+    exporting.value = true
+    try {
+      const conditions = { ...(searchParams as Record<string, any>) }
+      delete conditions.pageNum
+      delete conditions.pageSize
+      await exportUser(conditions)
+    } finally {
+      exporting.value = false
+    }
   }
 
   // 表格列工厂（与列持久化共用同一份出厂默认）
@@ -299,9 +307,14 @@
   }
 
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
-    await saveUser(form)
-    dialogVisible.value = false
-    ElMessage.success('保存成功')
-    refreshData()
+    dialogSaving.value = true
+    try {
+      await saveUser(form)
+      dialogVisible.value = false
+      ElMessage.success('保存成功')
+      refreshData()
+    } finally {
+      dialogSaving.value = false
+    }
   }
 </script>

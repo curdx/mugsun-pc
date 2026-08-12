@@ -20,7 +20,7 @@
     <template #footer>
       <div class="dialog-footer">
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -33,6 +33,8 @@
     visible: boolean
     type: string
     postData?: Record<string, any>
+    /** 父级保存进行中（防重复提交） */
+    saving?: boolean
   }
 
   interface Emits {

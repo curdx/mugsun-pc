@@ -13,46 +13,50 @@
         />
       </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
-        <ElTableColumn prop="dsUrl" label="数据源 URL" min-width="280" show-overflow-tooltip />
-        <ElTableColumn prop="dsUsername" label="用户名" width="120" />
-        <ElTableColumn label="隔离策略" width="160">
-          <template #default="{ row }">
-            <!-- schema 策略展示「Schema + schema 名」，列宽按内容预留，避免溢出被裁 -->
-            <ElTag :type="row.isolationType === 2 ? 'warning' : 'primary'">
-              {{ row.isolationType === 2 ? `Schema ${row.schemaName || ''}` : '独立库' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="状态" width="90">
-          <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'info'">
-              {{ row.status === 1 ? '启用' : '停用' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="150" fixed="right">
-          <template #default="{ row }">
-            <ElButton
-              v-perm="'sys:tenant-datasource:save'"
-              link
-              type="primary"
-              @click="showEdit(row)"
-              >编辑</ElButton
-            >
-            <ElButton
-              v-perm="'sys:tenant-datasource:remove'"
-              link
-              type="danger"
-              @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 表格为自由增长内容：art-table-card 卡片体是 height:100%+overflow:hidden 裁剪，
+           内部须自备滚动，否则矮视口下底部行被切断且不可达（同 track/user 修法） -->
+      <div v-loading="loading" class="tds-table-wrap">
+        <ElTable :data="tableData" border>
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
+          <ElTableColumn prop="dsUrl" label="数据源 URL" min-width="280" show-overflow-tooltip />
+          <ElTableColumn prop="dsUsername" label="用户名" width="120" />
+          <ElTableColumn label="隔离策略" width="160">
+            <template #default="{ row }">
+              <!-- schema 策略展示「Schema + schema 名」，列宽按内容预留，避免溢出被裁 -->
+              <ElTag :type="row.isolationType === 2 ? 'warning' : 'primary'">
+                {{ row.isolationType === 2 ? `Schema ${row.schemaName || ''}` : '独立库' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="状态" width="90">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'info'">
+                {{ row.status === 1 ? '启用' : '停用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
+          <ElTableColumn label="操作" width="150" fixed="right">
+            <template #default="{ row }">
+              <ElButton
+                v-perm="'sys:tenant-datasource:save'"
+                link
+                type="primary"
+                @click="showEdit(row)"
+                >编辑</ElButton
+              >
+              <ElButton
+                v-perm="'sys:tenant-datasource:remove'"
+                link
+                type="danger"
+                @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <ElDialog
@@ -60,6 +64,7 @@
       :title="form.id ? '编辑数据源' : '新增数据源'"
       width="560px"
       align-center
+      class="tds-dialog"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
         <ElFormItem label="租户编号" prop="tenantCode">
@@ -97,7 +102,7 @@
       </ElForm>
       <template #footer>
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">保存</ElButton>
+        <ElButton type="primary" :loading="dialogSaving" @click="submit">保存</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -118,6 +123,7 @@
   const tableData = ref<any[]>([])
   const loading = ref(false)
   const dialogVisible = ref(false)
+  const dialogSaving = ref(false)
   const formRef = ref<FormInstance>()
 
   const form = reactive<Record<string, any>>({
@@ -184,10 +190,15 @@
     if (!formRef.value) return
     await formRef.value.validate(async (valid) => {
       if (!valid) return
-      await fetchSubmitTenantDatasource({ ...form })
-      ElMessage.success('保存成功')
-      dialogVisible.value = false
-      loadData()
+      dialogSaving.value = true
+      try {
+        await fetchSubmitTenantDatasource({ ...form })
+        ElMessage.success('保存成功')
+        dialogVisible.value = false
+        loadData()
+      } finally {
+        dialogSaving.value = false
+      }
     })
   }
 
@@ -205,10 +216,31 @@
 </script>
 
 <style scoped>
+  /* 卡片体改为纵向 flex，表格滚动区占满剩余高度（滚动区见模板注释） */
+  .tds-page :deep(.art-table-card > .el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
   .tds-toolbar {
     display: flex;
+    flex-shrink: 0;
     gap: 16px;
     align-items: center;
     margin-bottom: 12px;
+  }
+
+  .tds-table-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+</style>
+
+<!-- 弹窗内容 teleport 到 body：选 schema 策略后表单项增多超高时需非 scoped 类限定内部滚动（同 notice-dialog 范式），防矮视口下保存按钮挤出视口 -->
+<style>
+  .tds-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

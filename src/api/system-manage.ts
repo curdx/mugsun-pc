@@ -512,11 +512,6 @@ export function fetchFlowCopy(taskId: number | string, userIds: (number | string
 export function fetchFlowBackNodes(instanceId: number | string) {
   return request.get<any[]>({ url: '/api/system/flow/back-nodes', params: { instanceId } })
 }
-export function fetchFlowUserSelect() {
-  return request.get<Array<{ label: string; value: number | string }>>({
-    url: '/api/system/user/select'
-  })
-}
 export function fetchFlowHistory(instanceId: number | string) {
   return request.get<any[]>({ url: '/api/system/flow/history', params: { instanceId } })
 }

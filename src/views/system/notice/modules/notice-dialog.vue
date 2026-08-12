@@ -5,6 +5,7 @@
     :title="type === 'add' ? '新增公告' : '编辑公告'"
     width="820px"
     align-center
+    class="notice-dialog"
     @open="onOpen"
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="90px">
@@ -35,6 +36,7 @@
           v-model="selectedKeys"
           :data="transferData"
           filterable
+          :filter-method="onTransferFilter"
           :titles="['可选（员工/部门）', '已选范围']"
           :props="{ key: 'key', label: 'label' }"
           class="notice-transfer"
@@ -59,7 +61,7 @@
   import ArtWangEditor from '@/components/core/forms/art-wang-editor/index.vue'
   import { fetchNoticeDetail } from '@/api/system-manage'
   import { fetchDeptSelect } from '@/api/system-manage'
-  import { fetchUserSelect } from '@/api/message'
+  import { useUserSelectSearch } from '@/hooks'
 
   interface Props {
     visible: boolean
@@ -98,9 +100,31 @@
   })
   const formData = reactive<Record<string, any>>(defaultForm())
 
-  // 穿梭框：员工(u:)与部门(d:)合并为一个数据源，key 前缀区分类型
-  const transferData = ref<Array<{ key: string; label: string }>>([])
+  // 穿梭框：员工(u:)与部门(d:)合并为一个数据源，key 前缀区分类型。
+  // 员工成千账号场景不下全量：远程搜索（默认 50 条 + 关键字防抖），部门量小全量本地过滤
+  const { userOptions, searchUsers, syncSelected, ensureUsers } = useUserSelectSearch()
+  const deptOptions = ref<Array<{ label: string; value: number | string }>>([])
   const selectedKeys = ref<string[]>([])
+
+  const transferData = computed(() => [
+    ...deptOptions.value.map((d) => ({ key: `d:${d.value}`, label: `【部门】${d.label}` })),
+    ...userOptions.value.map((u) => ({ key: `u:${u.value}`, label: `【员工】${u.label}` }))
+  ])
+
+  /** 穿梭框过滤：部门本地过滤；关键字变化时防抖触发员工远程搜索（远程结果本身即匹配，直接放行） */
+  let lastFilterQuery = ''
+  const onTransferFilter = (query: string, item: Record<string, any>): boolean => {
+    if (query !== lastFilterQuery) {
+      lastFilterQuery = query
+      searchUsers(query)
+    }
+    return String(item.label ?? '').includes(query)
+  }
+
+  // 已选员工同步进选项缓存，防远程结果刷新后已选标签退化为原始 id
+  watch(selectedKeys, (keys) => {
+    syncSelected(keys.filter((k) => k.startsWith('u:')).map((k) => Number(k.slice(2))))
+  })
 
   const rules: FormRules = {
     title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
@@ -108,12 +132,8 @@
   }
 
   const loadTransferSource = async () => {
-    if (transferData.value.length) return
-    const [users, depts] = await Promise.all([fetchUserSelect(), fetchDeptSelect()])
-    transferData.value = [
-      ...(depts || []).map((d: any) => ({ key: `d:${d.value}`, label: `【部门】${d.label}` })),
-      ...(users || []).map((u: any) => ({ key: `u:${u.value}`, label: `【员工】${u.label}` }))
-    ]
+    if (deptOptions.value.length) return
+    deptOptions.value = (await fetchDeptSelect()) || []
   }
 
   const onOpen = async () => {
@@ -121,13 +141,17 @@
     selectedKeys.value = []
     formRef.value?.clearValidate()
     await loadTransferSource()
-    // 编辑态：拉详情回显可见范围明细
+    // 编辑态：拉详情回显可见范围明细（员工选项按 id 精确补拉，保证已选标签完整）
     if (props.type === 'edit' && formData.id != null) {
       const detail = await fetchNoticeDetail(formData.id)
       formData.allVisible = detail?.allVisible ?? 1
       selectedKeys.value = (detail?.scopeList || []).map(
         (s: any) => `${s.scopeType === 2 ? 'd' : 'u'}:${s.scopeId}`
       )
+      const userIds = (detail?.scopeList || [])
+        .filter((s: any) => s.scopeType !== 2)
+        .map((s: any) => Number(s.scopeId))
+      if (userIds.length) await ensureUsers(userIds)
     }
   }
 
@@ -158,5 +182,13 @@
     :deep(.el-transfer-panel) {
       width: 300px;
     }
+  }
+</style>
+
+<!-- 弹窗内容 teleport 到 body，穿梭框+富文本叠加超高时需非 scoped 类限定滚动（同 track-app-dialog 范式），防矮视口下提交按钮挤出视口 -->
+<style>
+  .notice-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

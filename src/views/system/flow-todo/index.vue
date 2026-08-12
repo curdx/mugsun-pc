@@ -85,8 +85,12 @@
               v-model="opForm.handlers"
               multiple
               filterable
-              placeholder="选择目标人员"
+              remote
+              :remote-method="searchUsers"
+              :loading="userSearching"
+              placeholder="输入用户名/昵称搜索"
               style="width: 100%"
+              @change="syncSelected"
             >
               <ElOption v-for="u in users" :key="u.value" :label="u.label" :value="u.value" />
             </ElSelect>
@@ -101,7 +105,13 @@
         </template>
       </ElDialog>
 
-      <ElDialog v-model="historyVisible" title="流转进度" width="520px" align-center>
+      <ElDialog
+        v-model="historyVisible"
+        title="流转进度"
+        width="520px"
+        align-center
+        class="flow-history-dialog"
+      >
         <ElTimeline>
           <ElTimelineItem
             v-for="(h, i) in history"
@@ -141,9 +151,9 @@
     fetchFlowOperation,
     fetchFlowCopy,
     fetchFlowBackNodes,
-    fetchFlowUserSelect,
     fetchFlowHistory
   } from '@/api/system-manage'
+  import { useUserSelectSearch } from '@/hooks'
 
   defineOptions({ name: 'FlowTodo' })
 
@@ -153,7 +163,8 @@
   const todo = ref<any[]>([])
   const copyList = ref<any[]>([])
   const loading = ref(false)
-  const users = ref<Array<{ label: string; value: any }>>([])
+  // 目标人员远程搜索：成千账号场景不下全量（默认 50 条 + 关键字防抖查询）
+  const { userOptions: users, userSearching, searchUsers, syncSelected } = useUserSelectSearch()
 
   const historyVisible = ref(false)
   const history = ref<any[]>([])
@@ -250,6 +261,8 @@
     opForm.message = ''
     opForm.handlers = []
     opForm.nodeCode = ''
+    // 无预填值：清空已选缓存，防上次对话框的选择残留进选项（有预填时改为 ensureUsers + syncSelected）
+    syncSelected([])
     if (ACTIONS[action]?.kind === 'node') {
       nodes.value = (await fetchFlowBackNodes(row.instanceId)) || []
     }
@@ -285,9 +298,8 @@
     return 'primary'
   }
 
-  onMounted(async () => {
+  onMounted(() => {
     dictStore.ensure([DICT_CODE.FLOW_STATUS])
-    users.value = (await fetchFlowUserSelect()) || []
     loadTodo()
   })
 </script>
@@ -311,5 +323,33 @@
     margin-top: 2px;
     font-size: 12px;
     color: var(--art-text-gray-600);
+  }
+
+  /* 页签内表格自由增长：卡片体与 tabs 改 flex 列布局，el-tabs__content 内部滚动，
+     防矮视口下表格行被 .el-card__body（height:100% + overflow:hidden）裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .art-table-card :deep(.el-tabs) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .art-table-card :deep(.el-tabs__content) {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+</style>
+
+<!-- 进度弹窗内容 teleport 到 body，时间线条目数不定：非 scoped 类限定滚动（同 track-app-dialog 范式），防矮视口截断 -->
+<style>
+  .flow-history-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

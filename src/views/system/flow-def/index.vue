@@ -6,33 +6,43 @@
         <ElButton v-perm="'sys:flow:design'" type="primary" @click="openDesigner"
           >设计流程</ElButton
         >
+        <ElButton :loading="loading" @click="loadData">刷新</ElButton>
       </div>
 
-      <ElTable :data="tableData" border>
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="flowCode" label="流程编码" min-width="140" />
-        <ElTableColumn prop="flowName" label="流程名称" min-width="160" />
-        <ElTableColumn prop="version" label="版本" width="90" />
-        <ElTableColumn label="状态" width="110">
-          <template #default="{ row }">
-            <ElTag :type="row.isPublish === 1 ? 'success' : 'info'">
-              {{ row.isPublish === 1 ? '已发布' : '未发布' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn prop="createTime" label="创建时间" min-width="180">
-          <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
-        </ElTableColumn>
-        <ElTableColumn label="操作" width="100" fixed="right">
-          <template #default="{ row }">
-            <ElButton link type="primary" @click="start(row)">发起</ElButton>
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
+      <div class="flow-table-wrap">
+        <ElTable v-loading="loading" :data="tableData" border height="100%">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="flowCode" label="流程编码" min-width="140" />
+          <ElTableColumn prop="flowName" label="流程名称" min-width="160" />
+          <ElTableColumn prop="version" label="版本" width="90" />
+          <ElTableColumn label="状态" width="110">
+            <template #default="{ row }">
+              <ElTag :type="row.isPublish === 1 ? 'success' : 'info'">
+                {{ row.isPublish === 1 ? '已发布' : '未发布' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn prop="createTime" label="创建时间" min-width="180">
+            <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="100" fixed="right">
+            <template #default="{ row }">
+              <ElButton link type="primary" @click="start(row)">发起</ElButton>
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <!-- 图形流程设计器 -->
-    <ElDialog v-model="designerVisible" title="流程设计器" width="880px" align-center>
+    <ElDialog
+      v-model="designerVisible"
+      title="流程设计器"
+      width="880px"
+      align-center
+      class="flow-designer-dialog"
+    >
       <ElForm :model="design" label-width="90px">
         <ElFormItem label="流程编码" required>
           <ElInput
@@ -99,7 +109,10 @@
                 v-model="c.value"
                 size="small"
                 filterable
-                placeholder="用户"
+                remote
+                :remote-method="searchUsers"
+                :loading="userSearching"
+                placeholder="输入用户名/昵称搜索"
                 class="cand-val"
               >
                 <ElOption v-for="u in users" :key="u.value" :label="u.label" :value="u.value" />
@@ -135,7 +148,11 @@
 
       <template #footer>
         <ElButton @click="designerVisible = false">取消</ElButton>
-        <ElButton v-perm="'sys:flow:design'" type="primary" @click="submitDesign"
+        <ElButton
+          v-perm="'sys:flow:design'"
+          type="primary"
+          :loading="deploying"
+          @click="submitDesign"
           >部署流程</ElButton
         >
       </template>
@@ -205,9 +222,9 @@
     fetchFlowStartBy,
     fetchFlowStartForm,
     fetchFlowDesign,
-    fetchDeptSelect,
-    fetchFlowUserSelect
+    fetchDeptSelect
   } from '@/api/system-manage'
+  import { useUserSelectSearch } from '@/hooks'
   import { fetchRoleCodeSelect } from '@/api/role'
   import { fetchFormPage, fetchFormByKey } from '@/api/form'
   import { ElMessage } from 'element-plus'
@@ -226,18 +243,36 @@
   }
 
   const tableData = ref<any[]>([])
+  const loading = ref(false)
   const roles = ref<any[]>([])
   const depts = ref<any[]>([])
-  const users = ref<any[]>([])
+  // 「指定用户」候选人远程搜索：成千账号场景不下全量（默认 50 条 + 关键字防抖查询）
+  const {
+    userOptions: users,
+    userSearching,
+    searchUsers,
+    syncSelected,
+    ensureUsers
+  } = useUserSelectSearch()
   const forms = ref<Array<{ label: string; value: string }>>([])
 
   const designerVisible = ref(false)
+  const deploying = ref(false)
   const design = reactive<{
     flowCode: string
     flowName: string
     formKey: string
     nodes: DesignNode[]
   }>({ flowCode: '', flowName: '', formKey: '', nodes: [] })
+
+  // 各节点的 user 候选人（单选字符串）共享一个选项缓存：把全部 user 候选人 id 作为已选集合同步，
+  // 防某节点远程搜索刷新选项后，其他节点已选标签退化为裸 id
+  const userCandidateIds = computed(() =>
+    design.nodes.flatMap((n) =>
+      n.candidates.filter((c) => c.type === 'user' && c.value !== '').map((c) => c.value)
+    )
+  )
+  watch(userCandidateIds, (ids) => syncSelected(ids))
 
   // 字段权限
   const permsVisible = ref(false)
@@ -261,7 +296,6 @@
     await loadData()
     roles.value = (await fetchRoleCodeSelect()) || []
     depts.value = (await fetchDeptSelect()) || []
-    users.value = (await fetchFlowUserSelect()) || []
     const page = await fetchFormPage({ current: 1, size: 200 })
     forms.value = (page?.records || []).map((f: any) => ({ label: f.name, value: f.formKey }))
   })
@@ -323,6 +357,8 @@
 
   const openDesigner = (): void => {
     Object.assign(design, { flowCode: '', flowName: '', formKey: '', nodes: [newNode('部门审批')] })
+    // 编辑回显兜底：打开时按 id 精确补拉 user 候选人选项（新建时为空集合，直接跳过）
+    void ensureUsers(userCandidateIds.value)
     designerVisible.value = true
   }
 
@@ -402,15 +438,20 @@
       ElMessage.warning('每个节点需选择候选人')
       return
     }
-    await fetchFlowDesign({
-      flowCode: design.flowCode,
-      flowName: design.flowName,
-      formKey: design.formKey || null,
-      nodes
-    })
-    ElMessage.success('流程已部署')
-    designerVisible.value = false
-    loadData()
+    deploying.value = true
+    try {
+      await fetchFlowDesign({
+        flowCode: design.flowCode,
+        flowName: design.flowName,
+        formKey: design.formKey || null,
+        nodes
+      })
+      ElMessage.success('流程已部署')
+      designerVisible.value = false
+      loadData()
+    } finally {
+      deploying.value = false
+    }
   }
 </script>
 
@@ -482,5 +523,25 @@
   .flow-arrow {
     font-size: 20px;
     color: var(--el-text-color-secondary);
+  }
+
+  /* 表格自由增长：卡片体改 flex 列布局 + 表格壳 flex:1 定高，
+     表格 height="100%" 内部滚动，防矮视口下行被 .el-card__body 裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .flow-table-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+</style>
+
+<!-- 设计器弹窗内容 teleport 到 body，节点数不定：非 scoped 类限定滚动（同 track-app-dialog 范式），防矮视口截断 -->
+<style>
+  .flow-designer-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

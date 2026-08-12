@@ -1,7 +1,7 @@
 <!-- 用户角色授权弹窗（对接 /system/user/grant，回显 /role-ids） -->
 <template>
   <ElDialog v-model="dialogVisible" title="用户授权" width="440px" align-center>
-    <ElCheckboxGroup v-model="checkedRoles">
+    <ElCheckboxGroup v-model="checkedRoles" class="role-list">
       <div v-for="opt in roleOptions" :key="opt.value" class="role-item">
         <ElCheckbox :value="opt.value">{{ opt.label }}</ElCheckbox>
       </div>
@@ -9,7 +9,7 @@
     <template #footer>
       <div class="dialog-footer">
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">保存</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="handleSubmit">保存</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -40,6 +40,7 @@
 
   const roleOptions = ref<Array<{ label: string; value: string }>>([])
   const checkedRoles = ref<Array<string | number>>([])
+  const submitting = ref(false)
 
   watch(
     () => props.visible,
@@ -53,14 +54,25 @@
 
   const handleSubmit = async (): Promise<void> => {
     if (!props.userData?.id) return
-    await grantUser(props.userData.id, checkedRoles.value)
-    ElMessage.success('授权成功')
-    dialogVisible.value = false
-    emit('success')
+    submitting.value = true
+    try {
+      await grantUser(props.userData.id, checkedRoles.value)
+      ElMessage.success('授权成功')
+      dialogVisible.value = false
+      emit('success')
+    } finally {
+      submitting.value = false
+    }
   }
 </script>
 
 <style scoped>
+  /* 角色多时列表限高内滚，防弹窗超高顶出视口 */
+  .role-list {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
   .role-item {
     margin-bottom: 8px;
   }

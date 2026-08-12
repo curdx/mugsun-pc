@@ -53,6 +53,14 @@
                   alt="验证码"
                   @click="loadCaptcha"
                 />
+                <div
+                  v-else
+                  class="captcha-img captcha-reload"
+                  title="点击重新加载"
+                  @click="loadCaptcha"
+                >
+                  加载失败
+                </div>
               </div>
             </ElFormItem>
 
@@ -278,15 +286,6 @@
 
 <style scoped>
   @import '../login/style.css';
-
-  .captcha-img {
-    flex-shrink: 0;
-    width: 125px;
-    height: 43px;
-    cursor: pointer;
-    border: 1px solid var(--art-border-color);
-    border-radius: 6px;
-  }
 
   .mail-code-btn {
     flex-shrink: 0;

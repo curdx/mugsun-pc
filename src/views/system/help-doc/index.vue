@@ -12,6 +12,7 @@
             >
           </div>
           <ElTable
+            v-loading="catalogLoading"
             :data="catalogTree"
             row-key="id"
             default-expand-all
@@ -126,7 +127,7 @@
       </ElForm>
       <template #footer>
         <ElButton @click="catalogDialog = false">取消</ElButton>
-        <ElButton type="primary" @click="submitCatalog">确定</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submitCatalog">确定</ElButton>
       </template>
     </ElDialog>
 
@@ -136,6 +137,7 @@
       :title="docForm.id ? '编辑文档' : '新增文档'"
       width="780px"
       top="6vh"
+      class="help-doc-dialog"
     >
       <ElForm :model="docForm" label-width="70px">
         <ElFormItem label="标题" required>
@@ -150,19 +152,19 @@
       </ElForm>
       <template #footer>
         <ElButton @click="docDialog = false">取消</ElButton>
-        <ElButton type="primary" @click="submitDoc">确定</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submitDoc">确定</ElButton>
       </template>
     </ElDialog>
 
     <!-- 绑定弹窗 -->
-    <ElDialog v-model="bindingDialog" title="绑定页面" width="560px">
+    <ElDialog v-model="bindingDialog" title="绑定页面" width="560px" class="help-doc-dialog">
       <div class="binding-add">
         <ElInput
           v-model="newRoutePath"
           placeholder="页面路由，如 /system/user"
           style="width: 74%"
         />
-        <ElButton type="primary" @click="addBinding">添加绑定</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="addBinding">添加绑定</ElButton>
       </div>
       <ElTable :data="bindingList" border style="margin-top: 12px">
         <ElTableColumn prop="routePath" label="页面路由" />
@@ -196,10 +198,18 @@
 
   // ---------------- 目录 ----------------
   const catalogTree = ref<any[]>([])
+  const catalogLoading = ref(false)
   const selectedCatalog = ref<any>(null)
+  /** 三弹窗互斥，共用一个提交态防重复提交 */
+  const submitting = ref(false)
 
   const loadCatalogTree = async () => {
-    catalogTree.value = (await fetchHelpCatalogTree()) || []
+    catalogLoading.value = true
+    try {
+      catalogTree.value = (await fetchHelpCatalogTree()) || []
+    } finally {
+      catalogLoading.value = false
+    }
   }
 
   const onCatalogSelect = (row: any) => {
@@ -227,10 +237,15 @@
 
   const submitCatalog = async () => {
     if (!catalogForm.name?.trim()) return ElMessage.warning('请输入目录名称')
-    await fetchSaveHelpCatalog({ ...catalogForm })
-    ElMessage.success('保存成功')
-    catalogDialog.value = false
-    loadCatalogTree()
+    submitting.value = true
+    try {
+      await fetchSaveHelpCatalog({ ...catalogForm })
+      ElMessage.success('保存成功')
+      catalogDialog.value = false
+      loadCatalogTree()
+    } finally {
+      submitting.value = false
+    }
   }
 
   const removeCatalog = (row: any) => {
@@ -300,10 +315,15 @@
 
   const submitDoc = async () => {
     if (!docForm.title?.trim()) return ElMessage.warning('请输入文档标题')
-    await fetchSaveHelpDoc({ ...docForm })
-    ElMessage.success('保存成功')
-    docDialog.value = false
-    loadDocs()
+    submitting.value = true
+    try {
+      await fetchSaveHelpDoc({ ...docForm })
+      ElMessage.success('保存成功')
+      docDialog.value = false
+      loadDocs()
+    } finally {
+      submitting.value = false
+    }
   }
 
   const removeDoc = (row: any) => {
@@ -336,16 +356,25 @@
   const addBinding = async () => {
     const path = newRoutePath.value.trim()
     if (!path) return ElMessage.warning('请输入页面路由')
-    await fetchSaveHelpBinding({ docId: bindingDocId.value, routePath: path, sort: 0 })
-    ElMessage.success('绑定成功')
-    newRoutePath.value = ''
-    loadBindings()
+    submitting.value = true
+    try {
+      await fetchSaveHelpBinding({ docId: bindingDocId.value, routePath: path, sort: 0 })
+      ElMessage.success('绑定成功')
+      newRoutePath.value = ''
+      loadBindings()
+    } finally {
+      submitting.value = false
+    }
   }
 
-  const removeBinding = async (row: any) => {
-    await fetchRemoveHelpBinding(row.id)
-    ElMessage.success('已解除绑定')
-    loadBindings()
+  const removeBinding = (row: any) => {
+    ElMessageBox.confirm(`确定解除页面「${row.routePath}」的绑定吗？`, '解除绑定', {
+      type: 'warning'
+    }).then(async () => {
+      await fetchRemoveHelpBinding(row.id)
+      ElMessage.success('已解除绑定')
+      loadBindings()
+    })
   }
 
   onMounted(loadCatalogTree)
@@ -368,5 +397,13 @@
       display: flex;
       gap: 10px;
     }
+  }
+</style>
+
+<!-- 弹窗内容 teleport 到 body，富文本/绑定列表叠加超高时需非 scoped 类限定滚动（同 notice-dialog 范式），防矮视口下操作按钮挤出视口 -->
+<style>
+  .help-doc-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

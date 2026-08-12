@@ -50,8 +50,12 @@
               v-model="c.value"
               size="small"
               filterable
+              remote
+              :remote-method="reg.searchUsers"
+              :loading="reg.userSearching"
               class="g-cand-val"
-              placeholder="用户"
+              placeholder="输入用户名/昵称搜索"
+              @change="reg.syncSelected"
             >
               <ElOption v-for="u in reg.users" :key="u.value" :label="u.label" :value="u.value" />
             </ElSelect>
@@ -146,10 +150,21 @@
 
   const props = defineProps<{ nodes: GNode[] }>()
 
-  const reg = inject<{ roles: any[]; depts: any[]; users: any[] }>('flowReg', {
+  // flowReg 由 flow-graph 页 provide：角色/部门全量选项 + 用户远程搜索方法（syncSelected 忽略入参，内部全量同步整树已选）
+  const reg = inject<{
+    roles: any[]
+    depts: any[]
+    users: any[]
+    userSearching: boolean
+    searchUsers: (keyword: string) => void
+    syncSelected: () => void
+  }>('flowReg', {
     roles: [],
     depts: [],
-    users: []
+    users: [],
+    userSearching: false,
+    searchUsers: () => undefined,
+    syncSelected: () => undefined
   })
 
   const OPS = [

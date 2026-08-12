@@ -2,68 +2,71 @@
 <template>
   <div class="oauth-debug-page art-full-height">
     <ElCard class="art-table-card">
-      <ElAlert
-        type="info"
-        :closable="false"
-        title="填入客户端凭证换取访问令牌，再用令牌调用开放接口。scope 不足时接口返回 403，调用日志可查。"
-        style="margin-bottom: 16px"
-      />
+      <!-- 卡片体为定高裁剪（全局 overflow:hidden），长响应内容须自备内部滚动，防矮视口裁切 -->
+      <div class="oauth-debug-scroll">
+        <ElAlert
+          type="info"
+          :closable="false"
+          title="填入客户端凭证换取访问令牌，再用令牌调用开放接口。scope 不足时接口返回 403，调用日志可查。"
+          style="margin-bottom: 16px"
+        />
 
-      <ElForm :model="form" label-width="110px" style="max-width: 640px">
-        <ElDivider content-position="left">1. 换取令牌</ElDivider>
-        <ElFormItem label="授权类型">
-          <ElRadioGroup v-model="form.grantType">
-            <ElRadio value="client_credentials">客户端凭证</ElRadio>
-            <ElRadio value="authorization_code">授权码</ElRadio>
-          </ElRadioGroup>
-        </ElFormItem>
-        <ElFormItem label="ClientId">
-          <ElInput v-model="form.clientId" placeholder="mc_xxxx" />
-        </ElFormItem>
-        <ElFormItem label="ClientSecret">
-          <ElInput v-model="form.clientSecret" placeholder="客户端密钥" />
-        </ElFormItem>
-        <ElFormItem label="scope">
-          <ElInput v-model="form.scope" placeholder="如 user:read（留空为全部授权范围）" />
-        </ElFormItem>
-        <ElFormItem v-if="form.grantType === 'authorization_code'" label="授权码">
-          <ElInput v-model="form.code" placeholder="点击右侧按钮跳转同意页授权后自动回填">
-            <template #append>
-              <ElButton @click="doAuthorize" :loading="authorizing">浏览器授权</ElButton>
-            </template>
-          </ElInput>
-        </ElFormItem>
-        <ElFormItem>
-          <ElButton type="primary" @click="doToken" :loading="tokenLoading">获取令牌</ElButton>
-          <span v-if="token" class="oauth-token-tip">令牌已获取，可调用下方接口</span>
-        </ElFormItem>
-        <ElFormItem v-if="tokenResult" label="令牌响应">
-          <pre class="oauth-out">{{ tokenResult }}</pre>
-        </ElFormItem>
+        <ElForm :model="form" label-width="110px" style="max-width: 640px">
+          <ElDivider content-position="left">1. 换取令牌</ElDivider>
+          <ElFormItem label="授权类型">
+            <ElRadioGroup v-model="form.grantType">
+              <ElRadio value="client_credentials">客户端凭证</ElRadio>
+              <ElRadio value="authorization_code">授权码</ElRadio>
+            </ElRadioGroup>
+          </ElFormItem>
+          <ElFormItem label="ClientId">
+            <ElInput v-model="form.clientId" placeholder="mc_xxxx" />
+          </ElFormItem>
+          <ElFormItem label="ClientSecret">
+            <ElInput v-model="form.clientSecret" placeholder="客户端密钥" />
+          </ElFormItem>
+          <ElFormItem label="scope">
+            <ElInput v-model="form.scope" placeholder="如 user:read（留空为全部授权范围）" />
+          </ElFormItem>
+          <ElFormItem v-if="form.grantType === 'authorization_code'" label="授权码">
+            <ElInput v-model="form.code" placeholder="点击右侧按钮跳转同意页授权后自动回填">
+              <template #append>
+                <ElButton @click="doAuthorize" :loading="authorizing">浏览器授权</ElButton>
+              </template>
+            </ElInput>
+          </ElFormItem>
+          <ElFormItem>
+            <ElButton type="primary" @click="doToken" :loading="tokenLoading">获取令牌</ElButton>
+            <span v-if="token" class="oauth-token-tip">令牌已获取，可调用下方接口</span>
+          </ElFormItem>
+          <ElFormItem v-if="tokenResult" label="令牌响应">
+            <pre class="oauth-out">{{ tokenResult }}</pre>
+          </ElFormItem>
 
-        <ElDivider content-position="left">2. 调用开放接口</ElDivider>
-        <ElFormItem label="接口">
-          <ElSelect v-model="apiPath" style="width: 100%">
-            <ElOption label="GET /open/ping（无 scope）" value="GET /open/ping" />
-            <ElOption label="GET /open/user/list（需 user:read）" value="GET /open/user/list" />
-            <ElOption label="GET /open/user/count（需 user:read）" value="GET /open/user/count" />
-            <ElOption label="POST /open/echo（需 user:write）" value="POST /open/echo" />
-          </ElSelect>
-        </ElFormItem>
-        <ElFormItem>
-          <ElButton type="primary" @click="callApi" :loading="apiLoading" :disabled="!token"
-            >调用接口</ElButton
-          >
-        </ElFormItem>
-        <ElFormItem v-if="apiResult" label="接口响应">
-          <div style="width: 100%">
-            <ElTag :type="apiStatus === 200 ? 'success' : 'danger'" style="margin-bottom: 8px">
-              HTTP {{ apiStatus }} · {{ apiStatus === 200 ? '放行' : '拒绝' }}
-            </ElTag>
-            <pre class="oauth-out">{{ apiResult }}</pre>
-          </div>
-        </ElFormItem>
-      </ElForm>
+          <ElDivider content-position="left">2. 调用开放接口</ElDivider>
+          <ElFormItem label="接口">
+            <ElSelect v-model="apiPath" style="width: 100%">
+              <ElOption label="GET /open/ping（无 scope）" value="GET /open/ping" />
+              <ElOption label="GET /open/user/list（需 user:read）" value="GET /open/user/list" />
+              <ElOption label="GET /open/user/count（需 user:read）" value="GET /open/user/count" />
+              <ElOption label="POST /open/echo（需 user:write）" value="POST /open/echo" />
+            </ElSelect>
+          </ElFormItem>
+          <ElFormItem>
+            <ElButton type="primary" @click="callApi" :loading="apiLoading" :disabled="!token"
+              >调用接口</ElButton
+            >
+          </ElFormItem>
+          <ElFormItem v-if="apiResult" label="接口响应">
+            <div style="width: 100%">
+              <ElTag :type="apiStatus === 200 ? 'success' : 'danger'" style="margin-bottom: 8px">
+                HTTP {{ apiStatus }} · {{ apiStatus === 200 ? '放行' : '拒绝' }}
+              </ElTag>
+              <pre class="oauth-out">{{ apiResult }}</pre>
+            </div>
+          </ElFormItem>
+        </ElForm>
+      </div>
     </ElCard>
   </div>
 </template>
@@ -154,6 +157,10 @@
         token.value = ''
         ElMessage.error(data?.error_description || data?.error || '获取令牌失败')
       }
+    } catch {
+      // 原生 fetch 不走全局 http 拦截，网络错误需就地提示（防静默失败）
+      token.value = ''
+      ElMessage.error('换取令牌请求失败（网络错误）')
     } finally {
       tokenLoading.value = false
     }
@@ -173,6 +180,9 @@
       apiStatus.value = resp.status
       const data = await resp.json()
       apiResult.value = pretty(data)
+    } catch {
+      // 原生 fetch 不走全局 http 拦截，网络错误需就地提示（防静默失败）
+      ElMessage.error('接口调用请求失败（网络错误）')
     } finally {
       apiLoading.value = false
     }
@@ -180,6 +190,13 @@
 </script>
 
 <style scoped>
+  /* 卡片体为定高裁剪（全局 overflow:hidden），内容须自备内部滚动，防矮视口裁切 */
+  .oauth-debug-scroll {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
   .oauth-token-tip {
     margin-left: 12px;
     color: var(--el-color-success);

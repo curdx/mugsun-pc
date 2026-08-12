@@ -64,36 +64,39 @@
 
       <!-- 未选表单时无列可渲（只剩孤立「#」表头），以空态替代表格 -->
       <ElEmpty v-if="!tableId" description="请选择上方在线表单" style="margin-top: 12px" />
-      <ElTable v-else :data="rows" border v-loading="loading" style="margin-top: 12px">
-        <ElTableColumn type="index" label="#" width="50" />
-        <ElTableColumn
-          v-for="col in listColumns"
-          :key="col.columnName"
-          :prop="col.columnName"
-          :label="col.columnComment || col.javaField"
-          min-width="140"
-        />
-        <ElTableColumn v-if="tableId" label="操作" width="150" fixed="right">
-          <template #default="{ row }">
-            <ElButton
-              v-perm="'sys:online:edit'"
-              link
-              type="primary"
-              size="small"
-              @click="openEdit(row)"
-              >编辑</ElButton
-            >
-            <ElButton
-              v-perm="'sys:online:edit'"
-              link
-              type="danger"
-              size="small"
-              @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，分页器固定在壳外，防矮视口裁切 -->
+      <div v-else class="online-table-wrap">
+        <ElTable :data="rows" border height="100%" v-loading="loading">
+          <ElTableColumn type="index" label="#" width="50" />
+          <ElTableColumn
+            v-for="col in listColumns"
+            :key="col.columnName"
+            :prop="col.columnName"
+            :label="col.columnComment || col.javaField"
+            min-width="140"
+          />
+          <ElTableColumn v-if="tableId" label="操作" width="150" fixed="right">
+            <template #default="{ row }">
+              <ElButton
+                v-perm="'sys:online:edit'"
+                link
+                type="primary"
+                size="small"
+                @click="openEdit(row)"
+                >编辑</ElButton
+              >
+              <ElButton
+                v-perm="'sys:online:edit'"
+                link
+                type="danger"
+                size="small"
+                @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
       <div v-if="pagination.total > pagination.size" class="online-pager">
         <ElPagination
           background
@@ -110,6 +113,7 @@
         :title="form.id ? '编辑' : '新增'"
         width="560px"
         align-center
+        class="online-form-dialog"
       >
         <ElForm :model="form" label-width="110px">
           <ElFormItem
@@ -258,11 +262,18 @@
     dialogVisible.value = true
   }
 
+  const submitting = ref(false)
+
   const submit = async (): Promise<void> => {
-    await fetchOnlineSave(tableId.value, form.value)
-    ElMessage.success('操作成功')
-    dialogVisible.value = false
-    await load()
+    submitting.value = true
+    try {
+      await fetchOnlineSave(tableId.value, form.value)
+      ElMessage.success('操作成功')
+      dialogVisible.value = false
+      await load()
+    } finally {
+      submitting.value = false
+    }
   }
 
   const remove = async (row: any): Promise<void> => {
@@ -290,8 +301,30 @@
     color: var(--art-text-gray-600);
   }
 
+  /* 表格自由增长：卡片体改 flex 列布局 + 表格壳 flex:1 定高，
+     表格 height="100%" 内部滚动，防矮视口下行与分页器被 .el-card__body 裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .online-table-wrap {
+    flex: 1;
+    min-height: 0;
+    margin-top: 12px;
+  }
+
   .online-pager {
+    flex-shrink: 0;
     margin-top: 12px;
     text-align: right;
+  }
+</style>
+
+<!-- 编辑弹窗内容 teleport 到 body，字段数不定：非 scoped 类限定滚动（同 track-app-dialog 范式），防矮视口截断 -->
+<style>
+  .online-form-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

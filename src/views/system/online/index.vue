@@ -12,30 +12,32 @@
         </div>
       </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="username" label="账号" min-width="150" show-overflow-tooltip />
-        <ElTableColumn prop="nickname" label="昵称" min-width="140" />
-        <ElTableColumn prop="deviceType" label="设备" width="100" />
-        <ElTableColumn prop="ip" label="登录 IP" min-width="130" />
-        <ElTableColumn prop="userAgent" label="浏览器 UA" min-width="220" show-overflow-tooltip />
-        <ElTableColumn prop="tokenMask" label="令牌" min-width="160" />
-        <ElTableColumn prop="loginTime" label="登录时间" min-width="180">
-          <template #default="{ row }">{{ formatTableTime(row.loginTime) }}</template>
-        </ElTableColumn>
-        <ElTableColumn label="操作" width="120" fixed="right">
-          <template #default="{ row }">
-            <ElButton
-              v-perm="'sys:session:kickout'"
-              link
-              type="danger"
-              size="small"
-              @click="kickout(row)"
-              >强制下线</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <div class="online-table-scroll">
+        <ElTable :data="tableData" border v-loading="loading">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="username" label="账号" min-width="150" show-overflow-tooltip />
+          <ElTableColumn prop="nickname" label="昵称" min-width="140" show-overflow-tooltip />
+          <ElTableColumn prop="deviceType" label="设备" width="100" />
+          <ElTableColumn prop="ip" label="登录 IP" min-width="130" show-overflow-tooltip />
+          <ElTableColumn prop="userAgent" label="浏览器 UA" min-width="220" show-overflow-tooltip />
+          <ElTableColumn prop="tokenMask" label="令牌" min-width="160" show-overflow-tooltip />
+          <ElTableColumn prop="loginTime" label="登录时间" min-width="180">
+            <template #default="{ row }">{{ formatTableTime(row.loginTime) }}</template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="120" fixed="right">
+            <template #default="{ row }">
+              <ElButton
+                v-perm="'sys:session:kickout'"
+                link
+                type="danger"
+                size="small"
+                @click="kickout(row)"
+                >强制下线</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
 
       <div class="online-count">共 {{ tableData.length }} 个在线终端</div>
     </ElCard>
@@ -80,8 +82,16 @@
 </script>
 
 <style scoped>
+  /* 在线终端列表无分页、行数无上限：.art-table-card 定高 + .el-card__body 裁剪下
+     表格须自备内部滚动，否则矮视口/多会话时底部行被切断不可达（范式同 monitor/track-user） */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
   .online-toolbar {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
@@ -96,7 +106,14 @@
     margin-right: 12px;
   }
 
+  .online-table-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
   .online-count {
+    flex-shrink: 0;
     margin-top: 12px;
     font-size: 13px;
     color: var(--el-text-color-secondary);

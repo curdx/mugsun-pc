@@ -8,36 +8,38 @@
         >
       </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="name" label="名称" min-width="140" />
-        <ElTableColumn prop="accessKey" label="AccessKey" min-width="200" />
-        <ElTableColumn prop="secretKey" label="SecretKey" min-width="160" />
-        <ElTableColumn prop="scope" label="作用域" min-width="140" show-overflow-tooltip />
-        <ElTableColumn label="状态" width="90">
-          <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'info'">
-              {{ row.status === 1 ? '启用' : '停用' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="操作" width="180" fixed="right">
-          <template #default="{ row }">
-            <!-- 语义配色：启用用主题色，停用才用 warning -->
-            <ElButton
-              v-perm="'sys:api-key:edit'"
-              link
-              :type="row.status === 1 ? 'warning' : 'primary'"
-              @click="toggle(row)"
-            >
-              {{ row.status === 1 ? '停用' : '启用' }}
-            </ElButton>
-            <ElButton v-perm="'sys:api-key:remove'" link type="danger" @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <div class="apikey-table-scroll">
+        <ElTable :data="tableData" border v-loading="loading">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="name" label="名称" min-width="140" show-overflow-tooltip />
+          <ElTableColumn prop="accessKey" label="AccessKey" min-width="200" show-overflow-tooltip />
+          <ElTableColumn prop="secretKey" label="SecretKey" min-width="160" show-overflow-tooltip />
+          <ElTableColumn prop="scope" label="作用域" min-width="140" show-overflow-tooltip />
+          <ElTableColumn label="状态" width="90">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'info'">
+                {{ row.status === 1 ? '启用' : '停用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="180" fixed="right">
+            <template #default="{ row }">
+              <!-- 语义配色：启用用主题色，停用才用 warning -->
+              <ElButton
+                v-perm="'sys:api-key:edit'"
+                link
+                :type="row.status === 1 ? 'warning' : 'primary'"
+                @click="toggle(row)"
+              >
+                {{ row.status === 1 ? '停用' : '启用' }}
+              </ElButton>
+              <ElButton v-perm="'sys:api-key:remove'" link type="danger" @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <!-- 生成 -->
@@ -129,14 +131,22 @@
   }
 
   const toggle = async (row: any): Promise<void> => {
-    if (row.status === 1) {
-      await fetchDisableApiKey(row.id)
-      ElMessage.success('已停用')
-    } else {
+    // 启用无风险直接执行；停用会立即吊销该密钥的 API 访问，属危险操作须二次确认
+    if (row.status !== 1) {
       await fetchEnableApiKey(row.id)
       ElMessage.success('已启用')
+      loadData()
+      return
     }
-    loadData()
+    ElMessageBox.confirm(`确定停用密钥"${row.name}"吗？停用后其 API 调用将立即失效。`, '停用密钥', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(async () => {
+      await fetchDisableApiKey(row.id)
+      ElMessage.success('已停用')
+      loadData()
+    })
   }
 
   const remove = (row: any): void => {
@@ -153,8 +163,22 @@
 </script>
 
 <style scoped>
+  /* 表格为自由增长内容：.art-table-card 定高 + .el-card__body 裁剪，
+     须自备内部滚动，否则矮视口多行时底部行被切断不可达（范式同 monitor/track-user） */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
   .apikey-toolbar {
+    flex-shrink: 0;
     margin-bottom: 12px;
+  }
+
+  .apikey-table-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .apikey-result {

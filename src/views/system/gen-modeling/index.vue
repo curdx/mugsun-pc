@@ -60,10 +60,16 @@
             </ElTable>
             <div class="modeling-actions">
               <ElButton @click="addCol">加字段</ElButton>
-              <ElButton v-perm="'sys:gen:ddl'" type="success" @click="confirmBuild(true)"
+              <ElButton
+                v-perm="'sys:gen:ddl'"
+                type="success"
+                :loading="confirming"
+                @click="confirmBuild(true)"
                 >确认并建表</ElButton
               >
-              <ElButton v-perm="'sys:gen:ddl'" @click="confirmBuild(false)">仅保存配置</ElButton>
+              <ElButton v-perm="'sys:gen:ddl'" :loading="confirming" @click="confirmBuild(false)"
+                >仅保存配置</ElButton
+              >
             </div>
           </div>
         </ElTabPane>
@@ -130,7 +136,13 @@
         <div class="modeling-tip"
           >改列名即走 RENAME（保数据），加字段即走 ADD；保存后点“同步到物理表”生效。</div
         >
-        <ElTable :data="editing?.columns || []" border size="small" style="margin-top: 10px">
+        <ElTable
+          :data="editing?.columns || []"
+          border
+          size="small"
+          max-height="420"
+          style="margin-top: 10px"
+        >
           <ElTableColumn type="index" label="#" width="46" />
           <ElTableColumn label="列名" min-width="160">
             <template #default="{ row }">
@@ -199,12 +211,14 @@
   const activeTab = ref('ai')
   const nl = ref('')
   const drafting = ref(false)
+  const confirming = ref(false)
   const candidate = ref<any>(null)
   const tables = ref<any[]>([])
   const loading = ref(false)
   const ddlVisible = ref(false)
   const ddlText = ref('')
   const colVisible = ref(false)
+  const colSaving = ref(false)
   const editing = ref<any>(null)
 
   const genDraft = async (): Promise<void> => {
@@ -232,12 +246,21 @@
   }
 
   const confirmBuild = async (build: boolean): Promise<void> => {
-    await fetchAiConfirm({ table: candidate.value.table, columns: candidate.value.columns, build })
-    ElMessage.success(build ? '已确认并建表' : '已保存配置')
-    candidate.value = null
-    nl.value = ''
-    activeTab.value = 'manage'
-    loadTables()
+    confirming.value = true
+    try {
+      await fetchAiConfirm({
+        table: candidate.value.table,
+        columns: candidate.value.columns,
+        build
+      })
+      ElMessage.success(build ? '已确认并建表' : '已保存配置')
+      candidate.value = null
+      nl.value = ''
+      activeTab.value = 'manage'
+      loadTables()
+    } finally {
+      confirming.value = false
+    }
   }
 
   const loadTables = async (): Promise<void> => {
@@ -297,23 +320,28 @@
   }
 
   const saveColumns = async (sync: boolean): Promise<void> => {
-    const table = editing.value.table
-    const columns = editing.value.columns.map((c: any) => {
-      const { _origName, ...rest } = c
-      // 已有列改了名 → 记录旧名，同步时走 RENAME
-      if (rest.id && _origName && _origName !== rest.columnName) {
-        rest.columnNameOld = _origName
+    colSaving.value = true
+    try {
+      const table = editing.value.table
+      const columns = editing.value.columns.map((c: any) => {
+        const { _origName, ...rest } = c
+        // 已有列改了名 → 记录旧名，同步时走 RENAME
+        if (rest.id && _origName && _origName !== rest.columnName) {
+          rest.columnNameOld = _origName
+        }
+        return rest
+      })
+      await fetchSaveGenMeta({ table, columns })
+      if (sync) {
+        await fetchDdlSync(table.id, false)
+        ElMessage.success('已保存并同步到物理表')
+      } else {
+        ElMessage.success('配置已保存')
       }
-      return rest
-    })
-    await fetchSaveGenMeta({ table, columns })
-    if (sync) {
-      await fetchDdlSync(table.id, false)
-      ElMessage.success('已保存并同步到物理表')
-    } else {
-      ElMessage.success('配置已保存')
+      colVisible.value = false
+    } finally {
+      colSaving.value = false
     }
-    colVisible.value = false
   }
 
   onMounted(loadTables)
@@ -346,5 +374,25 @@
     white-space: pre-wrap;
     background: var(--art-gray-100);
     border-radius: 6px;
+  }
+
+  /* 页签内容自由增长（候选表/管理表行数不定）：卡片体与 tabs 改 flex 列布局，
+     el-tabs__content 内部滚动，防矮视口下被 .el-card__body 裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .art-table-card :deep(.el-tabs) {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .art-table-card :deep(.el-tabs__content) {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 </style>

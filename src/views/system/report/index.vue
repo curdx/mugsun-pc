@@ -8,25 +8,28 @@
         >
       </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="reportName" label="报表名称" min-width="160" />
-        <ElTableColumn label="图表数" width="90">
-          <template #default="{ row }">{{ chartCount(row) }}</template>
-        </ElTableColumn>
-        <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="200" fixed="right">
-          <template #default="{ row }">
-            <ElButton link type="success" @click="preview(row)">预览</ElButton>
-            <ElButton v-perm="'sys:report:save'" link type="primary" @click="showDialog(row)"
-              >编辑</ElButton
-            >
-            <ElButton v-perm="'sys:report:remove'" link type="danger" @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
+      <div class="report-table-wrap">
+        <ElTable :data="tableData" border height="100%" v-loading="loading">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="reportName" label="报表名称" min-width="160" />
+          <ElTableColumn label="图表数" width="90">
+            <template #default="{ row }">{{ chartCount(row) }}</template>
+          </ElTableColumn>
+          <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
+          <ElTableColumn label="操作" width="200" fixed="right">
+            <template #default="{ row }">
+              <ElButton link type="success" @click="preview(row)">预览</ElButton>
+              <ElButton v-perm="'sys:report:save'" link type="primary" @click="showDialog(row)"
+                >编辑</ElButton
+              >
+              <ElButton v-perm="'sys:report:remove'" link type="danger" @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <!-- 设计（多图表仪表盘） -->
@@ -35,6 +38,7 @@
       :title="form.id ? '编辑报表' : '新建报表'"
       width="640px"
       align-center
+      class="report-design-dialog"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="90px">
         <ElFormItem label="报表名称" prop="reportName">
@@ -63,7 +67,7 @@
       </ElForm>
       <template #footer>
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">提交</ElButton>
+        <ElButton type="primary" :loading="saving" @click="submit">提交</ElButton>
       </template>
     </ElDialog>
 
@@ -73,6 +77,7 @@
       :title="`报表预览 · ${previewName}`"
       width="880px"
       align-center
+      class="report-preview-dialog"
       @closed="disposeCharts"
     >
       <div class="dashboard-grid">
@@ -88,7 +93,9 @@
 <script setup lang="ts">
   import { ref, reactive, onMounted, nextTick } from 'vue'
   import type { FormInstance, FormRules } from 'element-plus'
+  import { storeToRefs } from 'pinia'
   import { echarts } from '@/plugins/echarts'
+  import { useSettingStore } from '@/store/modules/setting'
   import {
     fetchReportDatasets,
     fetchReportList,
@@ -116,6 +123,7 @@
   const chartEls = ref<Record<number, HTMLElement>>({})
   const formRef = ref<FormInstance>()
   let charts: echarts.ECharts[] = []
+  const { isDark } = storeToRefs(useSettingStore())
 
   const form = reactive<{ id?: number; reportName: string; charts: ChartCfg[]; remark: string }>({
     id: undefined,
@@ -185,26 +193,33 @@
     form.charts.splice(idx, 1)
   }
 
+  const saving = ref(false)
+
   const submit = async (): Promise<void> => {
-    if (!formRef.value) return
+    if (!formRef.value || saving.value) return
     await formRef.value.validate(async (valid) => {
       if (!valid) return
       if (!form.charts.length) {
         ElMessage.warning('至少添加一个图表')
         return
       }
-      // 首图冗余存 reportKey/chartType 兼容旧预览接口
-      await fetchSaveReport({
-        id: form.id,
-        reportName: form.reportName,
-        reportKey: form.charts[0].dataset,
-        chartType: form.charts[0].chartType,
-        charts: JSON.stringify(form.charts),
-        remark: form.remark
-      })
-      dialogVisible.value = false
-      ElMessage.success('保存成功')
-      loadData()
+      saving.value = true
+      try {
+        // 首图冗余存 reportKey/chartType 兼容旧预览接口
+        await fetchSaveReport({
+          id: form.id,
+          reportName: form.reportName,
+          reportKey: form.charts[0].dataset,
+          chartType: form.charts[0].chartType,
+          charts: JSON.stringify(form.charts),
+          remark: form.remark
+        })
+        dialogVisible.value = false
+        ElMessage.success('保存成功')
+        loadData()
+      } finally {
+        saving.value = false
+      }
     })
   }
 
@@ -240,18 +255,19 @@
 
   const buildOption = (type: string, data: any[]): any => {
     const items = data.map((d) => ({ name: d.name, value: Number(d.value) }))
+    const textColor = isDark.value ? '#fff' : '#333'
     if (type === 'pie') {
       return {
         tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-        legend: { bottom: 0 },
+        legend: { bottom: 0, textStyle: { color: textColor } },
         series: [{ type: 'pie', radius: '60%', data: items }]
       }
     }
     return {
       tooltip: { trigger: 'axis' },
       grid: { left: 40, right: 20, top: 30, bottom: 40 },
-      xAxis: { type: 'category', data: items.map((i) => i.name) },
-      yAxis: { type: 'value' },
+      xAxis: { type: 'category', data: items.map((i) => i.name), axisLabel: { color: textColor } },
+      yAxis: { type: 'value', axisLabel: { color: textColor } },
       series: [{ type: type === 'line' ? 'line' : 'bar', data: items.map((i) => i.value) }]
     }
   }
@@ -313,5 +329,26 @@
   .dashboard-chart {
     width: 100%;
     height: 300px;
+  }
+
+  /* 表格自由增长：卡片体改 flex 列布局 + 表格壳 flex:1 定高，
+     表格 height="100%" 内部滚动，防矮视口下行被 .el-card__body 裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .report-table-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+</style>
+
+<!-- 设计/预览弹窗内容 teleport 到 body，图表数不定：非 scoped 类限定滚动（同 track-app-dialog 范式），防矮视口截断 -->
+<style>
+  .report-design-dialog .el-dialog__body,
+  .report-preview-dialog .el-dialog__body {
+    max-height: 72vh;
+    overflow-y: auto;
   }
 </style>

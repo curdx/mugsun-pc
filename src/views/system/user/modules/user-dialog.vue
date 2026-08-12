@@ -23,6 +23,7 @@
           :data="deptTree"
           :props="{ value: 'id', label: 'deptName', children: 'children' }"
           check-strictly
+          filterable
           clearable
           placeholder="请选择部门"
           style="width: 100%"
@@ -37,6 +38,7 @@
         <ElSelect
           v-model="formData.roleIds"
           multiple
+          filterable
           clearable
           placeholder="请选择角色（决定菜单与权限）"
           style="width: 100%"
@@ -68,7 +70,7 @@
     <template #footer>
       <div class="dialog-footer">
         <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -84,6 +86,8 @@
     visible: boolean
     type: string
     userData?: Record<string, any>
+    /** 父级保存进行中（防重复提交） */
+    saving?: boolean
   }
 
   interface Emits {

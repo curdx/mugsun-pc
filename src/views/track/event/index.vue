@@ -24,7 +24,7 @@
         @keyup.enter="handleSearch"
         @clear="handleSearch"
       />
-      <ElButton @click="handleSearch" v-ripple>查询</ElButton>
+      <ElButton :loading="loading" @click="handleSearch" v-ripple>查询</ElButton>
     </div>
 
     <ElCard class="art-table-card">
@@ -59,7 +59,9 @@
         <ElTableColumn prop="eventName" label="事件" min-width="160" show-overflow-tooltip />
         <ElTableColumn prop="distinctId" label="访客" min-width="140" show-overflow-tooltip />
         <ElTableColumn label="会话" min-width="140">
-          <template #default="{ row }">{{ shortId(row.sessionId) }}</template>
+          <template #default="{ row }">
+            <span :title="row.sessionId">{{ shortId(row.sessionId) }}</span>
+          </template>
         </ElTableColumn>
         <ElTableColumn prop="urlPath" label="页面" min-width="180" show-overflow-tooltip />
         <template #empty><ElEmpty description="暂无实时事件" :image-size="60" /></template>

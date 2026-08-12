@@ -36,3 +36,6 @@ export { useChart, useChartComponent, useChartOps } from './core/useChart'
 
 // 布局高度
 export { useLayoutHeight, useAutoLayoutHeight } from './core/useLayoutHeight'
+
+// 用户选择器远程搜索（成千账号场景不下全量）
+export { useUserSelectSearch } from './core/useUserSelectSearch'

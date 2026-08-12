@@ -104,6 +104,7 @@
     searchParams,
     handleSizeChange,
     handleCurrentChange,
+    getData,
     refreshData,
     refreshUpdate,
     refreshRemove
@@ -175,7 +176,8 @@
     } else {
       params.status = statusFilter.value
     }
-    refreshData()
+    // 筛选变化回到第一页，避免停留在超出结果范围的页码而看到空表
+    getData()
   }
 
   const showDetail = (row: Record<string, any>): void => {

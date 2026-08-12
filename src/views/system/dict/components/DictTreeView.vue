@@ -16,7 +16,7 @@
         >
       </div>
 
-      <ElTable :data="treeData" row-key="id" default-expand-all border>
+      <ElTable v-loading="loading" :data="treeData" row-key="id" default-expand-all border>
         <ElTableColumn prop="dictValue" label="字典名称" min-width="200" />
         <ElTableColumn prop="code" label="字典编码" min-width="140" />
         <ElTableColumn prop="dictKey" label="字典键值" min-width="120" />
@@ -145,6 +145,7 @@
   const searchParams = ref<Record<string, any>>({})
 
   const treeData = ref<any[]>([])
+  const loading = ref(false)
   const topOptions = ref<Array<{ label: string; value: any }>>([])
   const dialogVisible = ref(false)
   const dialogType = ref<'add' | 'edit'>('add')
@@ -168,7 +169,12 @@
   }
 
   const loadData = async (): Promise<void> => {
-    treeData.value = (await props.treeApi(searchParams.value)) || []
+    loading.value = true
+    try {
+      treeData.value = (await props.treeApi(searchParams.value)) || []
+    } finally {
+      loading.value = false
+    }
   }
 
   // 上级候选恒取全量顶级类型（不受查询过滤影响）
@@ -238,6 +244,16 @@
 </script>
 
 <style scoped>
+  /* 树表为自由增长内容：art-full-height 定高 + art-table-card 卡体 overflow:hidden 裁剪，
+     卡片取消 flex 拉伸随内容增高、页面自备纵向滚动（track/funnel 同款范式），矮视口下行不被切断 */
+  .dict-page {
+    overflow-y: auto;
+  }
+
+  .dict-page .art-table-card {
+    flex: none;
+  }
+
   .dict-toolbar {
     margin-bottom: 12px;
   }

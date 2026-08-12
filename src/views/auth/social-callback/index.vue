@@ -29,6 +29,8 @@
     if (!source || !code || !state) {
       icon.value = 'error'
       title.value = '回调参数缺失'
+      subTitle.value = '即将自动跳转…'
+      setTimeout(() => router.push(userStore.isLogin ? '/system/user-center' : '/auth/login'), 1500)
       return
     }
     try {

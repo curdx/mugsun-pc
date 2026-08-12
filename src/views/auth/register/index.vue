@@ -70,9 +70,18 @@
                   v-if="captchaImage"
                   :src="captchaImage"
                   class="captcha-img"
+                  title="点击刷新验证码"
                   alt="验证码"
                   @click="loadCaptcha"
                 />
+                <div
+                  v-else
+                  class="captcha-img captcha-reload"
+                  title="点击重新加载"
+                  @click="loadCaptcha"
+                >
+                  加载失败
+                </div>
               </div>
             </ElFormItem>
 

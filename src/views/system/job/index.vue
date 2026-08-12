@@ -6,48 +6,51 @@
         <ElButton v-perm="'sys:job:save'" type="primary" @click="showDialog()">新建任务</ElButton>
       </div>
 
-      <ElTable :data="tableData" border v-loading="loading">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn prop="jobName" label="任务名称" min-width="140" />
-        <ElTableColumn label="处理器" min-width="150" show-overflow-tooltip>
-          <template #default="{ row }">{{ simpleName(row.processorInfo) }}</template>
-        </ElTableColumn>
-        <ElTableColumn prop="jobParams" label="任务参数" min-width="110" show-overflow-tooltip>
-          <template #default="{ row }">{{ row.jobParams || '—' }}</template>
-        </ElTableColumn>
-        <ElTableColumn label="触发方式" min-width="150">
-          <template #default="{ row }">
-            {{ row.timeExpression ? `CRON ${row.timeExpression}` : '手动触发' }}
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="下次触发" min-width="160">
-          <template #default="{ row }">{{ fmt(row.nextTriggerTime) }}</template>
-        </ElTableColumn>
-        <ElTableColumn label="状态" width="100">
-          <template #default="{ row }">
-            <ElTag :type="row.status === 1 ? 'success' : 'info'">
-              {{ row.status === 1 ? '启用' : '停用' }}
-            </ElTag>
-          </template>
-        </ElTableColumn>
-        <ElTableColumn label="操作" width="280" fixed="right">
-          <template #default="{ row }">
-            <ElButton v-perm="'sys:job:run'" link type="success" @click="run(row)"
-              >立即执行</ElButton
-            >
-            <ElButton v-perm="'sys:job:save'" link type="primary" @click="showDialog(row)"
-              >编辑</ElButton
-            >
-            <ElButton v-perm="'sys:job:edit'" link type="warning" @click="toggle(row)">
-              {{ row.status === 1 ? '停用' : '启用' }}
-            </ElButton>
-            <ElButton link type="primary" @click="showLogs(row)">日志</ElButton>
-            <ElButton v-perm="'sys:job:remove'" link type="danger" @click="remove(row)"
-              >删除</ElButton
-            >
-          </template>
-        </ElTableColumn>
-      </ElTable>
+      <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
+      <div class="job-table-wrap">
+        <ElTable :data="tableData" border height="100%" v-loading="loading">
+          <ElTableColumn type="index" label="序号" width="60" />
+          <ElTableColumn prop="jobName" label="任务名称" min-width="140" />
+          <ElTableColumn label="处理器" min-width="150" show-overflow-tooltip>
+            <template #default="{ row }">{{ simpleName(row.processorInfo) }}</template>
+          </ElTableColumn>
+          <ElTableColumn prop="jobParams" label="任务参数" min-width="110" show-overflow-tooltip>
+            <template #default="{ row }">{{ row.jobParams || '—' }}</template>
+          </ElTableColumn>
+          <ElTableColumn label="触发方式" min-width="150">
+            <template #default="{ row }">
+              {{ row.timeExpression ? `CRON ${row.timeExpression}` : '手动触发' }}
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="下次触发" min-width="160">
+            <template #default="{ row }">{{ fmt(row.nextTriggerTime) }}</template>
+          </ElTableColumn>
+          <ElTableColumn label="状态" width="100">
+            <template #default="{ row }">
+              <ElTag :type="row.status === 1 ? 'success' : 'info'">
+                {{ row.status === 1 ? '启用' : '停用' }}
+              </ElTag>
+            </template>
+          </ElTableColumn>
+          <ElTableColumn label="操作" width="280" fixed="right">
+            <template #default="{ row }">
+              <ElButton v-perm="'sys:job:run'" link type="success" @click="run(row)"
+                >立即执行</ElButton
+              >
+              <ElButton v-perm="'sys:job:save'" link type="primary" @click="showDialog(row)"
+                >编辑</ElButton
+              >
+              <ElButton v-perm="'sys:job:edit'" link type="warning" @click="toggle(row)">
+                {{ row.status === 1 ? '停用' : '启用' }}
+              </ElButton>
+              <ElButton link type="primary" @click="showLogs(row)">日志</ElButton>
+              <ElButton v-perm="'sys:job:remove'" link type="danger" @click="remove(row)"
+                >删除</ElButton
+              >
+            </template>
+          </ElTableColumn>
+        </ElTable>
+      </div>
     </ElCard>
 
     <!-- 新建 / 编辑 -->
@@ -138,6 +141,7 @@
   const logs = ref<any[]>([])
   const formRef = ref<FormInstance>()
   const processorOptions = ref<Array<{ label: string; value: string }>>([])
+  const saving = ref(false)
 
   const form = reactive<Record<string, any>>({
     id: undefined,
@@ -196,13 +200,18 @@
   }
 
   const submit = async (): Promise<void> => {
-    if (!formRef.value) return
+    if (!formRef.value || saving.value) return
     await formRef.value.validate(async (valid) => {
       if (!valid) return
-      await fetchSaveJob({ ...form })
-      dialogVisible.value = false
-      ElMessage.success('保存成功')
-      loadData()
+      saving.value = true
+      try {
+        await fetchSaveJob({ ...form })
+        dialogVisible.value = false
+        ElMessage.success('保存成功')
+        loadData()
+      } finally {
+        saving.value = false
+      }
     })
   }
 
@@ -213,6 +222,11 @@
 
   const toggle = async (row: any): Promise<void> => {
     if (row.status === 1) {
+      await ElMessageBox.confirm(
+        `停用后任务「${row.jobName}」不再按计划触发，确认停用？`,
+        '停用任务',
+        { type: 'warning' }
+      )
       await fetchDisableJob(row.id)
       ElMessage.success('已停用')
     } else {
@@ -265,5 +279,17 @@
 <style scoped>
   .job-toolbar {
     margin-bottom: 12px;
+  }
+
+  /* 表格自由增长：卡片体改 flex 列布局 + 表格壳 flex:1 定高，
+     表格 height="100%" 内部滚动，防矮视口下行被 .el-card__body 裁切不可达 */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .job-table-wrap {
+    flex: 1;
+    min-height: 0;
   }
 </style>

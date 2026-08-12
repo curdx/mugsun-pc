@@ -13,6 +13,12 @@
       </div>
 
       <div class="monitor-grid" v-loading="loading">
+        <ElEmpty
+          v-if="!loading && cards.length === 0"
+          class="monitor-empty"
+          description="暂无监控数据"
+          :image-size="80"
+        />
         <ElCard v-for="card in cards" :key="card.title" shadow="never" class="monitor-card">
           <div class="monitor-card-title">{{ card.title }}</div>
           <div class="monitor-card-value">{{ card.value }}</div>
@@ -152,8 +158,16 @@
 </script>
 
 <style scoped>
+  /* 指标网格为自由增长内容：.art-table-card 定高 + .el-card__body 裁剪，
+     网格须自备内部滚动，否则窄视口多行时底部卡片被切断不可达（范式同 track/user 时间线） */
+  .art-table-card :deep(.el-card__body) {
+    display: flex;
+    flex-direction: column;
+  }
+
   .monitor-toolbar {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 16px;
@@ -166,8 +180,15 @@
 
   .monitor-grid {
     display: grid;
+    flex: 1;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 16px;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .monitor-empty {
+    grid-column: 1 / -1;
   }
 
   .monitor-card-title {

@@ -262,7 +262,13 @@
       const sign = await fetchPresignedPut({ filename: file.name, access: 'private' })
       if (sign?.supported && sign.uploadUrl && sign.ticket) {
         directUploading.value = true
-        await putToCloud(sign.uploadUrl, sign.headers || {}, file)
+        try {
+          await putToCloud(sign.uploadUrl, sign.headers || {}, file)
+        } catch {
+          // 直传走裸 XHR、不经 http 拦截器，失败须自行提示，避免静默失败（finally 仍会复位状态）
+          ElMessage.error('直传失败，请重试')
+          return
+        }
         await fetchCreateAttach({ ticket: sign.ticket, size: file.size })
       } else {
         await fetchUploadFile(file)
