@@ -6,7 +6,9 @@
         <ElButton v-perm="'sys:region:save'" type="primary" @click="showDialog(null)">{{
           $t('pages.system.region.addProvince')
         }}</ElButton>
-        <ElButton @click="doExport">{{ $t('pages.system.region.export') }}</ElButton>
+        <ElButton :loading="exporting" @click="doExport">{{
+          $t('pages.system.region.export')
+        }}</ElButton>
         <ElButton v-perm="'sys:region:import'" :loading="importing" @click="triggerImport">{{
           $t('pages.system.region.import')
         }}</ElButton>
@@ -97,6 +99,7 @@
   const tableKey = ref(0)
   const loading = ref(false)
   const importing = ref(false)
+  const exporting = ref(false)
   const dialogVisible = ref(false)
   const parentName = ref(t('pages.system.region.topLevel'))
   const formRef = ref<FormInstance>()
@@ -180,8 +183,13 @@
   }
 
   const doExport = async (): Promise<void> => {
-    await exportRegion()
-    ElMessage.success(t('pages.system.region.exportSuccess'))
+    exporting.value = true
+    try {
+      await exportRegion()
+      ElMessage.success(t('pages.system.region.exportSuccess'))
+    } finally {
+      exporting.value = false
+    }
   }
 
   const triggerImport = (): void => fileInput.value?.click()

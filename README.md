@@ -90,12 +90,10 @@ pnpm dev
 `playwright.config.ts` 默认 `baseURL` 为 **http://localhost:3007**，刻意与日常 dev（3006）隔离：e2e 使用独立实例，互不干扰。
 
 ```bash
-# 前置：mugsun-boot(:8080) 已启动，PostgreSQL / Redis 的 Docker 容器在跑
+# 前置：mugsun-boot(:8080) 已启动，PostgreSQL（容器名 mugsun-pg）/ Redis（blade-redis）在跑
+pnpm setup:sdk      # 等价于先构建 ../mugsun-track（首次必做）
 pnpm dev:e2e        # 终端 A：起 3007 独立实例
-pnpm test:e2e       # 终端 B：跑全量套件（串行执行，共享后端避免互踩）
-
-# 指向任意实例（如对 preview 产物做生产冒烟）
-E2E_BASE_URL=http://localhost:4173 pnpm test:e2e
+pnpm test:e2e       # 终端 B：跑全量套件（串行；含 w14 流程 / w15 租户 / w16 OAuth 等）
 ```
 
 登录用例走真实验证码流程：测试经 `docker exec <redis 容器> redis-cli` 读取后端写入 Redis 的图形验证码答案，不绕过后端校验。容器名与库号可用环境变量 `E2E_REDIS_CONTAINER` / `E2E_REDIS_DB`（默认 3）覆盖。
