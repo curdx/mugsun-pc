@@ -1,4 +1,6 @@
 // 图形流程设计的前端模型：节点树（数组表示）+ 提交前转递归 DTO
+import { $t } from '@/locales'
+
 let seq = 0
 const uid = (): string => `g${Date.now().toString(36)}${(seq++).toString(36)}`
 
@@ -24,7 +26,7 @@ export interface GNode {
   branches: GBranch[]
 }
 
-export const newBranch = (name = '分支'): GBranch => ({
+export const newBranch = (name = $t('pages.system.flowGraph.branch')): GBranch => ({
   id: uid(),
   name,
   conditions: [],
@@ -43,13 +45,19 @@ export const newNode = (type: string): GNode => {
     branches: []
   }
   if (type === 'condition') {
-    base.name = '条件分支'
-    base.branches = [newBranch('分支一'), { ...newBranch('否则'), isDefault: true }]
+    base.name = $t('pages.system.flowGraph.typeCondition')
+    base.branches = [
+      newBranch($t('pages.system.flowGraph.branchOne')),
+      { ...newBranch($t('pages.system.flowGraph.branchElse')), isDefault: true }
+    ]
   } else if (type === 'parallel') {
-    base.name = '并行分支'
-    base.branches = [newBranch('分支一'), newBranch('分支二')]
+    base.name = $t('pages.system.flowGraph.typeParallel')
+    base.branches = [
+      newBranch($t('pages.system.flowGraph.branchOne')),
+      newBranch($t('pages.system.flowGraph.branchTwo'))
+    ]
   } else {
-    base.name = '审批'
+    base.name = $t('pages.system.flowGraph.typeApproval')
   }
   return base
 }
@@ -85,13 +93,14 @@ export const validateTree = (nodes: GNode[]): string => {
   for (const n of nodes) {
     if (n.type === 'approval') {
       if (!n.candidates.map(candidateToken).filter(Boolean).length)
-        return `节点「${n.name}」未配置候选人`
+        return $t('pages.system.flowGraph.errNodeNoCandidate', { name: n.name })
     } else {
-      if (n.type === 'parallel' && n.branches.length < 2) return `并行「${n.name}」至少两个分支`
-      if (!n.branches.length) return `分支「${n.name}」至少一个分支`
+      if (n.type === 'parallel' && n.branches.length < 2)
+        return $t('pages.system.flowGraph.errParallelMinBranch', { name: n.name })
+      if (!n.branches.length) return $t('pages.system.flowGraph.errBranchMin', { name: n.name })
       for (const b of n.branches) {
         if (n.type === 'condition' && !b.isDefault && !b.conditions.filter((r) => r.field).length)
-          return `条件分支「${b.name}」需配置条件或标记为默认`
+          return $t('pages.system.flowGraph.errConditionRequired', { name: b.name })
         const sub = validateTree(b.children)
         if (sub) return sub
       }

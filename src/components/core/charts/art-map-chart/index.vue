@@ -2,7 +2,7 @@
 <template>
   <div class="relative w-full" :style="{ height: 'calc(100vh - 120px)' }">
     <div v-if="isEmpty" class="h-full flex-cc">
-      <ElEmpty description="暂无地图数据" />
+      <ElEmpty :description="$t('components.mapChart.emptyText')" />
     </div>
 
     <div v-else id="china-map" ref="chinaMapRef" class="h-full w-full overflow-hidden rounded-lg" />
@@ -12,10 +12,13 @@
 <script setup lang="ts">
   import { echarts } from '@/plugins/echarts'
   import { useSettingStore } from '@/store/modules/setting'
+  import { useI18n } from 'vue-i18n'
   import chinaMapJson from '@/mock/json/chinaMap.json'
   import type { MapChartProps } from '@/types/component/chart'
 
   defineOptions({ name: 'ArtMapChart' })
+
+  const { t } = useI18n()
 
   const chinaMapRef = ref<HTMLElement | null>(null)
   const chartInstance = shallowRef<echarts.ECharts | null>(null)
@@ -80,9 +83,9 @@
           const { name, adcode, level } = data || {}
           return `
             <div style="padding: 8px;">
-              <div><strong>名称:</strong> ${name || '未知区域'}</div>
-              <div><strong>代码:</strong> ${adcode || '暂无'}</div>
-              <div><strong>级别:</strong> ${level || '暂无'}</div>
+              <div><strong>${t('components.mapChart.name')}:</strong> ${name || t('components.mapChart.unknownRegion')}</div>
+              <div><strong>${t('components.mapChart.code')}:</strong> ${adcode || t('components.mapChart.noData')}</div>
+              <div><strong>${t('components.mapChart.level')}:</strong> ${level || t('components.mapChart.noData')}</div>
             </div>
           `
         }
@@ -173,7 +176,7 @@
         ...(props.showScatter
           ? [
               {
-                name: '城市',
+                name: t('components.mapChart.citySeries'),
                 type: 'scatter',
                 coordinateSystem: 'geo',
                 symbol: 'pin',

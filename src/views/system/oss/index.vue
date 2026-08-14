@@ -3,31 +3,47 @@
   <div class="oss-page art-full-height">
     <ElCard class="art-table-card">
       <div class="oss-toolbar">
-        <ElButton v-perm="'sys:oss:save'" @click="showDialog('add')" v-ripple>新增存储</ElButton>
+        <ElButton v-perm="'sys:oss:save'" @click="showDialog('add')" v-ripple>{{
+          $t('pages.system.oss.addBtn')
+        }}</ElButton>
       </div>
 
       <div class="oss-table-scroll">
         <ElTable :data="tableData" border v-loading="loading">
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="name" label="名称" min-width="140" show-overflow-tooltip />
-          <ElTableColumn prop="ossCode" label="存储标识" min-width="140" show-overflow-tooltip />
-          <ElTableColumn prop="category" label="类型" width="100" />
+          <ElTableColumn type="index" :label="$t('pages.system.oss.colIndex')" width="60" />
+          <ElTableColumn
+            prop="name"
+            :label="$t('pages.system.oss.colName')"
+            min-width="140"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="ossCode"
+            :label="$t('pages.system.oss.colCode')"
+            min-width="140"
+            show-overflow-tooltip
+          />
+          <ElTableColumn prop="category" :label="$t('pages.system.oss.colCategory')" width="100" />
           <ElTableColumn
             prop="storagePath"
-            label="存储路径 / 域名"
+            :label="$t('pages.system.oss.colPath')"
             min-width="200"
             show-overflow-tooltip
           >
             <template #default="{ row }">{{ row.storagePath || row.domain || '-' }}</template>
           </ElTableColumn>
-          <ElTableColumn label="状态" width="90">
+          <ElTableColumn :label="$t('pages.system.oss.colStatus')" width="90">
             <template #default="{ row }">
               <ElTag :type="row.status === 1 ? 'success' : 'info'">
-                {{ row.status === 1 ? '启用' : '禁用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.oss.statusEnabled')
+                    : $t('pages.system.oss.statusDisabled')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="220">
+          <ElTableColumn :label="$t('pages.system.oss.colOperation')" width="220">
             <template #default="{ row }">
               <!-- 启用互斥切换：已启用行提供「禁用」（走 submit 全量更新 status），未启用行提供「启用」 -->
               <ElButton
@@ -37,17 +53,21 @@
                 type="warning"
                 @click="disableRow(row)"
               >
-                禁用
+                {{ $t('pages.system.oss.statusDisabled') }}
               </ElButton>
               <ElButton v-else v-perm="'sys:oss:edit'" link type="primary" @click="enableRow(row)">
-                启用
+                {{ $t('pages.system.oss.statusEnabled') }}
               </ElButton>
-              <ElButton v-perm="'sys:oss:save'" link type="primary" @click="showDialog('edit', row)"
-                >编辑</ElButton
+              <ElButton
+                v-perm="'sys:oss:save'"
+                link
+                type="primary"
+                @click="showDialog('edit', row)"
+                >{{ $t('pages.system.oss.editBtn') }}</ElButton
               >
-              <ElButton v-perm="'sys:oss:remove'" link type="danger" @click="deleteRow(row)"
-                >删除</ElButton
-              >
+              <ElButton v-perm="'sys:oss:remove'" link type="danger" @click="deleteRow(row)">{{
+                $t('pages.system.oss.deleteBtn')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -69,8 +89,11 @@
   import OssDialog from './modules/oss-dialog.vue'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import { DialogType } from '@/types'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Oss' })
+
+  const { t } = useI18n()
 
   const tableData = ref<any[]>([])
   const loading = ref(false)
@@ -98,32 +121,40 @@
 
   const enableRow = async (row: any): Promise<void> => {
     await fetchEnableOss(row.id)
-    ElMessage.success('已启用')
+    ElMessage.success(t('pages.system.oss.enableSuccess'))
     loadData()
   }
 
   // 后端无独立禁用端点：submit 按 id 全量更新，置 status=0 即禁用
   // 禁用后新附件将无法写入该渠道，属危险操作，须二次确认（启用无风险直接执行）
   const disableRow = (row: any): void => {
-    ElMessageBox.confirm(`确定禁用存储配置"${row.name}"吗？`, '禁用存储', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.oss.disableConfirm', { name: row.name }),
+      t('pages.system.oss.disableTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchSaveOss({ ...row, status: 0 })
-      ElMessage.success('已禁用')
+      ElMessage.success(t('pages.system.oss.disableSuccess'))
       loadData()
     })
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除存储配置"${row.name}"吗？`, '删除存储', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.oss.deleteConfirm', { name: row.name }),
+      t('pages.system.oss.deleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveOss(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.oss.deleteSuccess'))
       loadData()
     })
   }
@@ -131,7 +162,7 @@
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
     await fetchSaveOss(form)
     dialogVisible.value = false
-    ElMessage.success('保存成功')
+    ElMessage.success(t('pages.system.oss.saveSuccess'))
     loadData()
   }
 </script>

@@ -6,25 +6,27 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="days">
-        <ElRadioButton :value="1">今天</ElRadioButton>
-        <ElRadioButton :value="7">近 7 天</ElRadioButton>
-        <ElRadioButton :value="30">近 30 天</ElRadioButton>
+        <ElRadioButton :value="1">{{ $t('pages.track.shared.today') }}</ElRadioButton>
+        <ElRadioButton :value="7">{{ $t('pages.track.shared.last7Days') }}</ElRadioButton>
+        <ElRadioButton :value="30">{{ $t('pages.track.shared.last30Days') }}</ElRadioButton>
       </ElRadioGroup>
       <ElInput
         v-model="eventName"
-        placeholder="事件名筛选，回车生效"
+        :placeholder="$t('pages.track.shared.eventFilterPlaceholder')"
         clearable
         class="track-event-input"
         @keyup.enter="handleSearch"
         @clear="handleSearch"
       />
-      <ElButton :loading="loading" @click="handleSearch" v-ripple>查询</ElButton>
+      <ElButton :loading="loading" @click="handleSearch" v-ripple>{{
+        $t('pages.track.shared.search')
+      }}</ElButton>
     </div>
 
     <ElCard class="art-table-card">
@@ -44,32 +46,55 @@
     <!-- 实时事件流 -->
     <ElCard class="art-table-card track-realtime-card">
       <div class="track-realtime-head">
-        <span class="track-card-title">实时事件流</span>
+        <span class="track-card-title">{{ $t('pages.track.event.realtimeStream') }}</span>
         <div class="track-realtime-ops">
           <ElTag :type="paused ? 'info' : 'success'" size="small">
-            {{ paused ? '已暂停' : '直播中' }}
+            {{ paused ? $t('pages.track.event.paused') : $t('pages.track.event.live') }}
           </ElTag>
-          <ElButton size="small" @click="togglePause">{{ paused ? '继续' : '暂停' }}</ElButton>
+          <ElButton size="small" @click="togglePause">{{
+            paused ? $t('pages.track.event.resume') : $t('pages.track.event.pause')
+          }}</ElButton>
         </div>
       </div>
       <ElTable :data="realtimeList" v-loading="realtimeLoading && !realtimeLoaded" max-height="320">
-        <ElTableColumn label="时间" width="110">
+        <ElTableColumn :label="$t('pages.track.shared.time')" width="110">
           <template #default="{ row }">{{ fmtTrackClock(row.ts) }}</template>
         </ElTableColumn>
-        <ElTableColumn prop="eventName" label="事件" min-width="160" show-overflow-tooltip />
-        <ElTableColumn prop="distinctId" label="访客" min-width="140" show-overflow-tooltip />
-        <ElTableColumn label="会话" min-width="140">
+        <ElTableColumn
+          prop="eventName"
+          :label="$t('pages.track.event.eventCol')"
+          min-width="160"
+          show-overflow-tooltip
+        />
+        <ElTableColumn
+          prop="distinctId"
+          :label="$t('pages.track.shared.visitor')"
+          min-width="140"
+          show-overflow-tooltip
+        />
+        <ElTableColumn :label="$t('pages.track.shared.session')" min-width="140">
           <template #default="{ row }">
             <span :title="row.sessionId">{{ shortId(row.sessionId) }}</span>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="urlPath" label="页面" min-width="180" show-overflow-tooltip />
-        <template #empty><ElEmpty description="暂无实时事件" :image-size="60" /></template>
+        <ElTableColumn
+          prop="urlPath"
+          :label="$t('pages.track.shared.page')"
+          min-width="180"
+          show-overflow-tooltip
+        />
+        <template #empty
+          ><ElEmpty :description="$t('pages.track.event.noRealtimeEvents')" :image-size="60"
+        /></template>
       </ElTable>
     </ElCard>
 
     <!-- 事件趋势抽屉 -->
-    <ElDrawer v-model="trendVisible" :title="`事件趋势 · ${trendEventName}`" size="560px">
+    <ElDrawer
+      v-model="trendVisible"
+      :title="$t('pages.track.event.trendTitle', { name: trendEventName })"
+      size="560px"
+    >
       <ArtLineChart
         :data="trendSeries"
         :x-axis-data="trendLabels"
@@ -85,6 +110,7 @@
 
 <script setup lang="ts">
   import { h, ref } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchTrackEventPage, fetchTrackEventRealtime, fetchTrackTrend } from '@/api/track'
@@ -101,6 +127,8 @@
   } from 'element-plus'
 
   defineOptions({ name: 'TrackEvent' })
+
+  const { t } = useI18n()
 
   const { appOptions, appKey, days, appsLoading } = useTrackApp()
   const eventName = ref('')
@@ -124,20 +152,37 @@
       immediate: false,
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'eventName', label: '事件名', minWidth: 180, showOverflowTooltip: true },
-        { prop: 'eventCount', label: '次数', width: 110, align: 'right', headerAlign: 'right' },
-        { prop: 'sessionCount', label: '会话数', width: 110, align: 'right', headerAlign: 'right' },
+        { type: 'index', width: 60, label: t('pages.track.shared.index') },
+        {
+          prop: 'eventName',
+          label: t('pages.track.shared.eventName'),
+          minWidth: 180,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'eventCount',
+          label: t('pages.track.shared.count'),
+          width: 110,
+          align: 'right',
+          headerAlign: 'right'
+        },
+        {
+          prop: 'sessionCount',
+          label: t('pages.track.shared.sessionCount'),
+          width: 110,
+          align: 'right',
+          headerAlign: 'right'
+        },
         { prop: 'uv', label: 'UV', width: 100, align: 'right', headerAlign: 'right' },
         {
           prop: 'lastTime',
-          label: '最近发生',
+          label: t('pages.track.shared.lastSeen'),
           minWidth: 170,
           formatter: (row: any) => fmtTrackTime(row.lastTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.track.shared.operation'),
           width: 80,
           fixed: 'right',
           formatter: (row: any) =>
@@ -201,11 +246,14 @@
       )
       trendSeries.value = [
         {
-          name: '次数',
+          name: t('pages.track.shared.count'),
           data: rows.map((r: any) => Number(r.eventCount ?? 0)),
           showAreaColor: true
         },
-        { name: '会话数', data: rows.map((r: any) => Number(r.sessionCount ?? 0)) }
+        {
+          name: t('pages.track.shared.sessionCount'),
+          data: rows.map((r: any) => Number(r.sessionCount ?? 0))
+        }
       ]
     } finally {
       trendLoading.value = false

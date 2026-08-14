@@ -52,7 +52,7 @@
               <ElInput
                 class="custom-height"
                 v-model.trim="formData.phone"
-                placeholder="请输入手机号（选填，可用于短信登录）"
+                :placeholder="$t('pages.auth.register.phonePlaceholder')"
                 maxlength="11"
               />
             </ElFormItem>
@@ -62,7 +62,7 @@
                 <ElInput
                   class="custom-height"
                   v-model.trim="formData.captchaCode"
-                  placeholder="请输入图形验证码"
+                  :placeholder="$t('pages.auth.captchaPlaceholder')"
                   maxlength="4"
                   @keyup.enter="register"
                 />
@@ -70,17 +70,17 @@
                   v-if="captchaImage"
                   :src="captchaImage"
                   class="captcha-img"
-                  title="点击刷新验证码"
-                  alt="验证码"
+                  :title="$t('pages.auth.captchaRefresh')"
+                  :alt="$t('pages.auth.captchaAlt')"
                   @click="loadCaptcha"
                 />
                 <div
                   v-else
                   class="captcha-img captcha-reload"
-                  title="点击重新加载"
+                  :title="$t('pages.auth.captchaReload')"
                   @click="loadCaptcha"
                 >
-                  加载失败
+                  {{ $t('pages.auth.captchaLoadFailed') }}
                 </div>
               </div>
             </ElFormItem>
@@ -123,7 +123,7 @@
 
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
   import { fetchRegister, fetchCaptcha } from '@/api/auth'
   import { encryptPassword } from '@/utils/gm'
 
@@ -244,8 +244,8 @@
       { min: PASSWORD_MIN_LENGTH, message: t('register.rule.passwordLength'), trigger: 'blur' }
     ],
     confirmPassword: [{ required: true, validator: validateConfirmPassword, trigger: 'blur' }],
-    phone: [{ pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }],
-    captchaCode: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
+    phone: [{ pattern: /^1\d{10}$/, message: t('pages.auth.phoneInvalid'), trigger: 'blur' }],
+    captchaCode: [{ required: true, message: t('pages.auth.captchaPlaceholder'), trigger: 'blur' }],
     agreement: [{ validator: validateAgreement, trigger: 'change' }]
   }))
 
@@ -267,7 +267,7 @@
         captchaUuid: captchaUuid.value,
         captchaCode: formData.captchaCode
       })
-      ElMessage.success('注册成功，请登录')
+      ElMessage.success(t('pages.auth.register.successMessage'))
       loading.value = false
       router.push({ name: 'Login' })
     } catch (error) {

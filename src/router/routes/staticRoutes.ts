@@ -40,19 +40,19 @@ export const staticRoutes: AppRouteRecordRaw[] = [
     path: '/auth/social-callback',
     name: 'SocialCallback',
     component: () => import('@views/auth/social-callback/index.vue'),
-    meta: { title: '第三方登录', isHideTab: true }
+    meta: { title: 'menus.socialCallback.title', isHideTab: true }
   },
   {
     path: '/privacy-policy',
     name: 'PrivacyPolicy',
     component: () => import('@views/auth/privacy-policy/index.vue'),
-    meta: { title: '隐私政策', isHideTab: true }
+    meta: { title: 'menus.privacyPolicy.title', isHideTab: true }
   },
   {
     path: '/oauth-consent',
     name: 'OauthConsent',
     component: () => import('@views/system/oauth-consent/index.vue'),
-    meta: { title: '授权确认', isHideTab: true }
+    meta: { title: 'menus.oauthConsent.title', isHideTab: true }
   },
   {
     path: '/403',

@@ -8,7 +8,7 @@
       @change="handleFileChange"
     >
       <ElButton type="primary" v-ripple>
-        <slot>导入 Excel</slot>
+        <slot>{{ $t('components.excelImport.buttonText') }}</slot>
       </ElButton>
     </ElUpload>
   </div>

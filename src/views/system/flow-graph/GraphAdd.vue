@@ -4,9 +4,15 @@
     <span class="g-add-btn"><ArtSvgIcon icon="ri:add-line" /></span>
     <template #dropdown>
       <ElDropdownMenu>
-        <ElDropdownItem command="approval">审批节点</ElDropdownItem>
-        <ElDropdownItem command="condition">条件分支</ElDropdownItem>
-        <ElDropdownItem command="parallel">并行分支</ElDropdownItem>
+        <ElDropdownItem command="approval">{{
+          $t('pages.system.flowGraph.approvalNode')
+        }}</ElDropdownItem>
+        <ElDropdownItem command="condition">{{
+          $t('pages.system.flowGraph.typeCondition')
+        }}</ElDropdownItem>
+        <ElDropdownItem command="parallel">{{
+          $t('pages.system.flowGraph.typeParallel')
+        }}</ElDropdownItem>
       </ElDropdownMenu>
     </template>
   </ElDropdown>

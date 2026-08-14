@@ -6,14 +6,14 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="hasError">
-        <ElRadioButton :value="undefined">全部</ElRadioButton>
-        <ElRadioButton :value="1">仅含错误</ElRadioButton>
+        <ElRadioButton :value="undefined">{{ $t('pages.track.shared.all') }}</ElRadioButton>
+        <ElRadioButton :value="1">{{ $t('pages.track.replay.onlyError') }}</ElRadioButton>
       </ElRadioGroup>
     </div>
 
@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
   import { h, ref } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchTrackReplayPage } from '@/api/track'
   import {
@@ -52,6 +53,8 @@
   import { ElOption, ElRadioButton, ElRadioGroup, ElSelect, ElTag } from 'element-plus'
 
   defineOptions({ name: 'TrackReplay' })
+
+  const { t } = useI18n()
 
   const { appOptions, appKey, appsLoading } = useTrackApp()
   /** 错误会话筛选（undefined=全部） */
@@ -76,26 +79,38 @@
       immediate: false,
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
+        { type: 'index', width: 60, label: t('pages.track.shared.index') },
         {
           prop: 'startTime',
-          label: '开始时间',
+          label: t('pages.track.replay.startTime'),
           minWidth: 150,
           formatter: (row: any) => fmtTrackTime(row.startTime)
         },
         {
           prop: 'durationMs',
-          label: '时长',
+          label: t('pages.track.shared.duration'),
           width: 100,
           align: 'right',
           headerAlign: 'right',
           formatter: (row: any) => fmtTrackDuration(row.durationMs)
         },
-        { prop: 'pageCount', label: '页面数', width: 90, align: 'right', headerAlign: 'right' },
-        { prop: 'rrwebEvents', label: '事件数', width: 90, align: 'right', headerAlign: 'right' },
+        {
+          prop: 'pageCount',
+          label: t('pages.track.replay.pageCount'),
+          width: 90,
+          align: 'right',
+          headerAlign: 'right'
+        },
+        {
+          prop: 'rrwebEvents',
+          label: t('pages.track.shared.eventCount'),
+          width: 90,
+          align: 'right',
+          headerAlign: 'right'
+        },
         {
           prop: 'sizeBytes',
-          label: '大小',
+          label: t('pages.track.shared.size'),
           width: 100,
           align: 'right',
           headerAlign: 'right',
@@ -103,30 +118,34 @@
         },
         {
           prop: 'hasError',
-          label: '错误',
+          label: t('pages.track.replay.errorCol'),
           width: 80,
           formatter: (row: any) =>
             row.hasError === 1
-              ? h(ElTag, { type: 'danger', size: 'small', effect: 'plain' }, () => '含错误')
-              : h(ElTag, { type: 'info', size: 'small', effect: 'plain' }, () => '无')
+              ? h(ElTag, { type: 'danger', size: 'small', effect: 'plain' }, () =>
+                  t('pages.track.shared.hasError')
+                )
+              : h(ElTag, { type: 'info', size: 'small', effect: 'plain' }, () =>
+                  t('pages.track.replay.none')
+                )
         },
         {
           prop: 'entryPath',
-          label: '入口页',
+          label: t('pages.track.replay.entryPage'),
           minWidth: 160,
           showOverflowTooltip: true,
           formatter: (row: any) => row.entryPath || '-'
         },
         {
           prop: 'distinctId',
-          label: '访客',
+          label: t('pages.track.shared.visitor'),
           minWidth: 150,
           showOverflowTooltip: true,
           formatter: (row: any) => row.distinctId || '-'
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.track.shared.operation'),
           width: 90,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 按真实权限码门控
@@ -135,7 +154,7 @@
               ? h(ArtButtonTable, {
                   icon: 'ri:play-circle-line',
                   iconClass: 'bg-theme/12 text-theme track-replay-play',
-                  title: '播放',
+                  title: t('pages.track.replay.play'),
                   onClick: () => play(row)
                 })
               : null

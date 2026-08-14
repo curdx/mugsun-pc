@@ -2,14 +2,14 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增菜单' : '编辑菜单'"
+    :title="type === 'add' ? $t('pages.system.menu.addMenu') : $t('pages.system.menu.editMenu')"
     width="560px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="90px">
-      <ElFormItem label="上级菜单" prop="parentId">
+      <ElFormItem :label="$t('pages.system.menu.fields.parent')" prop="parentId">
         <ElSelect v-model="formData.parentId" style="width: 100%">
-          <ElOption label="顶级菜单" :value="0" />
+          <ElOption :label="$t('pages.system.menu.topMenu')" :value="0" />
           <ElOption
             v-for="opt in menuOptions"
             :key="opt.value"
@@ -18,54 +18,66 @@
           />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="菜单名称" prop="menuName">
-        <ElInput v-model="formData.menuName" placeholder="请输入菜单名称" />
+      <ElFormItem :label="$t('pages.system.menu.fields.menuName')" prop="menuName">
+        <ElInput
+          v-model="formData.menuName"
+          :placeholder="$t('pages.system.menu.placeholder.menuName')"
+        />
       </ElFormItem>
-      <ElFormItem label="菜单类型" prop="menuType">
+      <ElFormItem :label="$t('pages.system.menu.fields.menuType')" prop="menuType">
         <ElSelect v-model="formData.menuType" style="width: 100%">
-          <ElOption label="目录" value="M" />
-          <ElOption label="菜单" value="C" />
-          <ElOption label="按钮" value="F" />
+          <ElOption :label="$t('pages.system.menu.type.directory')" value="M" />
+          <ElOption :label="$t('pages.system.menu.type.menu')" value="C" />
+          <ElOption :label="$t('pages.system.menu.type.button')" value="F" />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="图标" prop="icon">
+      <ElFormItem :label="$t('pages.system.menu.fields.icon')" prop="icon">
         <IconSelector v-model="formData.icon" style="width: 100%" />
       </ElFormItem>
-      <ElFormItem label="路由地址" prop="path">
-        <ElInput v-model="formData.path" placeholder="如 /system/user" />
+      <ElFormItem :label="$t('pages.system.menu.fields.path')" prop="path">
+        <ElInput v-model="formData.path" :placeholder="$t('pages.system.menu.placeholder.path')" />
       </ElFormItem>
-      <ElFormItem label="组件路径" prop="component">
-        <ElInput v-model="formData.component" placeholder="如 /system/user" />
+      <ElFormItem :label="$t('pages.system.menu.fields.component')" prop="component">
+        <ElInput
+          v-model="formData.component"
+          :placeholder="$t('pages.system.menu.placeholder.path')"
+        />
       </ElFormItem>
-      <ElFormItem label="权限标识" prop="permission">
-        <ElInput v-model="formData.permission" placeholder="如 sys:user:list" />
+      <ElFormItem :label="$t('pages.system.menu.fields.permission')" prop="permission">
+        <ElInput
+          v-model="formData.permission"
+          :placeholder="$t('pages.system.menu.placeholder.permission')"
+        />
       </ElFormItem>
-      <ElFormItem label="排序" prop="sort">
+      <ElFormItem :label="$t('pages.system.menu.fields.sort')" prop="sort">
         <ElInputNumber v-model="formData.sort" :min="0" />
       </ElFormItem>
-      <ElFormItem label="是否隐藏" prop="isHide">
+      <ElFormItem :label="$t('pages.system.menu.fields.isHideForm')" prop="isHide">
         <ElSwitch v-model="formData.isHide" :active-value="1" :inactive-value="0" />
-        <span class="switch-tip">隐藏后不出现在侧边栏</span>
+        <span class="switch-tip">{{ $t('pages.system.menu.tips.hide') }}</span>
       </ElFormItem>
-      <ElFormItem label="页面缓存" prop="isKeepAlive">
+      <ElFormItem :label="$t('pages.system.menu.fields.pageCache')" prop="isKeepAlive">
         <ElSwitch v-model="formData.isKeepAlive" :active-value="1" :inactive-value="0" />
-        <span class="switch-tip">缓存页面组件（keepAlive）</span>
+        <span class="switch-tip">{{ $t('pages.system.menu.tips.keepAlive') }}</span>
       </ElFormItem>
-      <ElFormItem label="是否外链" prop="isExternal">
+      <ElFormItem :label="$t('pages.system.menu.fields.isExternalForm')" prop="isExternal">
         <ElSwitch v-model="formData.isExternal" :active-value="1" :inactive-value="0" />
-        <span class="switch-tip">外链新窗口打开</span>
+        <span class="switch-tip">{{ $t('pages.system.menu.tips.external') }}</span>
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">{{
+          $t('table.form.submit')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import IconSelector from './icon-selector.vue'
 
@@ -85,6 +97,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -142,10 +156,14 @@
     isExternal: 0
   })
 
-  const rules: FormRules = {
-    menuName: [{ required: true, message: '请输入菜单名称', trigger: 'blur' }],
-    menuType: [{ required: true, message: '请选择菜单类型', trigger: 'change' }]
-  }
+  const rules = computed<FormRules>(() => ({
+    menuName: [
+      { required: true, message: t('pages.system.menu.placeholder.menuName'), trigger: 'blur' }
+    ],
+    menuType: [
+      { required: true, message: t('pages.system.menu.rules.menuTypeRequired'), trigger: 'change' }
+    ]
+  }))
 
   watch(
     () => [props.visible, props.menuData],

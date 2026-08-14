@@ -112,6 +112,8 @@ const i18n: I18n = createI18n(i18nOptions)
  */
 interface Translation {
   (key: string): string
+  (key: string, named: Record<string, unknown>): string
+  (key: string, named: Record<string, unknown>, options: { plural: number }): string
 }
 
 /**

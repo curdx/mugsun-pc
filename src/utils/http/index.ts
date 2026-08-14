@@ -207,7 +207,7 @@ async function request<T = any>(config: ExtendedAxiosRequestConfig): Promise<T> 
       return existing.promise as Promise<T>
     }
     // 变更类：拦截重复提交（在途窗口内的相同请求）
-    const dupError = new HttpError('请勿重复提交', ApiStatus.error)
+    const dupError = new HttpError($t('utils.http.repeatSubmit'), ApiStatus.error)
     if (config.showErrorMessage !== false) showError(dupError, true)
     return Promise.reject(dupError)
   }
@@ -286,7 +286,7 @@ function triggerBrowserDownload(blob: Blob, filename: string): void {
 async function download(config: DownloadConfig): Promise<void> {
   const loading = ElLoading.service({
     lock: true,
-    text: '文件下载中…',
+    text: $t('utils.http.downloading'),
     background: 'rgba(0, 0, 0, 0.35)'
   })
   try {
@@ -300,7 +300,7 @@ async function download(config: DownloadConfig): Promise<void> {
     // blob 内 JSON 错误回读（后端 200 但返回 R 错误信封而非文件字节）
     if (blob.type && blob.type.includes('application/json')) {
       const text = await blob.text()
-      let msg = '下载失败'
+      let msg = $t('utils.http.downloadFailed')
       try {
         msg = JSON.parse(text)?.msg || msg
       } catch {
@@ -324,9 +324,11 @@ async function download(config: DownloadConfig): Promise<void> {
           ? error.message
           : error instanceof Error
             ? error.message
-            : '下载失败'
+            : $t('utils.http.downloadFailed')
       showError(
-        error instanceof HttpError ? error : new HttpError(message || '下载失败', ApiStatus.error),
+        error instanceof HttpError
+          ? error
+          : new HttpError(message || $t('utils.http.downloadFailed'), ApiStatus.error),
         true
       )
     }

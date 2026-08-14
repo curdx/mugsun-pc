@@ -3,12 +3,18 @@
   <div class="monitor-page art-full-height">
     <ElCard class="art-table-card">
       <div class="monitor-toolbar">
-        <span class="monitor-title">服务监控</span>
+        <span class="monitor-title">{{ $t('pages.system.monitor.title') }}</span>
         <div>
-          <ElButton v-perm="'sys:monitor:db-doc'" :loading="docLoading" @click="openDbDoc" v-ripple
-            >数据库文档</ElButton
+          <ElButton
+            v-perm="'sys:monitor:db-doc'"
+            :loading="docLoading"
+            @click="openDbDoc"
+            v-ripple
+            >{{ $t('pages.system.monitor.dbDoc') }}</ElButton
           >
-          <ElButton :loading="loading" @click="loadAll" v-ripple>刷新</ElButton>
+          <ElButton :loading="loading" @click="loadAll" v-ripple>{{
+            $t('pages.system.monitor.refresh')
+          }}</ElButton>
         </div>
       </div>
 
@@ -16,7 +22,7 @@
         <ElEmpty
           v-if="!loading && cards.length === 0"
           class="monitor-empty"
-          description="暂无监控数据"
+          :description="$t('pages.system.monitor.emptyData')"
           :image-size="80"
         />
         <ElCard v-for="card in cards" :key="card.title" shadow="never" class="monitor-card">
@@ -33,11 +39,16 @@
         </ElCard>
       </div>
 
-      <ElDialog v-model="docVisible" title="数据库文档" width="820px" align-center>
+      <ElDialog
+        v-model="docVisible"
+        :title="$t('pages.system.monitor.dbDoc')"
+        width="820px"
+        align-center
+      >
         <div class="monitor-docbar">
-          <ElButton size="small" type="primary" @click="downloadDoc" v-ripple
-            >下载 markdown</ElButton
-          >
+          <ElButton size="small" type="primary" @click="downloadDoc" v-ripple>{{
+            $t('pages.system.monitor.downloadMd')
+          }}</ElButton>
         </div>
         <div class="monitor-doc">{{ dbDoc }}</div>
       </ElDialog>
@@ -49,8 +60,11 @@
   import { onMounted, ref } from 'vue'
   import { ElMessage } from 'element-plus'
   import { fetchActuatorMetric, fetchDbDoc } from '@/api/system-manage'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'ServerMonitor' })
+
+  const { t } = useI18n()
 
   interface MetricCard {
     title: string
@@ -97,39 +111,39 @@
       const minutes = Math.floor((uptimeSec % 3600) / 60)
       cards.value = [
         {
-          title: 'JVM 内存',
+          title: t('pages.system.monitor.jvmMemory'),
           value: `${(used / 1048576).toFixed(0)} MB`,
-          sub: `上限 ${(max / 1048576).toFixed(0)} MB`,
+          sub: t('pages.system.monitor.jvmMemoryMax', { max: (max / 1048576).toFixed(0) }),
           percent: max > 0 ? Math.min(100, Math.round((used / max) * 100)) : 0
         },
         {
-          title: '进程 CPU',
+          title: t('pages.system.monitor.processCpu'),
           value: `${(cpu * 100).toFixed(1)}%`,
-          sub: `系统核数 ${measure(cpuCount)}`,
+          sub: t('pages.system.monitor.cpuCores', { count: measure(cpuCount) }),
           percent: Math.min(100, Number((cpu * 100).toFixed(1))),
           format: percentLabel
         },
         {
-          title: 'JVM 线程',
+          title: t('pages.system.monitor.jvmThreads'),
           value: String(measure(threads)),
-          sub: '活跃线程数'
+          sub: t('pages.system.monitor.activeThreads')
         },
         {
-          title: '运行时长',
+          title: t('pages.system.monitor.uptime'),
           value: `${hours}h ${minutes}m`,
-          sub: '进程启动至今'
+          sub: t('pages.system.monitor.uptimeSub')
         },
         {
-          title: 'HTTP 请求',
+          title: t('pages.system.monitor.httpRequests'),
           value: String(measure(httpReq, 'COUNT')),
-          sub: `累计总耗时 ${measure(httpReq, 'TOTAL_TIME').toFixed(1)}s / 单请求最大 ${measure(
-            httpReq,
-            'MAX'
-          ).toFixed(2)}s`
+          sub: t('pages.system.monitor.httpRequestsSub', {
+            total: measure(httpReq, 'TOTAL_TIME').toFixed(1),
+            max: measure(httpReq, 'MAX').toFixed(2)
+          })
         }
       ]
     } catch {
-      ElMessage.error('监控指标拉取失败（需 sys:monitor:list 权限）')
+      ElMessage.error(t('pages.system.monitor.loadFailed'))
     } finally {
       loading.value = false
     }
@@ -149,7 +163,7 @@
     const blob = new Blob([dbDoc.value], { type: 'text/markdown;charset=utf-8' })
     const a = document.createElement('a')
     a.href = URL.createObjectURL(blob)
-    a.download = `数据库文档-${new Date().toISOString().slice(0, 10)}.md`
+    a.download = `${t('pages.system.monitor.dbDocFileName')}-${new Date().toISOString().slice(0, 10)}.md`
     a.click()
     URL.revokeObjectURL(a.href)
   }

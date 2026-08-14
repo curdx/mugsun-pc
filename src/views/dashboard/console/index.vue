@@ -20,17 +20,25 @@
     <ElRow :gutter="16" class="mt-4">
       <ElCol :xs="24" :lg="12">
         <div class="art-card chart-card" v-loading="overviewLoading">
-          <p class="card-title">用户状态分布</p>
+          <p class="card-title">{{ $t('pages.dashboard.console.userStatusChart') }}</p>
           <!-- 与柱状图同款：空数据时 echarts 只画空环，以 ElEmpty 替代；v-show 保挂载 -->
-          <ElEmpty v-if="pieEmpty" description="暂无数据" :image-size="60" />
+          <ElEmpty
+            v-if="pieEmpty"
+            :description="$t('pages.dashboard.console.noData')"
+            :image-size="60"
+          />
           <div v-show="!pieEmpty" ref="pieRef" class="chart-box"></div>
         </div>
       </ElCol>
       <ElCol :xs="24" :lg="12" class="mt-4 mt-lg-0">
         <div class="art-card chart-card" v-loading="overviewLoading">
-          <p class="card-title">租户用户数</p>
+          <p class="card-title">{{ $t('pages.dashboard.console.tenantUserChart') }}</p>
           <!-- 空数据时 echarts 只画一条轴线，以 ElEmpty 替代；图表容器 v-show 保挂载，有数据后再 init -->
-          <ElEmpty v-if="barEmpty" description="暂无数据" :image-size="60" />
+          <ElEmpty
+            v-if="barEmpty"
+            :description="$t('pages.dashboard.console.noData')"
+            :image-size="60"
+          />
           <div v-show="!barEmpty" ref="barRef" class="chart-box"></div>
         </div>
       </ElCol>
@@ -41,12 +49,16 @@
       <ElCol :xs="24" :lg="8">
         <div class="art-card list-card" v-loading="todoLoading">
           <div class="card-head">
-            <span class="card-title">我的待办</span>
+            <span class="card-title">{{ $t('pages.dashboard.console.myTodo') }}</span>
             <ElButton link type="primary" size="small" @click="go('/system/flow-todo')">
-              全部
+              {{ $t('pages.dashboard.console.viewAll') }}
             </ElButton>
           </div>
-          <ElEmpty v-if="!todoList.length" description="暂无待办" :image-size="60" />
+          <ElEmpty
+            v-if="!todoList.length"
+            :description="$t('pages.dashboard.console.noTodo')"
+            :image-size="60"
+          />
           <ul v-else class="mini-list">
             <li v-for="t in todoList" :key="t.taskId" @click="go('/system/flow-todo')">
               <span class="mini-title">{{ t.flowName }} · {{ t.nodeName }}</span>
@@ -60,22 +72,28 @@
         <div class="art-card list-card" v-loading="noticeLoading">
           <div class="card-head">
             <span class="card-title">
-              通知公告
+              {{ $t('pages.dashboard.console.notice') }}
               <ElBadge
                 v-if="overview.noticeUnread"
                 :value="overview.noticeUnread"
                 class="unread-badge"
               />
             </span>
-            <ElButton link type="primary" size="small" @click="go('/system/my-notice')"
-              >全部</ElButton
-            >
+            <ElButton link type="primary" size="small" @click="go('/system/my-notice')">{{
+              $t('pages.dashboard.console.viewAll')
+            }}</ElButton>
           </div>
-          <ElEmpty v-if="!noticeList.length" description="暂无通知" :image-size="60" />
+          <ElEmpty
+            v-if="!noticeList.length"
+            :description="$t('pages.dashboard.console.noNotice')"
+            :image-size="60"
+          />
           <ul v-else class="mini-list">
             <li v-for="n in noticeList" :key="n.id" @click="go('/system/my-notice')">
               <span class="mini-title">
-                <ElTag v-if="n.isTop === 1" type="danger" size="small" class="top-tag">顶</ElTag>
+                <ElTag v-if="n.isTop === 1" type="danger" size="small" class="top-tag">{{
+                  $t('pages.dashboard.console.topTag')
+                }}</ElTag>
                 {{ n.title }}
               </span>
               <span class="mini-sub">{{ fmt(n.releaseTime || n.createTime) }}</span>
@@ -87,17 +105,21 @@
       <ElCol :xs="24" :lg="8" class="mt-4 mt-lg-0">
         <ArtTimelineListCard
           v-if="changelogList.length"
-          title="更新日志"
-          subtitle="最近版本变更"
+          :title="$t('pages.dashboard.console.changelog')"
+          :subtitle="$t('pages.dashboard.console.changelogSubtitle')"
           :list="changelogList"
           :max-count="6"
         />
         <!-- ArtTimelineListCard 无内置空态，空列表时以同款标题卡兜底 -->
         <div v-else class="art-card list-card" v-loading="changelogLoading">
           <div class="card-head">
-            <span class="card-title">更新日志</span>
+            <span class="card-title">{{ $t('pages.dashboard.console.changelog') }}</span>
           </div>
-          <ElEmpty v-if="!changelogLoading" description="暂无更新日志" :image-size="60" />
+          <ElEmpty
+            v-if="!changelogLoading"
+            :description="$t('pages.dashboard.console.noChangelog')"
+            :image-size="60"
+          />
         </div>
       </ElCol>
     </ElRow>
@@ -105,12 +127,14 @@
     <!-- 可配置快捷入口 -->
     <div class="art-card p-5 mt-4">
       <div class="card-head">
-        <span class="card-title">快捷入口</span>
-        <ElButton link type="primary" size="small" @click="openShortcutEditor">编辑</ElButton>
+        <span class="card-title">{{ $t('pages.dashboard.console.shortcuts') }}</span>
+        <ElButton link type="primary" size="small" @click="openShortcutEditor">{{
+          $t('pages.dashboard.console.edit')
+        }}</ElButton>
       </div>
       <ElEmpty
         v-if="!shortcuts.length"
-        description="未配置快捷入口，点击右上角编辑添加"
+        :description="$t('pages.dashboard.console.shortcutsEmpty')"
         :image-size="60"
       />
       <div v-else class="quick-grid">
@@ -121,16 +145,23 @@
     </div>
 
     <!-- 快捷入口编辑弹窗 -->
-    <ElDialog v-model="editorVisible" title="配置快捷入口" width="560px" align-center>
-      <p class="editor-tip">勾选需要在工作台展示的功能页（可多选）</p>
+    <ElDialog
+      v-model="editorVisible"
+      :title="$t('pages.dashboard.console.shortcutsDialogTitle')"
+      width="560px"
+      align-center
+    >
+      <p class="editor-tip">{{ $t('pages.dashboard.console.shortcutsDialogTip') }}</p>
       <ElCheckboxGroup v-model="selectedPaths" class="catalog-grid">
         <ElCheckbox v-for="c in CATALOG" :key="c.path" :value="c.path" :label="c.path">
           {{ c.name }}
         </ElCheckbox>
       </ElCheckboxGroup>
       <template #footer>
-        <ElButton @click="editorVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="saving" @click="saveShortcuts">保存</ElButton>
+        <ElButton @click="editorVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="saving" @click="saveShortcuts">{{
+          $t('pages.dashboard.console.save')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -147,32 +178,35 @@
     saveWorkbenchShortcuts
   } from '@/api/workbench'
   import { useSettingStore } from '@/store/modules/setting'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Console' })
+
+  const { t } = useI18n()
 
   const router = useRouter()
   const go = (path: string) => router.push(path)
   const { isDark } = storeToRefs(useSettingStore())
 
   // ===== 快捷入口候选目录（真实路由，验证过 path）=====
-  const CATALOG = [
-    { name: '用户管理', path: '/system/user' },
-    { name: '角色管理', path: '/system/role' },
-    { name: '菜单管理', path: '/system/menu' },
-    { name: '部门管理', path: '/system/dept' },
-    { name: '岗位管理', path: '/system/post' },
-    { name: '字典管理', path: '/system/dict' },
-    { name: '参数管理', path: '/system/param' },
-    { name: '租户管理', path: '/saas/tenant' },
-    { name: '通知公告', path: '/system/notice' },
-    { name: '我的通知', path: '/system/my-notice' },
-    { name: '代码生成', path: '/system/gen' },
-    { name: '定时任务', path: '/system/job' },
-    { name: '报表管理', path: '/system/report' },
-    { name: '待办工作台', path: '/system/flow-todo' },
-    { name: '帮助文档', path: '/system/help-doc' },
-    { name: '更新日志', path: '/system/changelog' }
-  ]
+  const CATALOG = computed(() => [
+    { name: t('pages.dashboard.console.catalog.user'), path: '/system/user' },
+    { name: t('pages.dashboard.console.catalog.role'), path: '/system/role' },
+    { name: t('pages.dashboard.console.catalog.menu'), path: '/system/menu' },
+    { name: t('pages.dashboard.console.catalog.dept'), path: '/system/dept' },
+    { name: t('pages.dashboard.console.catalog.post'), path: '/system/post' },
+    { name: t('pages.dashboard.console.catalog.dict'), path: '/system/dict' },
+    { name: t('pages.dashboard.console.catalog.param'), path: '/system/param' },
+    { name: t('pages.dashboard.console.catalog.tenant'), path: '/saas/tenant' },
+    { name: t('pages.dashboard.console.catalog.notice'), path: '/system/notice' },
+    { name: t('pages.dashboard.console.catalog.myNotice'), path: '/system/my-notice' },
+    { name: t('pages.dashboard.console.catalog.codegen'), path: '/system/gen' },
+    { name: t('pages.dashboard.console.catalog.job'), path: '/system/job' },
+    { name: t('pages.dashboard.console.catalog.report'), path: '/system/report' },
+    { name: t('pages.dashboard.console.catalog.flowTodo'), path: '/system/flow-todo' },
+    { name: t('pages.dashboard.console.catalog.helpDoc'), path: '/system/help-doc' },
+    { name: t('pages.dashboard.console.catalog.changelog'), path: '/system/changelog' }
+  ])
   const DEFAULT_PATHS = [
     '/system/user',
     '/system/role',
@@ -195,7 +229,7 @@
   const statTiles = computed(() => [
     {
       key: 'user',
-      label: '用户数',
+      label: t('pages.dashboard.console.statUserCount'),
       count: overview.userCount,
       path: '/system/user',
       bg: 'var(--el-color-primary-light-9)',
@@ -204,7 +238,7 @@
     },
     {
       key: 'dept',
-      label: '部门数',
+      label: t('pages.dashboard.console.statDeptCount'),
       count: overview.deptCount,
       path: '/system/dept',
       bg: 'var(--el-color-success-light-9)',
@@ -213,7 +247,7 @@
     },
     {
       key: 'role',
-      label: '角色数',
+      label: t('pages.dashboard.console.statRoleCount'),
       count: overview.roleCount,
       path: '/system/role',
       bg: 'var(--el-color-warning-light-9)',
@@ -222,7 +256,7 @@
     },
     {
       key: 'todo',
-      label: '我的待办',
+      label: t('pages.dashboard.console.myTodo'),
       count: overview.todoCount,
       path: '/system/flow-todo',
       bg: 'var(--el-color-danger-light-9)',
@@ -386,7 +420,7 @@
 
   // 按候选目录顺序过滤，剔除失效 path，保证名称与路由一致
   const applyShortcuts = (paths: string[]) => {
-    shortcuts.value = CATALOG.filter((c) => paths.includes(c.path))
+    shortcuts.value = CATALOG.value.filter((c) => paths.includes(c.path))
   }
 
   const openShortcutEditor = () => {
@@ -397,11 +431,11 @@
   const saveShortcuts = async () => {
     saving.value = true
     try {
-      const list = CATALOG.filter((c) => selectedPaths.value.includes(c.path))
+      const list = CATALOG.value.filter((c) => selectedPaths.value.includes(c.path))
       await saveWorkbenchShortcuts(JSON.stringify(list))
       shortcuts.value = list
       editorVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.dashboard.console.saveSuccess'))
     } finally {
       saving.value = false
     }

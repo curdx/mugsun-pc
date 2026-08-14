@@ -12,7 +12,9 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton v-perm="'sys:post:save'" @click="showDialog('add')" v-ripple>新增岗位</ElButton>
+          <ElButton v-perm="'sys:post:save'" @click="showDialog('add')" v-ripple>{{
+            $t('pages.system.post.addPost')
+          }}</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -39,6 +41,7 @@
 
 <script setup lang="ts">
   import { h, ref, nextTick } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
@@ -50,6 +53,8 @@
 
   defineOptions({ name: 'Post' })
 
+  const { t } = useI18n()
+
   // ===== 查询栏 =====
   const searchForm = ref({
     postName: '',
@@ -58,15 +63,15 @@
   const searchItems = computed(() => [
     {
       key: 'postName',
-      label: '岗位名称',
+      label: t('pages.system.post.fields.postName'),
       type: 'input',
-      props: { placeholder: '请输入岗位名称', clearable: true }
+      props: { placeholder: t('pages.system.post.placeholder.postName'), clearable: true }
     },
     {
       key: 'postCode',
-      label: '岗位编码',
+      label: t('pages.system.post.fields.postCode'),
       type: 'input',
-      props: { placeholder: '请输入岗位编码', clearable: true }
+      props: { placeholder: t('pages.system.post.placeholder.postCode'), clearable: true }
     }
   ])
 
@@ -93,13 +98,13 @@
       apiParams: { pageNum: 1, pageSize: 20 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'postName', label: '岗位名称', minWidth: 140 },
-        { prop: 'postCode', label: '岗位编码', minWidth: 140 },
-        { prop: 'sort', label: '排序', width: 100 },
+        { type: 'index', width: 60, label: t('table.column.index') },
+        { prop: 'postName', label: t('pages.system.post.fields.postName'), minWidth: 140 },
+        { prop: 'postCode', label: t('pages.system.post.fields.postCode'), minWidth: 140 },
+        { prop: 'sort', label: t('pages.system.post.fields.sort'), width: 100 },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.post.fields.operation'),
           width: 120,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -150,13 +155,13 @@
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm('确定要删除该岗位吗？', '删除岗位', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    ElMessageBox.confirm(t('pages.system.post.deleteConfirm'), t('pages.system.post.deletePost'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     }).then(async () => {
       await fetchRemovePost(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.post.deleteSuccess'))
       refreshData()
     })
   }
@@ -166,7 +171,7 @@
     try {
       await fetchSavePost(form)
       dialogVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.post.saveSuccess'))
       refreshData()
     } finally {
       dialogSaving.value = false

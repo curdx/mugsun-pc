@@ -7,19 +7,21 @@
   <ElDrawer
     v-model="drawerVisible"
     size="960px"
-    :title="`会话回放 · ${sessionId}`"
+    :title="$t('pages.track.shared.drawerTitle', { id: sessionId })"
     @opened="onOpened"
     @closed="onClosed"
   >
     <div v-loading="loading" class="replay-player-wrap">
       <!-- 会话元数据头 -->
       <div v-if="meta" class="replay-meta">
-        <ElTag v-if="meta.hasError === 1" size="small" type="danger" effect="plain">含错误</ElTag>
-        <span>访客 {{ meta.distinctId || '-' }}</span>
-        <span>入口 {{ meta.entryPath || '-' }}</span>
-        <span>开始 {{ fmtTrackTime(meta.startTime) }}</span>
-        <span>时长 {{ fmtTrackDuration(meta.durationMs) }}</span>
-        <span>事件 {{ loadedEvents }} 条</span>
+        <ElTag v-if="meta.hasError === 1" size="small" type="danger" effect="plain">{{
+          $t('pages.track.shared.hasError')
+        }}</ElTag>
+        <span>{{ $t('pages.track.shared.visitor') }} {{ meta.distinctId || '-' }}</span>
+        <span>{{ $t('pages.track.shared.entry') }} {{ meta.entryPath || '-' }}</span>
+        <span>{{ $t('pages.track.shared.start') }} {{ fmtTrackTime(meta.startTime) }}</span>
+        <span>{{ $t('pages.track.shared.duration') }} {{ fmtTrackDuration(meta.durationMs) }}</span>
+        <span>{{ $t('pages.track.shared.eventsCount', { count: loadedEvents }) }}</span>
         <span>{{ fmtTrackSize(meta.sizeBytes) }}</span>
       </div>
       <ElAlert
@@ -28,7 +30,7 @@
         :closable="false"
         show-icon
         class="replay-skip-tip"
-        :title="`${skippedBlocks} 个块缺失或已过期，已跳过（时间轴可能有空洞）`"
+        :title="$t('pages.track.shared.skippedBlocksTip', { count: skippedBlocks })"
       />
 
       <!-- 播放器挂载点（rrweb-player 自建 DOM，禁 v-html） -->
@@ -54,7 +56,7 @@
 
       <ElEmpty
         v-if="!loading && !playerReady && !errorMsg"
-        description="回放数据加载中或无有效块"
+        :description="$t('pages.track.shared.emptyReplay')"
       />
       <ElResult v-if="errorMsg" icon="error" :title="errorMsg" />
     </div>
@@ -70,6 +72,7 @@
     fmtTrackTime
   } from '@/views/track/shared/useTrackApp'
   import { ElAlert, ElDrawer, ElEmpty, ElResult, ElTag, ElTooltip } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
   import 'rrweb-player/dist/style.css'
 
   interface Props {
@@ -83,6 +86,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const drawerVisible = computed({
     get: () => props.visible,
@@ -199,7 +204,7 @@
         (a, b) => a.seq - b.seq
       )
       if (blocks.length === 0) {
-        errorMsg.value = '该会话暂无回放块'
+        errorMsg.value = t('pages.track.shared.noBlocks')
         return
       }
 
@@ -219,7 +224,7 @@
       }
       skippedBlocks.value = skipped
       if (events.length === 0) {
-        errorMsg.value = '回放块全部缺失或已过期'
+        errorMsg.value = t('pages.track.shared.allBlocksMissing')
         return
       }
       loadedEvents.value = events.length
@@ -246,7 +251,7 @@
       replayEvents.value = Array.isArray(sessionEvents) ? sessionEvents : []
     } catch (e: any) {
       if (gen !== loadGen) return
-      errorMsg.value = e?.message || '回放加载失败'
+      errorMsg.value = e?.message || t('pages.track.shared.loadFailed')
     } finally {
       if (gen === loadGen) loading.value = false
     }

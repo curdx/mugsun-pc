@@ -2,18 +2,18 @@
 <template>
   <div class="help-drawer">
     <!-- 右缘悬浮触发按钮 -->
-    <button class="help-trigger" title="帮助文档" @click="openDrawer">
+    <button class="help-trigger" :title="$t('components.helpDrawer.title')" @click="openDrawer">
       <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
         <path
           d="M12 2a10 10 0 100 20 10 10 0 000-20zm.02 15.5a1.2 1.2 0 110-2.4 1.2 1.2 0 010 2.4zm1.7-6.06c-.7.53-.86.78-.86 1.31v.5h-1.7v-.6c0-1.1.42-1.68 1.28-2.32.62-.47.86-.77.86-1.28 0-.6-.47-1.02-1.2-1.02-.7 0-1.2.4-1.36 1.1l-1.62-.4c.3-1.34 1.4-2.24 3-2.24 1.76 0 2.98 1 2.98 2.5 0 1.03-.5 1.68-1.36 2.35z"
         />
       </svg>
-      <span class="help-trigger-text">帮助</span>
+      <span class="help-trigger-text">{{ $t('components.helpDrawer.triggerText') }}</span>
     </button>
 
     <ElDrawer
       v-model="visible"
-      title="帮助文档"
+      :title="$t('components.helpDrawer.title')"
       size="420px"
       :append-to-body="true"
       @open="loadDocs"
@@ -21,20 +21,27 @@
       <!-- 详情视图 -->
       <div v-if="current" class="help-detail">
         <ElButton link type="primary" class="help-back" @click="current = null">
-          <ArtSvgIcon icon="ri:arrow-left-line" /> 返回列表
+          <ArtSvgIcon icon="ri:arrow-left-line" /> {{ $t('components.helpDrawer.backToList') }}
         </ElButton>
         <h3 class="help-detail-title">{{ current.title }}</h3>
-        <div class="help-detail-meta">浏览量 {{ current.viewCount ?? 0 }}</div>
+        <div class="help-detail-meta">
+          {{ $t('components.helpDrawer.viewsLabel') }} {{ current.viewCount ?? 0 }}
+        </div>
         <div class="help-detail-content" v-safe-html="current?.content"></div>
       </div>
 
       <!-- 列表视图 -->
       <div v-else v-loading="loading" class="help-list">
-        <ElEmpty v-if="!docs.length && !loading" description="本页暂无帮助文档" />
+        <ElEmpty
+          v-if="!docs.length && !loading"
+          :description="$t('components.helpDrawer.emptyText')"
+        />
         <ul v-else class="help-items">
           <li v-for="doc in docs" :key="doc.id" class="help-item" @click="openDoc(doc)">
             <span class="help-item-title">{{ doc.title }}</span>
-            <span class="help-item-views">{{ doc.viewCount ?? 0 }} 次浏览</span>
+            <span class="help-item-views"
+              >{{ doc.viewCount ?? 0 }} {{ $t('components.helpDrawer.viewTimes') }}</span
+            >
           </li>
         </ul>
       </div>

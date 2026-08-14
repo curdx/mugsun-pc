@@ -3,32 +3,52 @@
   <div class="flow-def-page art-full-height">
     <ElCard class="art-table-card">
       <div class="flow-toolbar">
-        <ElButton v-perm="'sys:flow:design'" type="primary" @click="openDesigner"
-          >设计流程</ElButton
-        >
-        <ElButton :loading="loading" @click="loadData">刷新</ElButton>
+        <ElButton v-perm="'sys:flow:design'" type="primary" @click="openDesigner">{{
+          $t('pages.system.flowDef.designFlow')
+        }}</ElButton>
+        <ElButton :loading="loading" @click="loadData">{{
+          $t('pages.system.flowDef.refresh')
+        }}</ElButton>
       </div>
 
       <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
       <div class="flow-table-wrap">
         <ElTable v-loading="loading" :data="tableData" border height="100%">
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="flowCode" label="流程编码" min-width="140" />
-          <ElTableColumn prop="flowName" label="流程名称" min-width="160" />
-          <ElTableColumn prop="version" label="版本" width="90" />
-          <ElTableColumn label="状态" width="110">
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+          <ElTableColumn
+            prop="flowCode"
+            :label="$t('pages.system.flowDef.flowCode')"
+            min-width="140"
+          />
+          <ElTableColumn
+            prop="flowName"
+            :label="$t('pages.system.flowDef.flowName')"
+            min-width="160"
+          />
+          <ElTableColumn prop="version" :label="$t('pages.system.flowDef.version')" width="90" />
+          <ElTableColumn :label="$t('pages.system.flowDef.status')" width="110">
             <template #default="{ row }">
               <ElTag :type="row.isPublish === 1 ? 'success' : 'info'">
-                {{ row.isPublish === 1 ? '已发布' : '未发布' }}
+                {{
+                  row.isPublish === 1
+                    ? $t('pages.system.flowDef.published')
+                    : $t('pages.system.flowDef.unpublished')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="createTime" label="创建时间" min-width="180">
+          <ElTableColumn
+            prop="createTime"
+            :label="$t('pages.system.flowDef.createTime')"
+            min-width="180"
+          >
             <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="100" fixed="right">
+          <ElTableColumn :label="$t('pages.system.flowDef.actions')" width="100" fixed="right">
             <template #default="{ row }">
-              <ElButton link type="primary" @click="start(row)">发起</ElButton>
+              <ElButton link type="primary" @click="start(row)">{{
+                $t('pages.system.flowDef.start')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -38,59 +58,70 @@
     <!-- 图形流程设计器 -->
     <ElDialog
       v-model="designerVisible"
-      title="流程设计器"
+      :title="$t('pages.system.flowDef.designerTitle')"
       width="880px"
       align-center
       class="flow-designer-dialog"
     >
       <ElForm :model="design" label-width="90px">
-        <ElFormItem label="流程编码" required>
+        <ElFormItem :label="$t('pages.system.flowDef.flowCode')" required>
           <ElInput
             v-model="design.flowCode"
-            placeholder="英文标识，如 purchase"
+            :placeholder="$t('pages.system.flowDef.flowCodePlaceholder')"
             style="width: 260px"
           />
         </ElFormItem>
-        <ElFormItem label="流程名称" required>
-          <ElInput v-model="design.flowName" placeholder="如 采购审批" style="width: 260px" />
+        <ElFormItem :label="$t('pages.system.flowDef.flowName')" required>
+          <ElInput
+            v-model="design.flowName"
+            :placeholder="$t('pages.system.flowDef.flowNamePlaceholder')"
+            style="width: 260px"
+          />
         </ElFormItem>
-        <ElFormItem label="绑定表单">
+        <ElFormItem :label="$t('pages.system.flowDef.bindForm')">
           <ElSelect
             v-model="design.formKey"
             clearable
             filterable
-            placeholder="可选，绑定业务表单（发起填写、办理按字段权限渲染）"
+            :placeholder="$t('pages.system.flowDef.bindFormPlaceholder')"
             style="width: 360px"
             @change="onFormChange"
           >
             <ElOption v-for="f in forms" :key="f.value" :label="f.label" :value="f.value" />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem label="审批节点">
-          <ElButton size="small" type="primary" @click="addNode">+ 添加审批节点</ElButton>
+        <ElFormItem :label="$t('pages.system.flowDef.approvalNodes')">
+          <ElButton size="small" type="primary" @click="addNode">{{
+            $t('pages.system.flowDef.addNode')
+          }}</ElButton>
         </ElFormItem>
       </ElForm>
 
       <!-- 可视化流程图 -->
       <div class="flow-diagram">
-        <div class="flow-node flow-node--start">开始</div>
+        <div class="flow-node flow-node--start">{{ $t('pages.system.flowDef.startNode') }}</div>
         <template v-for="(node, idx) in design.nodes" :key="idx">
           <ArtSvgIcon class="flow-arrow" icon="ri:arrow-right-line" />
           <div class="flow-node flow-node--task">
-            <ElInput v-model="node.name" size="small" placeholder="节点名称" class="node-input" />
+            <ElInput
+              v-model="node.name"
+              size="small"
+              :placeholder="$t('pages.system.flowDef.nodeNamePlaceholder')"
+              class="node-input"
+            />
             <div v-for="(c, ci) in node.candidates" :key="ci" class="cand-row">
               <ElSelect v-model="c.type" size="small" class="cand-type" @change="c.value = ''">
-                <ElOption label="角色" value="role" />
-                <ElOption label="部门" value="dept" />
-                <ElOption label="指定用户" value="user" />
-                <ElOption label="发起人本人" value="initiator" />
-                <ElOption label="部门负责人" value="deptLeader" />
+                <ElOption :label="$t('pages.system.flowDef.role')" value="role" />
+                <ElOption :label="$t('pages.system.flowDef.dept')" value="dept" />
+                <ElOption :label="$t('pages.system.flowDef.specifiedUser')" value="user" />
+                <ElOption :label="$t('pages.system.flowDef.initiator')" value="initiator" />
+                <ElOption :label="$t('pages.system.flowDef.deptLeader')" value="deptLeader" />
               </ElSelect>
               <ElSelect
                 v-if="c.type === 'role'"
                 v-model="c.value"
                 size="small"
-                placeholder="角色"
+                :placeholder="$t('pages.system.flowDef.role')"
                 class="cand-val"
               >
                 <ElOption v-for="r in roles" :key="r.value" :label="r.label" :value="r.value" />
@@ -99,7 +130,7 @@
                 v-else-if="c.type === 'dept'"
                 v-model="c.value"
                 size="small"
-                placeholder="部门"
+                :placeholder="$t('pages.system.flowDef.dept')"
                 class="cand-val"
               >
                 <ElOption v-for="d in depts" :key="d.value" :label="d.label" :value="d.value" />
@@ -112,7 +143,7 @@
                 remote
                 :remote-method="searchUsers"
                 :loading="userSearching"
-                placeholder="输入用户名/昵称搜索"
+                :placeholder="$t('pages.system.flowDef.userSearchPlaceholder')"
                 class="cand-val"
               >
                 <ElOption v-for="u in users" :key="u.value" :label="u.label" :value="u.value" />
@@ -127,75 +158,92 @@
               >
             </div>
             <div class="node-ops">
-              <ElButton link type="primary" size="small" @click="addCandidate(node)"
-                >+候选人</ElButton
-              >
+              <ElButton link type="primary" size="small" @click="addCandidate(node)">{{
+                $t('pages.system.flowDef.addCandidate')
+              }}</ElButton>
               <ElButton
                 v-if="design.formKey"
                 link
                 type="warning"
                 size="small"
                 @click="openPerms(node)"
-                >字段权限</ElButton
+                >{{ $t('pages.system.flowDef.fieldPerms') }}</ElButton
               >
-              <ElButton link type="danger" size="small" @click="removeNode(idx)">删除</ElButton>
+              <ElButton link type="danger" size="small" @click="removeNode(idx)">{{
+                $t('pages.system.flowDef.delete')
+              }}</ElButton>
             </div>
           </div>
         </template>
         <ArtSvgIcon class="flow-arrow" icon="ri:arrow-right-line" />
-        <div class="flow-node flow-node--end">结束</div>
+        <div class="flow-node flow-node--end">{{ $t('pages.system.flowDef.endNode') }}</div>
       </div>
 
       <template #footer>
-        <ElButton @click="designerVisible = false">取消</ElButton>
+        <ElButton @click="designerVisible = false">{{ $t('common.cancel') }}</ElButton>
         <ElButton
           v-perm="'sys:flow:design'"
           type="primary"
           :loading="deploying"
           @click="submitDesign"
-          >部署流程</ElButton
+          >{{ $t('pages.system.flowDef.deploy') }}</ElButton
         >
       </template>
     </ElDialog>
 
     <!-- 节点字段权限配置 -->
-    <ElDialog v-model="permsVisible" title="字段级权限" width="480px" align-center>
+    <ElDialog
+      v-model="permsVisible"
+      :title="$t('pages.system.flowDef.fieldPermsTitle')"
+      width="480px"
+      align-center
+    >
       <ElAlert
         type="info"
         :closable="false"
-        title="办理该节点时，表单字段按此权限渲染（可写/只读/隐藏）"
+        :title="$t('pages.system.flowDef.fieldPermsTip')"
         style="margin-bottom: 12px"
       />
       <ElTable :data="fields" border max-height="360">
-        <ElTableColumn prop="title" label="字段" min-width="140" />
-        <ElTableColumn prop="field" label="标识" min-width="120" />
-        <ElTableColumn label="权限" width="140">
+        <ElTableColumn prop="title" :label="$t('pages.system.flowDef.field')" min-width="140" />
+        <ElTableColumn prop="field" :label="$t('pages.system.flowDef.fieldKey')" min-width="120" />
+        <ElTableColumn :label="$t('pages.system.flowDef.perm')" width="140">
           <template #default="{ row }">
             <ElSelect v-model="permDraft[row.field]" size="small" style="width: 100%">
-              <ElOption label="可写" value="WRITE" />
-              <ElOption label="只读" value="READ" />
-              <ElOption label="隐藏" value="NONE" />
+              <ElOption :label="$t('pages.system.flowDef.writable')" value="WRITE" />
+              <ElOption :label="$t('pages.system.flowDef.readonly')" value="READ" />
+              <ElOption :label="$t('pages.system.flowDef.hidden')" value="NONE" />
             </ElSelect>
           </template>
         </ElTableColumn>
       </ElTable>
-      <ElEmpty v-if="!fields.length" description="该表单无可配置字段" :image-size="50" />
+      <ElEmpty
+        v-if="!fields.length"
+        :description="$t('pages.system.flowDef.noFields')"
+        :image-size="50"
+      />
       <template #footer>
-        <ElButton @click="permsVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="savePerms">保存</ElButton>
+        <ElButton @click="permsVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="savePerms">{{ $t('pages.system.flowDef.save') }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 发起：带业务表单填写 -->
     <ElDialog
       v-model="startVisible"
-      :title="`发起 - ${startCtx.flowName || startCtx.flowCode}`"
+      :title="
+        $t('pages.system.flowDef.startTitle', { name: startCtx.flowName || startCtx.flowCode })
+      "
       width="600px"
       align-center
     >
       <ElForm label-width="90px">
-        <ElFormItem label="业务单号" required>
-          <ElInput v-model="startBusinessId" placeholder="业务单号" style="width: 320px" />
+        <ElFormItem :label="$t('pages.system.flowDef.businessId')" required>
+          <ElInput
+            v-model="startBusinessId"
+            :placeholder="$t('pages.system.flowDef.businessId')"
+            style="width: 320px"
+          />
         </ElFormItem>
       </ElForm>
       <ApprovalForm
@@ -205,8 +253,10 @@
         :option-json="startForm.option"
       />
       <template #footer>
-        <ElButton @click="startVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="starting" @click="submitStart">发起</ElButton>
+        <ElButton @click="startVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="starting" @click="submitStart">{{
+          $t('pages.system.flowDef.start')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -214,6 +264,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import formCreate from '@form-create/element-ui'
   import ApprovalForm from '../flow-center/components/ApprovalForm.vue'
   import {
@@ -231,6 +282,8 @@
   import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'FlowDef' })
+
+  const { t } = useI18n()
 
   interface Candidate {
     type: string
@@ -320,7 +373,7 @@
 
   const submitStart = async (): Promise<void> => {
     if (!startBusinessId.value) {
-      ElMessage.warning('请填写业务单号')
+      ElMessage.warning(t('pages.system.flowDef.msgBusinessIdRequired'))
       return
     }
     starting.value = true
@@ -333,14 +386,14 @@
           try {
             await startFormRef.value.validate()
           } catch {
-            ElMessage.warning('请完善表单必填项')
+            ElMessage.warning(t('pages.system.flowDef.msgFormIncomplete'))
             return
           }
           variable = startFormRef.value.getFormData()
         }
         await fetchFlowStartBy(startCtx.flowCode, startBusinessId.value, { variable })
       }
-      ElMessage.success('已发起，可在审批中心处理')
+      ElMessage.success(t('pages.system.flowDef.msgStarted'))
       startVisible.value = false
     } finally {
       starting.value = false
@@ -356,14 +409,19 @@
   })
 
   const openDesigner = (): void => {
-    Object.assign(design, { flowCode: '', flowName: '', formKey: '', nodes: [newNode('部门审批')] })
+    Object.assign(design, {
+      flowCode: '',
+      flowName: '',
+      formKey: '',
+      nodes: [newNode(t('pages.system.flowDef.defaultDeptApproval'))]
+    })
     // 编辑回显兜底：打开时按 id 精确补拉 user 候选人选项（新建时为空集合，直接跳过）
     void ensureUsers(userCandidateIds.value)
     designerVisible.value = true
   }
 
   const addNode = (): void => {
-    design.nodes.push(newNode('审批节点'))
+    design.nodes.push(newNode(t('pages.system.flowDef.approvalNodes')))
   }
   const removeNode = (idx: number): void => {
     design.nodes.splice(idx, 1)
@@ -422,11 +480,11 @@
 
   const submitDesign = async (): Promise<void> => {
     if (!design.flowCode || !design.flowName) {
-      ElMessage.warning('请填写流程编码与名称')
+      ElMessage.warning(t('pages.system.flowDef.msgCodeNameRequired'))
       return
     }
     if (!design.nodes.length) {
-      ElMessage.warning('至少添加一个审批节点')
+      ElMessage.warning(t('pages.system.flowDef.msgNodeRequired'))
       return
     }
     const nodes = design.nodes.map((n) => ({
@@ -435,7 +493,7 @@
       fieldPerms: n.fieldPerms
     }))
     if (nodes.some((n) => n.candidates.length === 0)) {
-      ElMessage.warning('每个节点需选择候选人')
+      ElMessage.warning(t('pages.system.flowDef.msgCandidateRequired'))
       return
     }
     deploying.value = true
@@ -446,7 +504,7 @@
         formKey: design.formKey || null,
         nodes
       })
-      ElMessage.success('流程已部署')
+      ElMessage.success(t('pages.system.flowDef.msgDeployed'))
       designerVisible.value = false
       loadData()
     } finally {

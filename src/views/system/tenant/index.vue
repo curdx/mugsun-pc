@@ -11,50 +11,86 @@
     />
     <ElCard class="art-table-card">
       <div class="tenant-toolbar">
-        <ElButton v-perm="'sys:tenant:save'" type="primary" @click="openCreate" v-ripple
-          >新增租户</ElButton
-        >
+        <ElButton v-perm="'sys:tenant:save'" type="primary" @click="openCreate" v-ripple>{{
+          $t('pages.system.tenant.create')
+        }}</ElButton>
       </div>
 
       <!-- 表格为自由增长内容：art-table-card 卡片体是 height:100%+overflow:hidden 裁剪，
            内部须自备滚动，否则矮视口下底部行被切断且不可达（同 track/user 修法） -->
       <div v-loading="loading" class="tenant-table-wrap">
         <ElTable :data="tableData" border>
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
-          <ElTableColumn prop="tenantName" label="租户名称" min-width="140" />
-          <ElTableColumn label="套餐" min-width="100">
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+          <ElTableColumn
+            prop="tenantCode"
+            :label="$t('pages.system.tenant.tenantCode')"
+            width="120"
+          />
+          <ElTableColumn
+            prop="tenantName"
+            :label="$t('pages.system.tenant.tenantName')"
+            min-width="140"
+          />
+          <ElTableColumn :label="$t('pages.system.tenant.package')" min-width="100">
             <template #default="{ row }">
               <ElTag v-if="row.packageId" type="success">{{ packageName(row.packageId) }}</ElTag>
-              <ElTag v-else type="info">不限功能</ElTag>
+              <ElTag v-else type="info">{{ $t('pages.system.tenant.noLimitFeature') }}</ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="contactUser" label="联系人" min-width="100" />
-          <ElTableColumn prop="contactPhone" label="联系电话" min-width="110" />
-          <ElTableColumn label="账号上限" width="90" align="center" header-align="center">
+          <ElTableColumn
+            prop="contactUser"
+            :label="$t('pages.system.tenant.contactUser')"
+            min-width="100"
+          />
+          <ElTableColumn
+            prop="contactPhone"
+            :label="$t('pages.system.tenant.contactPhone')"
+            min-width="110"
+          />
+          <ElTableColumn
+            :label="$t('pages.system.tenant.accountLimit')"
+            width="90"
+            align="center"
+            header-align="center"
+          >
             <template #default="{ row }">
-              {{ row.accountCount == null || row.accountCount < 0 ? '不限' : row.accountCount }}
+              {{
+                row.accountCount == null || row.accountCount < 0
+                  ? $t('pages.system.tenant.unlimited')
+                  : row.accountCount
+              }}
             </template>
           </ElTableColumn>
-          <ElTableColumn label="状态" width="90" align="center" header-align="center">
+          <ElTableColumn
+            :label="$t('pages.system.tenant.status')"
+            width="90"
+            align="center"
+            header-align="center"
+          >
             <template #default="{ row }">
-              <ElTag v-if="row.status === 0" type="danger">停用</ElTag>
-              <ElTag v-else type="success">正常</ElTag>
+              <ElTag v-if="row.status === 0" type="danger">{{
+                $t('pages.system.tenant.disabled')
+              }}</ElTag>
+              <ElTag v-else type="success">{{ $t('pages.system.tenant.normal') }}</ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="过期时间" min-width="180">
+          <ElTableColumn :label="$t('pages.system.tenant.expireTime')" min-width="180">
             <template #default="{ row }">
-              {{ row.expireTime ? formatTableTime(row.expireTime) : '永不过期' }}
+              {{
+                row.expireTime
+                  ? formatTableTime(row.expireTime)
+                  : $t('pages.system.tenant.neverExpire')
+              }}
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="150" fixed="right">
+          <ElTableColumn :label="$t('pages.system.tenant.actions')" width="150" fixed="right">
             <template #default="{ row }">
-              <ElButton v-perm="'sys:tenant:save'" link type="primary" @click="openEdit(row)"
-                >编辑</ElButton
-              >
-              <ElButton v-perm="'sys:tenant:remove'" link type="danger" @click="deleteRow(row)"
-                >删除</ElButton
-              >
+              <ElButton v-perm="'sys:tenant:save'" link type="primary" @click="openEdit(row)">{{
+                $t('pages.system.tenant.edit')
+              }}</ElButton>
+              <ElButton v-perm="'sys:tenant:remove'" link type="danger" @click="deleteRow(row)">{{
+                $t('pages.system.tenant.delete')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -73,6 +109,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import {
     fetchTenantList,
@@ -87,6 +124,8 @@
 
   defineOptions({ name: 'Tenant' })
 
+  const { t } = useI18n()
+
   // ===== 查询栏 =====
   const searchForm = ref({
     tenantName: '',
@@ -96,26 +135,26 @@
   const searchItems = computed(() => [
     {
       key: 'tenantName',
-      label: '租户名称',
+      label: t('pages.system.tenant.tenantName'),
       type: 'input',
-      props: { placeholder: '请输入租户名称', clearable: true }
+      props: { placeholder: t('pages.system.tenant.namePlaceholder'), clearable: true }
     },
     {
       key: 'tenantCode',
-      label: '租户编号',
+      label: t('pages.system.tenant.tenantCode'),
       type: 'input',
-      props: { placeholder: '请输入租户编号', clearable: true }
+      props: { placeholder: t('pages.system.tenant.codePlaceholder'), clearable: true }
     },
     {
       key: 'status',
-      label: '状态',
+      label: t('pages.system.tenant.status'),
       type: 'select',
       props: {
-        placeholder: '请选择状态',
+        placeholder: t('pages.system.tenant.statusPlaceholder'),
         clearable: true,
         options: [
-          { label: '正常', value: 1 },
-          { label: '停用', value: 0 }
+          { label: t('pages.system.tenant.normal'), value: 1 },
+          { label: t('pages.system.tenant.disabled'), value: 0 }
         ]
       }
     }
@@ -185,10 +224,10 @@
     try {
       if (form.id) {
         await fetchUpdateTenant(form)
-        ElMessage.success('更新成功')
+        ElMessage.success(t('pages.system.tenant.msgUpdated'))
       } else {
         const code = await fetchCreateTenant(form)
-        ElMessage.success(`租户创建成功，编号 ${code}，已初始化默认数据`)
+        ElMessage.success(t('pages.system.tenant.msgCreated', { code }))
       }
       dialogVisible.value = false
       loadData()
@@ -198,13 +237,17 @@
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除租户"${row.tenantName}"吗？`, '删除租户', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.tenant.confirmDelete', { name: row.tenantName }),
+      t('pages.system.tenant.deleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveTenant(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.tenant.msgDeleted'))
       loadData()
     })
   }

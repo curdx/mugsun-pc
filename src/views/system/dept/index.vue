@@ -11,33 +11,47 @@
     />
     <ElCard class="art-table-card">
       <div class="dept-toolbar">
-        <ElButton v-perm="'sys:dept:save'" @click="showDialog('add')" v-ripple>新增部门</ElButton>
+        <ElButton v-perm="'sys:dept:save'" @click="showDialog('add')" v-ripple>{{
+          $t('pages.system.dept.addDept')
+        }}</ElButton>
       </div>
 
       <!-- 树表为自由增长内容：art-table-card 卡片体是 height:100%+overflow:hidden 裁剪，
            内部须自备滚动，否则矮视口下深层节点被切断且不可达（同 track/user 修法） -->
       <div v-loading="loading" class="dept-table-wrap">
         <ElTable :data="treeData" row-key="id" default-expand-all border>
-          <ElTableColumn prop="deptName" label="部门名称" min-width="220" />
-          <ElTableColumn prop="sort" label="排序" width="100" />
-          <ElTableColumn prop="createTime" label="创建时间" min-width="180">
+          <ElTableColumn
+            prop="deptName"
+            :label="$t('pages.system.dept.fields.deptName')"
+            min-width="220"
+          />
+          <ElTableColumn prop="sort" :label="$t('pages.system.dept.fields.sort')" width="100" />
+          <ElTableColumn
+            prop="createTime"
+            :label="$t('pages.system.dept.fields.createTime')"
+            min-width="180"
+          >
             <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="240">
+          <ElTableColumn :label="$t('pages.system.dept.fields.operation')" width="240">
             <template #default="{ row }">
-              <ElButton v-perm="'sys:dept:save'" link type="primary" @click="showDialog('add', row)"
-                >新增下级</ElButton
+              <ElButton
+                v-perm="'sys:dept:save'"
+                link
+                type="primary"
+                @click="showDialog('add', row)"
+                >{{ $t('pages.system.dept.addChild') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:dept:save'"
                 link
                 type="primary"
                 @click="showDialog('edit', row)"
-                >编辑</ElButton
+                >{{ $t('pages.system.dept.edit') }}</ElButton
               >
-              <ElButton v-perm="'sys:dept:remove'" link type="danger" @click="deleteRow(row)"
-                >删除</ElButton
-              >
+              <ElButton v-perm="'sys:dept:remove'" link type="danger" @click="deleteRow(row)">{{
+                $t('pages.system.dept.delete')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -57,6 +71,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import {
     fetchDeptTree,
@@ -71,6 +86,8 @@
 
   defineOptions({ name: 'Dept' })
 
+  const { t } = useI18n()
+
   // ===== 查询栏 =====
   const searchForm = ref({
     deptName: ''
@@ -78,9 +95,9 @@
   const searchItems = computed(() => [
     {
       key: 'deptName',
-      label: '部门名称',
+      label: t('pages.system.dept.fields.deptName'),
       type: 'input',
-      props: { placeholder: '请输入部门名称', clearable: true }
+      props: { placeholder: t('pages.system.dept.placeholder.deptName'), clearable: true }
     }
   ])
 
@@ -128,13 +145,13 @@
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm('确定要删除该部门吗？', '删除部门', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    ElMessageBox.confirm(t('pages.system.dept.deleteConfirm'), t('pages.system.dept.deleteDept'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     }).then(async () => {
       await fetchRemoveDept(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.dept.deleteSuccess'))
       loadData()
     })
   }
@@ -144,7 +161,7 @@
     try {
       await fetchSaveDept(form)
       dialogVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.dept.saveSuccess'))
       loadData()
     } finally {
       dialogSaving.value = false

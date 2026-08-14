@@ -3,97 +3,181 @@
   <div class="flow-center-page art-full-height">
     <ElCard class="art-table-card">
       <ElTabs v-model="tab" @tab-change="onTabChange">
-        <ElTabPane label="待办" name="todo">
-          <div class="fc-toolbar"><ElButton :loading="loading" @click="load">刷新</ElButton></div>
+        <ElTabPane :label="$t('pages.system.flowCenter.tabTodo')" name="todo">
+          <div class="fc-toolbar">
+            <ElButton :loading="loading" @click="load">{{
+              $t('pages.system.flowCenter.refresh')
+            }}</ElButton>
+          </div>
           <ElTable :data="rows" border :loading="loading">
-            <ElTableColumn type="index" label="序号" width="56" />
-            <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
-            <ElTableColumn prop="flowName" label="流程" min-width="120" />
-            <ElTableColumn prop="nodeName" label="当前节点" min-width="120" />
-            <ElTableColumn prop="createTime" label="到达时间" min-width="170">
+            <ElTableColumn type="index" :label="$t('table.column.index')" width="56" />
+            <ElTableColumn
+              prop="businessId"
+              :label="$t('pages.system.flowCenter.businessId')"
+              min-width="150"
+            />
+            <ElTableColumn
+              prop="flowName"
+              :label="$t('pages.system.flowCenter.flow')"
+              min-width="120"
+            />
+            <ElTableColumn
+              prop="nodeName"
+              :label="$t('pages.system.flowCenter.currentNode')"
+              min-width="120"
+            />
+            <ElTableColumn
+              prop="createTime"
+              :label="$t('pages.system.flowCenter.arriveTime')"
+              min-width="170"
+            >
               <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
             </ElTableColumn>
-            <ElTableColumn label="操作" width="140" fixed="right">
+            <ElTableColumn :label="$t('pages.system.flowCenter.actions')" width="140" fixed="right">
               <template #default="{ row }">
-                <ElButton link type="primary" @click="openDetail(row, 'todo')">办理</ElButton>
+                <ElButton link type="primary" @click="openDetail(row, 'todo')">{{
+                  $t('pages.system.flowCenter.handle')
+                }}</ElButton>
               </template>
             </ElTableColumn>
           </ElTable>
         </ElTabPane>
 
-        <ElTabPane label="我发起" name="started">
-          <div class="fc-toolbar"><ElButton :loading="loading" @click="load">刷新</ElButton></div>
+        <ElTabPane :label="$t('pages.system.flowCenter.tabStarted')" name="started">
+          <div class="fc-toolbar">
+            <ElButton :loading="loading" @click="load">{{
+              $t('pages.system.flowCenter.refresh')
+            }}</ElButton>
+          </div>
           <ElTable :data="rows" border :loading="loading">
-            <ElTableColumn type="index" label="序号" width="56" />
-            <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
-            <ElTableColumn prop="flowName" label="流程" min-width="120" />
-            <ElTableColumn prop="nodeName" label="当前节点" min-width="110" />
-            <ElTableColumn label="状态" width="90">
+            <ElTableColumn type="index" :label="$t('table.column.index')" width="56" />
+            <ElTableColumn
+              prop="businessId"
+              :label="$t('pages.system.flowCenter.businessId')"
+              min-width="150"
+            />
+            <ElTableColumn
+              prop="flowName"
+              :label="$t('pages.system.flowCenter.flow')"
+              min-width="120"
+            />
+            <ElTableColumn
+              prop="nodeName"
+              :label="$t('pages.system.flowCenter.currentNode')"
+              min-width="110"
+            />
+            <ElTableColumn :label="$t('pages.system.flowCenter.status')" width="90">
               <template #default="{ row }"
                 ><ElTag :type="statusTag(row)">{{ statusText(row) }}</ElTag></template
               >
             </ElTableColumn>
-            <ElTableColumn prop="createTime" label="发起时间" min-width="170">
+            <ElTableColumn
+              prop="createTime"
+              :label="$t('pages.system.flowCenter.startTime')"
+              min-width="170"
+            >
               <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
             </ElTableColumn>
-            <ElTableColumn label="操作" width="170" fixed="right">
+            <ElTableColumn :label="$t('pages.system.flowCenter.actions')" width="170" fixed="right">
               <template #default="{ row }">
-                <ElButton link type="primary" @click="openDetail(row, 'view')">详情</ElButton>
+                <ElButton link type="primary" @click="openDetail(row, 'view')">{{
+                  $t('pages.system.flowCenter.detail')
+                }}</ElButton>
                 <ElButton
                   v-if="String(row.flowStatus) === '1'"
                   link
                   type="warning"
                   @click="revoke(row)"
-                  >撤回</ElButton
+                  >{{ $t('pages.system.flowCenter.revoke') }}</ElButton
                 >
               </template>
             </ElTableColumn>
           </ElTable>
         </ElTabPane>
 
-        <ElTabPane label="已办" name="done">
-          <div class="fc-toolbar"><ElButton :loading="loading" @click="load">刷新</ElButton></div>
+        <ElTabPane :label="$t('pages.system.flowCenter.tabDone')" name="done">
+          <div class="fc-toolbar">
+            <ElButton :loading="loading" @click="load">{{
+              $t('pages.system.flowCenter.refresh')
+            }}</ElButton>
+          </div>
           <ElTable :data="rows" border :loading="loading">
-            <ElTableColumn type="index" label="序号" width="56" />
-            <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
-            <ElTableColumn prop="flowName" label="流程" min-width="120" />
-            <ElTableColumn prop="nodeName" label="办理节点" min-width="110" />
-            <ElTableColumn label="我的操作" width="90">
+            <ElTableColumn type="index" :label="$t('table.column.index')" width="56" />
+            <ElTableColumn
+              prop="businessId"
+              :label="$t('pages.system.flowCenter.businessId')"
+              min-width="150"
+            />
+            <ElTableColumn
+              prop="flowName"
+              :label="$t('pages.system.flowCenter.flow')"
+              min-width="120"
+            />
+            <ElTableColumn
+              prop="nodeName"
+              :label="$t('pages.system.flowCenter.handleNode')"
+              min-width="110"
+            />
+            <ElTableColumn :label="$t('pages.system.flowCenter.myAction')" width="90">
               <template #default="{ row }">{{ skipText(row.skipType) }}</template>
             </ElTableColumn>
-            <ElTableColumn label="流程状态" width="90">
+            <ElTableColumn :label="$t('pages.system.flowCenter.flowStatus')" width="90">
               <template #default="{ row }"
                 ><ElTag :type="statusTag(row)">{{ statusText(row) }}</ElTag></template
               >
             </ElTableColumn>
-            <ElTableColumn prop="createTime" label="办理时间" min-width="170">
+            <ElTableColumn
+              prop="createTime"
+              :label="$t('pages.system.flowCenter.handleTime')"
+              min-width="170"
+            >
               <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
             </ElTableColumn>
-            <ElTableColumn label="操作" width="90" fixed="right">
+            <ElTableColumn :label="$t('pages.system.flowCenter.actions')" width="90" fixed="right">
               <template #default="{ row }">
-                <ElButton link type="primary" @click="openDetail(row, 'view')">详情</ElButton>
+                <ElButton link type="primary" @click="openDetail(row, 'view')">{{
+                  $t('pages.system.flowCenter.detail')
+                }}</ElButton>
               </template>
             </ElTableColumn>
           </ElTable>
         </ElTabPane>
 
-        <ElTabPane label="抄送我的" name="copy">
-          <div class="fc-toolbar"><ElButton :loading="loading" @click="load">刷新</ElButton></div>
+        <ElTabPane :label="$t('pages.system.flowCenter.tabCopy')" name="copy">
+          <div class="fc-toolbar">
+            <ElButton :loading="loading" @click="load">{{
+              $t('pages.system.flowCenter.refresh')
+            }}</ElButton>
+          </div>
           <ElTable :data="rows" border :loading="loading">
-            <ElTableColumn type="index" label="序号" width="56" />
-            <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
-            <ElTableColumn prop="flowName" label="流程" min-width="120" />
-            <ElTableColumn label="状态" width="90">
+            <ElTableColumn type="index" :label="$t('table.column.index')" width="56" />
+            <ElTableColumn
+              prop="businessId"
+              :label="$t('pages.system.flowCenter.businessId')"
+              min-width="150"
+            />
+            <ElTableColumn
+              prop="flowName"
+              :label="$t('pages.system.flowCenter.flow')"
+              min-width="120"
+            />
+            <ElTableColumn :label="$t('pages.system.flowCenter.status')" width="90">
               <template #default="{ row }"
                 ><ElTag :type="statusTag(row)">{{ statusText(row) }}</ElTag></template
               >
             </ElTableColumn>
-            <ElTableColumn prop="createTime" label="抄送时间" min-width="170">
+            <ElTableColumn
+              prop="createTime"
+              :label="$t('pages.system.flowCenter.copyTime')"
+              min-width="170"
+            >
               <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
             </ElTableColumn>
-            <ElTableColumn label="操作" width="90" fixed="right">
+            <ElTableColumn :label="$t('pages.system.flowCenter.actions')" width="90" fixed="right">
               <template #default="{ row }">
-                <ElButton link type="primary" @click="openDetail(row, 'view')">详情</ElButton>
+                <ElButton link type="primary" @click="openDetail(row, 'view')">{{
+                  $t('pages.system.flowCenter.detail')
+                }}</ElButton>
               </template>
             </ElTableColumn>
           </ElTable>
@@ -104,10 +188,14 @@
     <!-- 通用审批抽屉 -->
     <ElDrawer v-model="detailVisible" :title="detailTitle" size="620px" :destroy-on-close="true">
       <div v-loading="detailLoading" class="fc-detail">
-        <ElDivider content-position="left">流程进度</ElDivider>
+        <ElDivider content-position="left">{{
+          $t('pages.system.flowCenter.progressDivider')
+        }}</ElDivider>
         <FlowProgress :nodes="progress" />
 
-        <ElDivider content-position="left">业务表单</ElDivider>
+        <ElDivider content-position="left">{{
+          $t('pages.system.flowCenter.formDivider')
+        }}</ElDivider>
         <ApprovalForm
           ref="formRef"
           :schema="form.schema"
@@ -118,26 +206,47 @@
         />
 
         <template v-if="mode === 'todo'">
-          <ElDivider content-position="left">下一节点审批人</ElDivider>
+          <ElDivider content-position="left">{{
+            $t('pages.system.flowCenter.nextApproverDivider')
+          }}</ElDivider>
           <div v-if="nextApprovers.length" class="fc-next">
             <div v-for="na in nextApprovers" :key="na.nodeCode" class="fc-next-node">
               <span class="fc-next-name">{{ na.nodeName }}</span>
-              <template v-if="na.end"><ElTag size="small" type="info">流程结束</ElTag></template>
+              <template v-if="na.end"
+                ><ElTag size="small" type="info">{{
+                  $t('pages.system.flowCenter.flowEnd')
+                }}</ElTag></template
+              >
               <template v-else>
                 <ElTag v-for="a in na.approvers" :key="a.id" size="small" class="fc-next-tag">{{
                   a.name
                 }}</ElTag>
-                <span v-if="!na.approvers.length" class="fc-next-empty">（无）</span>
+                <span v-if="!na.approvers.length" class="fc-next-empty">{{
+                  $t('pages.system.flowCenter.noneText')
+                }}</span>
               </template>
             </div>
           </div>
-          <ElEmpty v-else description="无后续节点" :image-size="50" />
+          <ElEmpty
+            v-else
+            :description="$t('pages.system.flowCenter.noNextNode')"
+            :image-size="50"
+          />
 
-          <ElDivider content-position="left">审批意见</ElDivider>
-          <ElInput v-model="opinion" type="textarea" :rows="2" placeholder="选填" />
+          <ElDivider content-position="left">{{
+            $t('pages.system.flowCenter.opinionDivider')
+          }}</ElDivider>
+          <ElInput
+            v-model="opinion"
+            type="textarea"
+            :rows="2"
+            :placeholder="$t('pages.system.flowCenter.optional')"
+          />
         </template>
 
-        <ElDivider content-position="left">流转记录</ElDivider>
+        <ElDivider content-position="left">{{
+          $t('pages.system.flowCenter.historyDivider')
+        }}</ElDivider>
         <ElTimeline>
           <ElTimelineItem
             v-for="(h, i) in history"
@@ -148,7 +257,9 @@
             <div class="fc-his-node">{{ h.nodeName }}</div>
             <div class="fc-his-meta">
               {{ statusText(h) }}
-              <span v-if="h.approver">· 处理人 {{ h.approver }}</span>
+              <span v-if="h.approver">{{
+                $t('pages.system.flowCenter.handlerText', { name: h.approver })
+              }}</span>
               <span v-if="h.message">· {{ h.message }}</span>
             </div>
           </ElTimelineItem>
@@ -157,31 +268,39 @@
 
       <template v-if="mode === 'todo'" #footer>
         <div class="fc-actions">
-          <ElButton v-if="btn('pass')" type="success" :loading="submitting" @click="doPass"
-            >通过</ElButton
-          >
-          <ElButton v-if="btn('reject')" type="warning" @click="openOp('reject')">退回</ElButton>
+          <ElButton v-if="btn('pass')" type="success" :loading="submitting" @click="doPass">{{
+            $t('pages.system.flowCenter.pass')
+          }}</ElButton>
+          <ElButton v-if="btn('reject')" type="warning" @click="openOp('reject')">{{
+            $t('pages.system.flowCenter.reject')
+          }}</ElButton>
           <ElDropdown v-if="hasMore" @command="openOp">
             <ElButton
-              >更多<ElIcon><ArrowDown /></ElIcon
+              >{{ $t('pages.system.flowCenter.more') }}<ElIcon><ArrowDown /></ElIcon
             ></ElButton>
             <template #dropdown>
               <ElDropdownMenu>
-                <ElDropdownItem v-if="btn('rejectNode')" command="rejectNode"
-                  >退回指定节点</ElDropdownItem
-                >
-                <ElDropdownItem v-if="btn('transfer')" command="transfer">转办</ElDropdownItem>
-                <ElDropdownItem v-if="btn('depute')" command="depute">委派</ElDropdownItem>
-                <ElDropdownItem v-if="btn('addSignature')" command="addSignature"
-                  >加签</ElDropdownItem
-                >
-                <ElDropdownItem v-if="btn('reductionSignature')" command="reductionSignature"
-                  >减签</ElDropdownItem
-                >
-                <ElDropdownItem v-if="btn('copy')" command="copy">抄送</ElDropdownItem>
-                <ElDropdownItem v-if="btn('terminate')" command="terminate" divided
-                  >作废</ElDropdownItem
-                >
+                <ElDropdownItem v-if="btn('rejectNode')" command="rejectNode">{{
+                  $t('pages.system.flowCenter.rejectNode')
+                }}</ElDropdownItem>
+                <ElDropdownItem v-if="btn('transfer')" command="transfer">{{
+                  $t('pages.system.flowCenter.transfer')
+                }}</ElDropdownItem>
+                <ElDropdownItem v-if="btn('depute')" command="depute">{{
+                  $t('pages.system.flowCenter.depute')
+                }}</ElDropdownItem>
+                <ElDropdownItem v-if="btn('addSignature')" command="addSignature">{{
+                  $t('pages.system.flowCenter.addSignature')
+                }}</ElDropdownItem>
+                <ElDropdownItem v-if="btn('reductionSignature')" command="reductionSignature">{{
+                  $t('pages.system.flowCenter.reductionSignature')
+                }}</ElDropdownItem>
+                <ElDropdownItem v-if="btn('copy')" command="copy">{{
+                  $t('pages.system.flowCenter.copy')
+                }}</ElDropdownItem>
+                <ElDropdownItem v-if="btn('terminate')" command="terminate" divided>{{
+                  $t('pages.system.flowCenter.terminate')
+                }}</ElDropdownItem>
               </ElDropdownMenu>
             </template>
           </ElDropdown>
@@ -192,8 +311,12 @@
     <!-- 二级动作对话框（退回/转办/委派/加减签/抄送/作废） -->
     <ElDialog v-model="opVisible" :title="opTitle" width="460px" align-center>
       <ElForm label-width="72px">
-        <ElFormItem v-if="opKind === 'node'" label="退回节点">
-          <ElSelect v-model="opForm.nodeCode" placeholder="选择历史节点" style="width: 100%">
+        <ElFormItem v-if="opKind === 'node'" :label="$t('pages.system.flowCenter.rejectNodeLabel')">
+          <ElSelect
+            v-model="opForm.nodeCode"
+            :placeholder="$t('pages.system.flowCenter.selectHistoryNode')"
+            style="width: 100%"
+          >
             <ElOption
               v-for="n in backNodes"
               :key="n.nodeCode"
@@ -202,7 +325,7 @@
             />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem v-if="opKind === 'user'" label="选择人员">
+        <ElFormItem v-if="opKind === 'user'" :label="$t('pages.system.flowCenter.selectUser')">
           <ElSelect
             v-model="opForm.handlers"
             multiple
@@ -210,20 +333,30 @@
             remote
             :remote-method="searchUsers"
             :loading="userSearching"
-            placeholder="输入用户名/昵称搜索"
+            :placeholder="$t('pages.system.flowCenter.userSearchPlaceholder')"
             style="width: 100%"
             @change="syncSelected"
           >
             <ElOption v-for="u in users" :key="u.value" :label="u.label" :value="u.value" />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem v-if="opAction !== 'copy'" label="审批意见">
-          <ElInput v-model="opForm.message" type="textarea" :rows="2" placeholder="选填" />
+        <ElFormItem
+          v-if="opAction !== 'copy'"
+          :label="$t('pages.system.flowCenter.opinionDivider')"
+        >
+          <ElInput
+            v-model="opForm.message"
+            type="textarea"
+            :rows="2"
+            :placeholder="$t('pages.system.flowCenter.optional')"
+          />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="opVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="submitOp">确定</ElButton>
+        <ElButton @click="opVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submitOp">{{
+          $t('common.confirm')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -231,6 +364,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, computed, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { ArrowDown } from '@element-plus/icons-vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { formatTableTime } from '@/utils/date'
@@ -259,6 +393,8 @@
   import { useUserSelectSearch } from '@/hooks'
 
   defineOptions({ name: 'FlowCenter' })
+
+  const { t } = useI18n()
 
   const LOADERS: Record<string, () => Promise<any[]>> = {
     todo: fetchFlowMyTodo,
@@ -299,8 +435,8 @@
 
   const detailTitle = computed(() =>
     mode.value === 'todo'
-      ? `办理 - ${current.value?.businessId ?? ''}`
-      : `详情 - ${current.value?.businessId ?? ''}`
+      ? t('pages.system.flowCenter.titleHandle', { name: current.value?.businessId ?? '' })
+      : t('pages.system.flowCenter.titleDetail', { name: current.value?.businessId ?? '' })
   )
   const btn = (code: string): boolean => buttonList.value.includes(code)
   const hasMore = computed(() =>
@@ -374,7 +510,7 @@
       try {
         await formRef.value.validate()
       } catch {
-        ElMessage.warning('请完善表单必填项')
+        ElMessage.warning(t('pages.system.flowCenter.msgFormIncomplete'))
         return
       }
       variable = formRef.value.getFormData()
@@ -382,7 +518,7 @@
     submitting.value = true
     try {
       await fetchFlowHandle(current.value.taskId, opinion.value, variable)
-      ElMessage.success('已通过')
+      ElMessage.success(t('pages.system.flowCenter.approved'))
       detailVisible.value = false
       load()
     } finally {
@@ -395,44 +531,50 @@
     { title: string; kind: 'message' | 'node' | 'user'; run: (r: any) => Promise<any> }
   > = {
     reject: {
-      title: '退回上一步',
+      title: t('pages.system.flowCenter.titleRejectPrev'),
       kind: 'message',
       run: (r) => fetchFlowReject(r.taskId, opForm.message)
     },
     rejectNode: {
-      title: '退回指定节点',
+      title: t('pages.system.flowCenter.rejectNode'),
       kind: 'node',
       run: (r) => fetchFlowRejectNode(r.taskId, opForm.nodeCode, opForm.message)
     },
     terminate: {
-      title: '作废',
+      title: t('pages.system.flowCenter.terminate'),
       kind: 'message',
       run: (r) => fetchFlowTerminate(r.taskId, opForm.message)
     },
     transfer: {
-      title: '转办',
+      title: t('pages.system.flowCenter.transfer'),
       kind: 'user',
       run: (r) => fetchFlowOperation(r.taskId, 'transfer', opForm.handlers, opForm.message)
     },
     depute: {
-      title: '委派',
+      title: t('pages.system.flowCenter.depute'),
       kind: 'user',
       run: (r) => fetchFlowOperation(r.taskId, 'depute', opForm.handlers, opForm.message)
     },
     addSignature: {
-      title: '加签',
+      title: t('pages.system.flowCenter.addSignature'),
       kind: 'user',
       run: (r) => fetchFlowOperation(r.taskId, 'addSignature', opForm.handlers, opForm.message)
     },
     reductionSignature: {
-      title: '减签',
+      title: t('pages.system.flowCenter.reductionSignature'),
       kind: 'user',
       run: (r) =>
         fetchFlowOperation(r.taskId, 'reductionSignature', opForm.handlers, opForm.message)
     },
-    copy: { title: '抄送', kind: 'user', run: (r) => fetchFlowCopy(r.taskId, opForm.handlers) }
+    copy: {
+      title: t('pages.system.flowCenter.copy'),
+      kind: 'user',
+      run: (r) => fetchFlowCopy(r.taskId, opForm.handlers)
+    }
   }
-  const opTitle = computed(() => OP[opAction.value]?.title || '操作')
+  const opTitle = computed(
+    () => OP[opAction.value]?.title || t('pages.system.flowCenter.opFallback')
+  )
   const opKind = computed(() => OP[opAction.value]?.kind)
 
   const openOp = async (action: string): Promise<void> => {
@@ -452,7 +594,7 @@
     submitting.value = true
     try {
       await OP[opAction.value].run(current.value)
-      ElMessage.success('操作成功')
+      ElMessage.success(t('pages.system.flowCenter.msgSuccess'))
       opVisible.value = false
       detailVisible.value = false
       load()
@@ -462,31 +604,36 @@
   }
 
   const revoke = async (row: any): Promise<void> => {
-    await ElMessageBox.confirm('确认撤回该流程？', '撤回', { type: 'warning' })
+    await ElMessageBox.confirm(
+      t('pages.system.flowCenter.confirmRevoke'),
+      t('pages.system.flowCenter.revoke'),
+      { type: 'warning' }
+    )
     await fetchFlowRevoke(row.instanceId)
-    ElMessage.success('已撤回')
+    ElMessage.success(t('pages.system.flowCenter.msgRevoked'))
     load()
   }
 
   // ==================== 文案 ====================
 
   const STATUS: Record<string, string> = {
-    '0': '待提交',
-    '1': '审批中',
-    '2': '已通过',
-    '3': '自动完成',
-    '4': '已终止',
-    '5': '已作废',
-    '6': '已撤销',
-    '7': '已取回',
-    '8': '已完成',
-    '9': '已退回',
-    '10': '已失效',
-    '11': '已拿回',
-    '12': '已重启',
-    '13': '暂存'
+    '0': t('pages.system.flowCenter.statusDraft'),
+    '1': t('pages.system.flowCenter.statusApproving'),
+    '2': t('pages.system.flowCenter.approved'),
+    '3': t('pages.system.flowCenter.statusAutoDone'),
+    '4': t('pages.system.flowCenter.statusTerminated'),
+    '5': t('pages.system.flowCenter.statusVoided'),
+    '6': t('pages.system.flowCenter.statusRevoked'),
+    '7': t('pages.system.flowCenter.statusTakenBack'),
+    '8': t('pages.system.flowCenter.statusCompleted'),
+    '9': t('pages.system.flowCenter.returned'),
+    '10': t('pages.system.flowCenter.statusExpired'),
+    '11': t('pages.system.flowCenter.statusRetrieved'),
+    '12': t('pages.system.flowCenter.statusRestarted'),
+    '13': t('pages.system.flowCenter.statusSaved')
   }
-  const statusText = (h: any): string => STATUS[String(h.flowStatus)] || '流转'
+  const statusText = (h: any): string =>
+    STATUS[String(h.flowStatus)] || t('pages.system.flowCenter.statusFallback')
   const statusTag = (h: any): 'primary' | 'success' | 'warning' | 'danger' | 'info' => {
     const s = String(h.flowStatus)
     if (s === '2' || s === '8') return 'success'
@@ -496,7 +643,13 @@
     return 'info'
   }
   const skipText = (s: string): string =>
-    ({ PASS: '通过', REJECT: '退回', NONE: '提交' })[s] || s || '-'
+    ({
+      PASS: t('pages.system.flowCenter.pass'),
+      REJECT: t('pages.system.flowCenter.reject'),
+      NONE: t('pages.system.flowCenter.submit')
+    })[s] ||
+    s ||
+    '-'
   const timelineType = (h: any): 'primary' | 'success' | 'warning' | 'danger' => {
     const s = String(h.flowStatus)
     if (s === '9' || s === '11') return 'warning'

@@ -8,14 +8,14 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="idMode">
-        <ElRadioButton value="user">系统用户</ElRadioButton>
-        <ElRadioButton value="guest">访客 UUID</ElRadioButton>
+        <ElRadioButton value="user">{{ $t('pages.track.user.modeUser') }}</ElRadioButton>
+        <ElRadioButton value="guest">{{ $t('pages.track.user.modeGuest') }}</ElRadioButton>
       </ElRadioGroup>
       <ElSelect
         v-if="idMode === 'user'"
@@ -25,7 +25,7 @@
         clearable
         :remote-method="searchUsers"
         :loading="userSearching"
-        placeholder="搜索用户名 / 昵称"
+        :placeholder="$t('pages.track.user.userSearchPlaceholder')"
         class="track-user-select"
       >
         <ElOption v-for="u in userOptions" :key="u.id" :label="u.label" :value="u.id" />
@@ -34,35 +34,43 @@
         v-else
         v-model="distinctId"
         clearable
-        placeholder="访客 distinctId（UUID）"
+        :placeholder="$t('pages.track.user.guestPlaceholder')"
         class="track-user-select"
       />
       <ElDatePicker
         v-model="timeRange"
         type="datetimerange"
-        range-separator="至"
-        start-placeholder="开始时间"
-        end-placeholder="结束时间"
+        :range-separator="$t('pages.track.user.rangeSeparator')"
+        :start-placeholder="$t('pages.track.user.startPlaceholder')"
+        :end-placeholder="$t('pages.track.user.endPlaceholder')"
         class="track-time-range"
       />
-      <ElButton type="primary" :loading="loading" @click="search">查询</ElButton>
+      <ElButton type="primary" :loading="loading" @click="search">{{
+        $t('pages.track.shared.search')
+      }}</ElButton>
     </div>
 
     <ElCard class="art-table-card">
       <div v-loading="loading && records.length === 0" class="track-timeline">
-        <ElEmpty v-if="!searched" description="请选择用户与时间范围后查询" />
+        <ElEmpty v-if="!searched" :description="$t('pages.track.user.emptyPrompt')" />
         <ElEmpty
           v-else-if="records.length === 0 && !loading"
-          description="该时间范围内无行为数据"
+          :description="$t('pages.track.user.emptyNoData')"
         />
         <template v-else>
           <!-- 会话分组卡片：头（开始时间/持续/页面数/回放入口）+ 组内事件按时间倒序 -->
           <div v-for="group in sessionGroups" :key="group.key" class="track-session">
             <div class="track-session-head">
               <span class="track-session-start">{{ fmtTrackTime(group.startTs) }}</span>
-              <span>持续 {{ fmtTrackDuration(group.endTs - group.startTs) }}</span>
-              <span>页面 {{ group.pageCount }}</span>
-              <span class="track-session-id">会话 {{ group.sessionId }}</span>
+              <span>{{
+                $t('pages.track.user.durationValue', {
+                  duration: fmtTrackDuration(group.endTs - group.startTs)
+                })
+              }}</span>
+              <span>{{ $t('pages.track.shared.page') }} {{ group.pageCount }}</span>
+              <span class="track-session-id">{{
+                $t('pages.track.user.sessionLine', { id: group.sessionId })
+              }}</span>
               <ElButton
                 v-if="group.hasReplay"
                 link
@@ -71,7 +79,7 @@
                 class="track-session-replay"
                 @click="openReplay(group.sessionId)"
               >
-                回放
+                {{ $t('pages.track.shared.replay') }}
               </ElButton>
             </div>
             <div class="track-event-list">
@@ -88,7 +96,9 @@
                 <span class="track-event-summary">{{ meta(e).summary }}</span>
                 <span v-if="isApi(e)" class="track-event-api-meta">
                   <ElTag :type="statusTagType(propsOf(e).status)" size="small" effect="plain">
-                    {{ propsOf(e).status === 0 ? '失败' : propsOf(e).status }}
+                    {{
+                      propsOf(e).status === 0 ? $t('pages.track.user.failed') : propsOf(e).status
+                    }}
                   </ElTag>
                   <span>{{ fmtTrackDuration(propsOf(e).duration_ms) }}</span>
                   <span>{{ fmtTrackSize(propsOf(e).response_size) }}</span>
@@ -105,19 +115,33 @@
                   @click.stop
                 >
                   <div class="track-api-grid">
-                    <span>方法 {{ propsOf(e).method || '-' }}</span>
+                    <span>{{
+                      $t('pages.track.user.methodLine', { value: propsOf(e).method || '-' })
+                    }}</span>
                     <span>
-                      状态
+                      {{ $t('pages.track.shared.status') }}
                       <ElTag :type="statusTagType(propsOf(e).status)" size="small" effect="plain">
-                        {{ propsOf(e).status === 0 ? '网络失败' : propsOf(e).status }}
+                        {{
+                          propsOf(e).status === 0
+                            ? $t('pages.track.user.networkFailed')
+                            : propsOf(e).status
+                        }}
                       </ElTag>
                     </span>
-                    <span>耗时 {{ fmtTrackDuration(propsOf(e).duration_ms) }}</span>
-                    <span>响应大小 {{ fmtTrackSize(propsOf(e).response_size) }}</span>
+                    <span>{{
+                      $t('pages.track.user.elapsedLine', {
+                        value: fmtTrackDuration(propsOf(e).duration_ms)
+                      })
+                    }}</span>
+                    <span>{{
+                      $t('pages.track.user.responseSizeLine', {
+                        value: fmtTrackSize(propsOf(e).response_size)
+                      })
+                    }}</span>
                   </div>
                   <div class="track-api-url">{{ propsOf(e).url || '-' }}</div>
                   <div v-if="propsOf(e).error_message" class="track-api-error">
-                    网络错误：{{ propsOf(e).error_message }}
+                    {{ $t('pages.track.user.networkError', { msg: propsOf(e).error_message }) }}
                   </div>
                   <div class="track-api-body-bar">
                     <ElButton
@@ -127,18 +151,22 @@
                       class="track-api-body-btn"
                       @click="loadBody(e)"
                     >
-                      查看响应体
+                      {{ $t('pages.track.user.viewBody') }}
                     </ElButton>
                     <span v-else class="track-body-hint">
-                      响应体未采集{{ bodySkippedHint(propsOf(e).body_skipped) }}
+                      {{
+                        $t('pages.track.user.bodyNotCollected', {
+                          hint: bodySkippedHint(propsOf(e).body_skipped)
+                        })
+                      }}
                     </span>
                   </div>
                   <div v-if="bodyStates[e.eventId]" class="track-api-body-view">
                     <div v-if="bodyStates[e.eventId].loading" class="track-body-hint">
-                      响应体加载中…
+                      {{ $t('pages.track.user.bodyLoading') }}
                     </div>
                     <div v-else-if="bodyStates[e.eventId].failed" class="track-body-hint">
-                      body 未采集或已清理
+                      {{ $t('pages.track.user.bodyGone') }}
                     </div>
                     <pre v-else class="track-api-body-pre">{{ bodyStates[e.eventId].text }}</pre>
                   </div>
@@ -148,7 +176,7 @@
           </div>
           <div v-if="nextCursor" class="track-load-more">
             <ElButton :loading="loadingMore" class="track-load-more-btn" @click="loadMore">
-              加载更多
+              {{ $t('pages.track.user.loadMore') }}
             </ElButton>
           </div>
         </template>
@@ -162,6 +190,7 @@
 
 <script setup lang="ts">
   import { fetchTrackUserApiBody, fetchTrackUserTimeline } from '@/api/track'
+  import { useI18n } from 'vue-i18n'
   import { fetchUserPage } from '@/api/user'
   import {
     fmtTrackDuration,
@@ -185,6 +214,8 @@
   } from 'element-plus'
 
   defineOptions({ name: 'TrackUser' })
+
+  const { t } = useI18n()
 
   /** 时间线查询范围硬限（与后端一致：7 天） */
   const RANGE_MAX_MS = 7 * 24 * 3600 * 1000
@@ -214,7 +245,10 @@
       })
       userOptions.value = (resp?.records ?? []).map((u: any) => ({
         id: u.id,
-        label: `${u.nickname || u.username}（@${u.username}）`
+        label: t('pages.track.user.userOptionLabel', {
+          name: u.nickname || u.username,
+          account: `@${u.username}`
+        })
       }))
     } finally {
       userSearching.value = false
@@ -254,34 +288,44 @@
         return {
           icon: 'ri:window-line',
           cls: 'pv',
-          title: '页面浏览',
+          title: t('pages.track.user.eventPageview'),
           summary: p.page_title || e.routePath || e.urlPath || ''
         }
       case '$pageleave':
         return {
           icon: 'ri:door-open-line',
           cls: 'pv',
-          title: '页面停留',
+          title: t('pages.track.user.eventPageleave'),
           summary: fmtTrackDuration(p.duration_ms)
         }
       case '$click':
         return {
           icon: 'ri:cursor-line',
           cls: 'click',
-          title: '点击',
+          title: t('pages.track.user.eventClick'),
           summary: p.element_text || p.element_id || p.href || ''
         }
       case '$error':
-        return { icon: 'ri:bug-line', cls: 'error', title: '错误', summary: p.message || '' }
+        return {
+          icon: 'ri:bug-line',
+          cls: 'error',
+          title: t('pages.track.user.eventError'),
+          summary: p.message || ''
+        }
       case 'api_request':
         return {
           icon: 'ri:exchange-line',
           cls: 'api',
-          title: '接口',
+          title: t('pages.track.user.eventApi'),
           summary: `${p.method ?? ''} ${shortUrl(p.url)}`
         }
       case '$identify':
-        return { icon: 'ri:user-line', cls: 'custom', title: '身份绑定', summary: '' }
+        return {
+          icon: 'ri:user-line',
+          cls: 'custom',
+          title: t('pages.track.user.eventIdentify'),
+          summary: ''
+        }
       default:
         return { icon: 'ri:flashlight-line', cls: 'custom', title: e.eventName, summary: '' }
     }
@@ -307,8 +351,8 @@
   }
 
   function bodySkippedHint(skipped?: string): string {
-    if (skipped === 'size') return '（超过大小上限）'
-    if (skipped === 'credential') return '（凭证端点硬屏蔽）'
+    if (skipped === 'size') return t('pages.track.user.bodySkippedSize')
+    if (skipped === 'credential') return t('pages.track.user.bodySkippedCredential')
     return ''
   }
 
@@ -354,16 +398,20 @@
     const target = idMode.value === 'user' ? userId.value : distinctId.value.trim()
     if (!appKey.value) return
     if (!target) {
-      ElMessage.warning(idMode.value === 'user' ? '请选择用户' : '请输入访客 UUID')
+      ElMessage.warning(
+        idMode.value === 'user'
+          ? t('pages.track.user.selectUserWarn')
+          : t('pages.track.user.inputGuestWarn')
+      )
       return
     }
     const [start, end] = timeRange.value ?? []
     if (!start || !end) {
-      ElMessage.warning('请选择时间范围')
+      ElMessage.warning(t('pages.track.user.selectRangeWarn'))
       return
     }
     if (end.getTime() - start.getTime() > RANGE_MAX_MS) {
-      ElMessage.warning('时间范围不能超过 7 天')
+      ElMessage.warning(t('pages.track.user.rangeTooLongWarn'))
       return
     }
     records.value = []

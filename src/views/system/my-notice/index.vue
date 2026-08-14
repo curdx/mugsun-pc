@@ -36,14 +36,17 @@
   import { fetchMyNoticePage, fetchReadNotice } from '@/api/system-manage'
   import { DICT_CODE } from '@/utils/constants'
   import { formatTableTime } from '@/utils/date'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'MyNotice' })
 
+  const { t } = useI18n()
+
   const CATEGORY_FILTERS = [
-    { label: '全部', value: '' },
-    { label: '通知', value: 'notice' },
-    { label: '公告', value: 'announcement' },
-    { label: '预警', value: 'warning' }
+    { label: t('pages.system.myNotice.filterAll'), value: '' },
+    { label: t('pages.system.myNotice.filterNotice'), value: 'notice' },
+    { label: t('pages.system.myNotice.filterAnnouncement'), value: 'announcement' },
+    { label: t('pages.system.myNotice.filterWarning'), value: 'warning' }
   ]
   const category = ref('')
   const viewVisible = ref(false)
@@ -71,12 +74,14 @@
           // 列宽需容纳「顶」tag（27.5px）+ 单元格内边距（24px），50px 会触发 text-overflow 省略号
           width: 60,
           formatter: (row: any) =>
-            row.isTop === 1 ? h(ElTag, { type: 'danger', size: 'small' }, () => '顶') : ''
+            row.isTop === 1
+              ? h(ElTag, { type: 'danger', size: 'small' }, () => t('pages.system.myNotice.topTag'))
+              : ''
         },
-        { prop: 'title', label: '标题', minWidth: 260 },
+        { prop: 'title', label: t('pages.system.myNotice.colTitle'), minWidth: 260 },
         {
           prop: 'category',
-          label: '分类',
+          label: t('pages.system.myNotice.colCategory'),
           width: 90,
           // 字典运行时驱动：与通知公告管理页一致走 ArtDictTag，不再手写 CATEGORY_MAP
           formatter: (row: any) =>
@@ -84,29 +89,31 @@
         },
         {
           prop: 'readFlag',
-          label: '状态',
+          label: t('pages.system.myNotice.colStatus'),
           width: 90,
           formatter: (row: any) =>
             h(ElTag, { type: row.readFlag ? 'info' : 'danger', size: 'small' }, () =>
-              row.readFlag ? '已读' : '未读'
+              row.readFlag
+                ? t('pages.system.myNotice.statusRead')
+                : t('pages.system.myNotice.statusUnread')
             )
         },
         {
           prop: 'releaseTime',
-          label: '发布时间',
+          label: t('pages.system.myNotice.colReleaseTime'),
           minWidth: 180,
           formatter: (row: any) => formatTableTime(row.releaseTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.myNotice.colOperation'),
           width: 100,
           fixed: 'right',
           formatter: (row: any) =>
             h(
               ElButton,
               { link: true, type: 'primary', size: 'small', onClick: () => view(row) },
-              () => '查看'
+              () => t('pages.system.myNotice.viewBtn')
             )
         }
       ]

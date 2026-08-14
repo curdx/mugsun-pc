@@ -9,7 +9,7 @@
             type="primary"
             @click="showDialog('add')"
             v-ripple
-            >新增记录</ElButton
+            >{{ $t('pages.system.changelog.addRecord') }}</ElButton
           >
         </template>
       </ArtTableHeader>
@@ -26,41 +26,54 @@
 
     <ElDialog
       v-model="dialogVisible"
-      :title="form.id ? '编辑更新记录' : '新增更新记录'"
+      :title="
+        form.id
+          ? $t('pages.system.changelog.editRecordTitle')
+          : $t('pages.system.changelog.addRecordTitle')
+      "
       width="780px"
       top="6vh"
       class="changelog-dialog"
     >
       <ElForm :model="form" label-width="80px">
-        <ElFormItem label="版本号" required>
-          <ElInput v-model="form.version" placeholder="如 v1.2.0" style="width: 220px" />
+        <ElFormItem :label="$t('pages.system.changelog.version')" required>
+          <ElInput
+            v-model="form.version"
+            :placeholder="$t('pages.system.changelog.versionPlaceholder')"
+            style="width: 220px"
+          />
         </ElFormItem>
-        <ElFormItem label="类型" required>
+        <ElFormItem :label="$t('pages.system.changelog.type')" required>
           <ElSelect v-model="form.type" style="width: 220px">
-            <ElOption v-for="t in TYPES" :key="t.value" :label="t.label" :value="t.value" />
+            <ElOption v-for="t in TYPES" :key="t.value" :label="$t(t.label)" :value="t.value" />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem label="标题" required>
-          <ElInput v-model="form.title" placeholder="请输入标题" />
+        <ElFormItem :label="$t('pages.system.changelog.title')" required>
+          <ElInput
+            v-model="form.title"
+            :placeholder="$t('pages.system.changelog.titlePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="发布时间">
+        <ElFormItem :label="$t('pages.system.changelog.publishTime')">
           <ElDatePicker
             v-model="form.publishTime"
             type="datetime"
             value-format="YYYY-MM-DD HH:mm:ss"
-            placeholder="选择发布时间"
+            :placeholder="$t('pages.system.changelog.publishTimePlaceholder')"
           />
         </ElFormItem>
-        <ElFormItem label="排序">
+        <ElFormItem :label="$t('pages.system.changelog.sort')">
           <ElInputNumber v-model="form.sort" :min="0" />
         </ElFormItem>
-        <ElFormItem label="内容">
+        <ElFormItem :label="$t('pages.system.changelog.content')">
           <ArtWangEditor v-model="form.content" height="280px" />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="submit">确定</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submit">{{
+          $t('common.confirm')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -80,15 +93,21 @@
     fetchSaveChangelog,
     fetchRemoveChangelog
   } from '@/api/feedback'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'ChangeLog' })
 
+  const { t } = useI18n()
+
   const TYPES = [
-    { label: '新增', value: 'feature', tag: 'primary' },
-    { label: '优化', value: 'optimize', tag: 'warning' },
-    { label: '修复', value: 'fix', tag: 'danger' }
+    { label: 'pages.system.changelog.typeFeature', value: 'feature', tag: 'primary' },
+    { label: 'pages.system.changelog.typeOptimize', value: 'optimize', tag: 'warning' },
+    { label: 'pages.system.changelog.typeFix', value: 'fix', tag: 'danger' }
   ]
-  const typeMeta = (v: string) => TYPES.find((t) => t.value === v) || { label: v, tag: 'info' }
+  const typeMeta = (v: string) => {
+    const hit = TYPES.find((x) => x.value === v)
+    return hit ? { label: t(hit.label), tag: hit.tag } : { label: v, tag: 'info' }
+  }
 
   // 语义版本比较（v1.3.0 > v1.10.0）：非数字段兜底字符串比较，非法版本排最后
   const compareVersion = (a: string, b: string): number => {
@@ -125,27 +144,27 @@
       apiParams: { pageNum: 1, pageSize: 10 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { prop: 'version', label: '版本号', width: 120 },
+        { prop: 'version', label: t('pages.system.changelog.version'), width: 120 },
         {
           prop: 'type',
-          label: '类型',
+          label: t('pages.system.changelog.type'),
           width: 100,
           formatter: (row: any) => {
             const m = typeMeta(row.type)
             return h(ElTag, { type: m.tag as any }, () => m.label)
           }
         },
-        { prop: 'title', label: '标题', minWidth: 220 },
+        { prop: 'title', label: t('pages.system.changelog.title'), minWidth: 220 },
         {
           prop: 'publishTime',
-          label: '发布时间',
+          label: t('pages.system.changelog.publishTime'),
           minWidth: 170,
           formatter: (row: any) => formatTableTime(row.publishTime)
         },
-        { prop: 'sort', label: '排序', width: 80 },
+        { prop: 'sort', label: t('pages.system.changelog.sort'), width: 80 },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.changelog.colOperation'),
           width: 140,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -214,12 +233,12 @@
 
   const submit = async () => {
     if (!form.version?.trim() || !form.title?.trim()) {
-      return ElMessage.warning('请填写版本号与标题')
+      return ElMessage.warning(t('pages.system.changelog.versionTitleRequired'))
     }
     submitting.value = true
     try {
       await fetchSaveChangelog({ ...form })
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.changelog.saveSuccess'))
       dialogVisible.value = false
       refreshData()
     } finally {
@@ -228,11 +247,15 @@
   }
 
   const remove = (row: any) => {
-    ElMessageBox.confirm(`确定删除「${row.version} ${row.title}」吗？`, '删除', {
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.changelog.removeConfirm', { version: row.version, title: row.title }),
+      t('pages.system.changelog.removeTitle'),
+      {
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveChangelog([row.id])
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.changelog.removeSuccess'))
       refreshData()
     })
   }

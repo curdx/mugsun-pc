@@ -14,10 +14,14 @@
         class="img-cutter"
       >
         <template #choose>
-          <ElButton type="primary" plain v-ripple>选择图片</ElButton>
+          <ElButton type="primary" plain v-ripple>
+            {{ $t('components.cutterImg.selectImage') }}
+          </ElButton>
         </template>
         <template #cancel>
-          <ElButton type="danger" plain v-ripple>清除</ElButton>
+          <ElButton type="danger" plain v-ripple>
+            {{ $t('components.cutterImg.clear') }}
+          </ElButton>
         </template>
         <template #confirm>
           <!-- <ElButton type="primary" style="margin-left: 10px">确定</ElButton> -->
@@ -35,19 +39,27 @@
           height: `${cutterProps.cutHeight}px`
         }"
       >
-        <img class="preview-img" :src="temImgPath" alt="预览图" v-if="temImgPath" />
+        <img
+          class="preview-img"
+          :src="temImgPath"
+          :alt="$t('components.cutterImg.previewAlt')"
+          v-if="temImgPath"
+        />
       </div>
-      <ElButton class="download-btn" @click="downloadImg" :disabled="!temImgPath" v-ripple
-        >下载图片</ElButton
-      >
+      <ElButton class="download-btn" @click="downloadImg" :disabled="!temImgPath" v-ripple>{{
+        $t('components.cutterImg.downloadImage')
+      }}</ElButton>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
   import ImgCutter from 'vue-img-cutter'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'ArtCutterImg' })
+
+  const { t } = useI18n()
 
   interface CutterProps {
     // 基础配置
@@ -186,7 +198,7 @@
       try {
         await preloadImage(props.imgUrl)
         imgCutterModal.value?.handleOpen({
-          name: '封面图片',
+          name: t('components.cutterImg.defaultImageName'),
           src: props.imgUrl
         })
       } catch (error) {

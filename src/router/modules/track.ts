@@ -8,7 +8,7 @@ export const trackRoutes: AppRouteRecord = {
   name: 'Track',
   component: '/index/index',
   meta: {
-    title: '埋点分析',
+    title: 'menus.track.title',
     icon: 'ri:line-chart-line',
     roles: ['R_SUPER', 'R_ADMIN']
   },
@@ -18,7 +18,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackOverview',
       component: '/track/overview',
       meta: {
-        title: '数据概览',
+        title: 'menus.track.overview',
         icon: 'ri:bar-chart-box-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -29,7 +29,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackEvent',
       component: '/track/event',
       meta: {
-        title: '事件分析',
+        title: 'menus.track.event',
         icon: 'ri:cursor-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -40,7 +40,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackPerf',
       component: '/track/perf',
       meta: {
-        title: '性能分析',
+        title: 'menus.track.perf',
         icon: 'ri:speed-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -51,7 +51,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackError',
       component: '/track/error',
       meta: {
-        title: '错误监控',
+        title: 'menus.track.error',
         icon: 'ri:bug-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -62,7 +62,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackReplay',
       component: '/track/replay',
       meta: {
-        title: '会话回放',
+        title: 'menus.track.replay',
         icon: 'ri:play-circle-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -73,7 +73,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackUser',
       component: '/track/user',
       meta: {
-        title: '用户细查',
+        title: 'menus.track.user',
         icon: 'ri:user-search-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -84,7 +84,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackFunnel',
       component: '/track/funnel',
       meta: {
-        title: '漏斗分析',
+        title: 'menus.track.funnel',
         icon: 'ri:filter-3-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -95,7 +95,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackRetention',
       component: '/track/retention',
       meta: {
-        title: '留存分析',
+        title: 'menus.track.retention',
         icon: 'ri:user-heart-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -106,7 +106,7 @@ export const trackRoutes: AppRouteRecord = {
       name: 'TrackApp',
       component: '/track/app',
       meta: {
-        title: '接入管理',
+        title: 'menus.track.app',
         icon: 'ri:plug-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']

@@ -2,43 +2,62 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增短信' : '编辑短信'"
+    :title="type === 'add' ? $t('pages.system.sms.addBtn') : $t('pages.system.sms.editTitle')"
     width="520px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="90px">
-      <ElFormItem label="名称" prop="name">
-        <ElInput v-model="formData.name" placeholder="请输入名称" />
+      <ElFormItem :label="$t('pages.system.sms.colName')" prop="name">
+        <ElInput v-model="formData.name" :placeholder="$t('pages.system.sms.namePlaceholder')" />
       </ElFormItem>
-      <ElFormItem label="配置标识" prop="smsCode">
-        <ElInput v-model="formData.smsCode" placeholder="唯一标识，如 ali-main" />
+      <ElFormItem :label="$t('pages.system.sms.colCode')" prop="smsCode">
+        <ElInput v-model="formData.smsCode" :placeholder="$t('pages.system.sms.codePlaceholder')" />
       </ElFormItem>
-      <ElFormItem label="供应商" prop="category">
+      <ElFormItem :label="$t('pages.system.sms.colCategory')" prop="category">
         <ElSelect v-model="formData.category" style="width: 100%">
-          <ElOption label="阿里云" value="alibaba" />
-          <ElOption label="腾讯云" value="tencent" />
+          <ElOption :label="$t('pages.system.sms.categoryAlibaba')" value="alibaba" />
+          <ElOption :label="$t('pages.system.sms.categoryTencent')" value="tencent" />
         </ElSelect>
       </ElFormItem>
       <ElFormItem label="AccessKey" prop="accessKey">
-        <ElInput v-model="formData.accessKey" placeholder="访问密钥 ID" />
+        <ElInput
+          v-model="formData.accessKey"
+          :placeholder="$t('pages.system.sms.accessKeyPlaceholder')"
+        />
       </ElFormItem>
       <ElFormItem label="SecretKey" prop="secretKey">
-        <ElInput v-model="formData.secretKey" placeholder="访问密钥" show-password />
+        <ElInput
+          v-model="formData.secretKey"
+          :placeholder="$t('pages.system.sms.secretKeyPlaceholder')"
+          show-password
+        />
       </ElFormItem>
-      <ElFormItem label="签名" prop="signature">
-        <ElInput v-model="formData.signature" placeholder="短信签名" />
+      <ElFormItem :label="$t('pages.system.sms.colSignature')" prop="signature">
+        <ElInput
+          v-model="formData.signature"
+          :placeholder="$t('pages.system.sms.signaturePlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="模板" prop="templateId">
-        <ElInput v-model="formData.templateId" placeholder="模板 ID" />
+      <ElFormItem :label="$t('pages.system.sms.colTemplate')" prop="templateId">
+        <ElInput
+          v-model="formData.templateId"
+          :placeholder="$t('pages.system.sms.templatePlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="备注">
-        <ElInput v-model="formData.remark" type="textarea" placeholder="备注" />
+      <ElFormItem :label="$t('pages.system.sms.remarkLabel')">
+        <ElInput
+          v-model="formData.remark"
+          type="textarea"
+          :placeholder="$t('pages.system.sms.remarkLabel')"
+        />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="handleSubmit">{{
+          $t('pages.system.sms.submitBtn')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -46,6 +65,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   interface Props {
     visible: boolean
@@ -60,6 +80,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -83,9 +105,9 @@
   const formData = reactive<Record<string, any>>(defaults())
 
   const rules: FormRules = {
-    name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-    smsCode: [{ required: true, message: '请输入配置标识', trigger: 'blur' }],
-    category: [{ required: true, message: '请选择供应商', trigger: 'change' }]
+    name: [{ required: true, message: t('pages.system.sms.namePlaceholder'), trigger: 'blur' }],
+    smsCode: [{ required: true, message: t('pages.system.sms.ruleCode'), trigger: 'blur' }],
+    category: [{ required: true, message: t('pages.system.sms.ruleCategory'), trigger: 'change' }]
   }
 
   watch(

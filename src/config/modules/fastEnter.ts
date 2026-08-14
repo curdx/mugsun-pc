@@ -8,11 +8,11 @@ import type { FastEnterConfig } from '@/types/config'
 const fastEnterConfig: FastEnterConfig = {
   // 显示条件（屏幕宽度）
   minWidth: 1200,
-  // 应用列表
+  // 应用列表（name/description 为 i18n key，由渲染侧 $t 解析）
   applications: [
     {
-      name: '工作台',
-      description: '系统概览与数据统计',
+      name: 'menus.dashboard.console',
+      description: 'components.fastEnter.consoleDesc',
       icon: 'ri:pie-chart-line',
       iconColor: '#377dff',
       enabled: true,
@@ -20,8 +20,8 @@ const fastEnterConfig: FastEnterConfig = {
       routeName: 'Console'
     },
     {
-      name: '更新日志',
-      description: '版本更新与变更记录',
+      name: 'menus.system.changelog',
+      description: 'components.fastEnter.changelogDesc',
       icon: 'ri:gamepad-line',
       iconColor: '#38C0FC',
       enabled: true,
@@ -29,28 +29,28 @@ const fastEnterConfig: FastEnterConfig = {
       routeName: 'ChangeLog'
     }
   ],
-  // 快速链接
+  // 快速链接（name 为 i18n key）
   quickLinks: [
     {
-      name: '登录',
+      name: 'menus.login.title',
       enabled: true,
       order: 1,
       routeName: 'Login'
     },
     {
-      name: '注册',
+      name: 'menus.register.title',
       enabled: true,
       order: 2,
       routeName: 'Register'
     },
     {
-      name: '忘记密码',
+      name: 'menus.forgetPassword.title',
       enabled: true,
       order: 3,
       routeName: 'ForgetPassword'
     },
     {
-      name: '个人中心',
+      name: 'menus.system.userCenter',
       enabled: true,
       order: 4,
       routeName: 'UserCenter'

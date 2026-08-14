@@ -26,8 +26,11 @@
   import { DICT_CODE } from '@/utils/constants'
   import { hasPerm } from '@/utils/permission'
   import { formatTableTime } from '@/utils/date'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Feedback' })
+
+  const { t } = useI18n()
 
   const {
     columns,
@@ -44,36 +47,52 @@
       apiParams: { pageNum: 1, pageSize: 10 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { prop: 'content', label: '反馈内容', minWidth: 260, showOverflowTooltip: true },
-        { prop: 'contact', label: '联系方式', width: 150, showOverflowTooltip: true },
+        {
+          prop: 'content',
+          label: t('pages.system.feedback.colContent'),
+          minWidth: 260,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'contact',
+          label: t('pages.system.feedback.colContact'),
+          width: 150,
+          showOverflowTooltip: true
+        },
         {
           prop: 'attachName',
-          label: '附件',
+          label: t('pages.system.feedback.colAttach'),
           width: 160,
           // 附件名截断补省略号 + tooltip（link 按钮无内建省略，样式内联：scoped 够不到 h() 渲染的 vnode）
           formatter: (row: any) =>
             row.attachId
-              ? h(ElTooltip, { content: row.attachName || '下载附件', placement: 'top' }, () =>
-                  h(
-                    ElButton,
-                    {
-                      link: true,
-                      type: 'primary',
-                      style:
-                        'max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle',
-                      onClick: () =>
-                        request.download({
-                          url: `/api/system/file/download-stream/${row.attachId}`
-                        })
-                    },
-                    () => row.attachName || '下载附件'
-                  )
+              ? h(
+                  ElTooltip,
+                  {
+                    content: row.attachName || t('pages.system.feedback.downloadAttach'),
+                    placement: 'top'
+                  },
+                  () =>
+                    h(
+                      ElButton,
+                      {
+                        link: true,
+                        type: 'primary',
+                        style:
+                          'max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle',
+                        onClick: () =>
+                          request.download({
+                            url: `/api/system/file/download-stream/${row.attachId}`
+                          })
+                      },
+                      () => row.attachName || t('pages.system.feedback.downloadAttach')
+                    )
                 )
               : '—'
         },
         {
           prop: 'status',
-          label: '状态',
+          label: t('pages.system.feedback.colStatus'),
           width: 100,
           // 字典运行时驱动：改用 ArtDictTag，不再手写 已处理/未处理 判断
           formatter: (row: any) =>
@@ -81,13 +100,13 @@
         },
         {
           prop: 'createTime',
-          label: '提交时间',
+          label: t('pages.system.feedback.colCreateTime'),
           minWidth: 170,
           formatter: (row: any) => formatTableTime(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.feedback.colOperation'),
           width: 160,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -102,7 +121,10 @@
                       size: 'small',
                       onClick: () => toggleStatus(row)
                     },
-                    () => (row.status === 1 ? '标为未处理' : '标为已处理')
+                    () =>
+                      row.status === 1
+                        ? t('pages.system.feedback.markPending')
+                        : t('pages.system.feedback.markHandled')
                   )
                 : null,
               hasPerm('sys:feedback:manage')
@@ -124,14 +146,18 @@
 
   const toggleStatus = async (row: any) => {
     await fetchFeedbackStatus(row.id)
-    ElMessage.success('操作成功')
+    ElMessage.success(t('pages.system.feedback.opSuccess'))
     refreshData()
   }
 
   const remove = (row: any) => {
-    ElMessageBox.confirm('确定删除该反馈吗？', '删除', { type: 'warning' }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.feedback.removeConfirm'),
+      t('pages.system.feedback.removeTitle'),
+      { type: 'warning' }
+    ).then(async () => {
       await fetchRemoveFeedback([row.id])
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.feedback.removeSuccess'))
       refreshData()
     })
   }

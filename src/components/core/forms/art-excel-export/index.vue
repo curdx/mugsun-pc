@@ -23,10 +23,14 @@
   import FileSaver from 'file-saver'
   import { ref, computed, nextTick } from 'vue'
   import { Loading } from '@element-plus/icons-vue'
-  import type { ButtonType } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
+  import { $t } from '@/locales'
+  import { ElMessage, type ButtonType } from 'element-plus'
   import { useThrottleFn } from '@vueuse/core'
 
   defineOptions({ name: 'ArtExcelExport' })
+
+  const { t } = useI18n()
 
   /** 导出数据类型 */
   type ExportValue = string | number | boolean | null | undefined | Date
@@ -96,10 +100,10 @@
     type: 'primary',
     size: 'default',
     disabled: false,
-    buttonText: '导出 Excel',
-    loadingText: '导出中...',
+    buttonText: $t('components.excelExport.buttonText'),
+    loadingText: $t('components.excelExport.loadingText'),
     autoIndex: false,
-    indexColumnTitle: '序号',
+    indexColumnTitle: $t('components.excelExport.indexColumnTitle'),
     columns: () => ({}),
     headers: () => ({}),
     maxRows: 100000,
@@ -135,18 +139,22 @@
   /** 验证导出数据 */
   const validateData = (data: ExportData[]): void => {
     if (!Array.isArray(data)) {
-      throw new ExportError('数据必须是数组格式', 'INVALID_DATA_TYPE')
+      throw new ExportError(t('components.excelExport.invalidDataType'), 'INVALID_DATA_TYPE')
     }
 
     if (data.length === 0) {
-      throw new ExportError('没有可导出的数据', 'NO_DATA')
+      throw new ExportError(t('components.excelExport.noData'), 'NO_DATA')
     }
 
     if (data.length > props.maxRows) {
-      throw new ExportError(`数据行数超过限制（${props.maxRows}行）`, 'EXCEED_MAX_ROWS', {
-        currentRows: data.length,
-        maxRows: props.maxRows
-      })
+      throw new ExportError(
+        t('components.excelExport.exceedMaxRows', { max: props.maxRows }),
+        'EXCEED_MAX_ROWS',
+        {
+          currentRows: data.length,
+          maxRows: props.maxRows
+        }
+      )
     }
   }
 
@@ -173,7 +181,7 @@
     }
 
     if (typeof value === 'boolean') {
-      return value ? '是' : '否'
+      return value ? t('components.excelExport.boolYes') : t('components.excelExport.boolNo')
     }
 
     return String(value)
@@ -310,7 +318,11 @@
 
       return Promise.resolve()
     } catch (error) {
-      throw new ExportError(`Excel 导出失败: ${(error as Error).message}`, 'EXPORT_FAILED', error)
+      throw new ExportError(
+        `${t('components.excelExport.excelExportFailed')}: ${(error as Error).message}`,
+        'EXPORT_FAILED',
+        error
+      )
     }
   }
 
@@ -336,7 +348,7 @@
       // 显示成功消息
       if (props.showSuccessMessage) {
         ElMessage.success({
-          message: `成功导出 ${props.data.length} 条数据`,
+          message: t('components.excelExport.successMessage', { count: props.data.length }),
           duration: 3000
         })
       }
@@ -344,7 +356,11 @@
       const exportError =
         error instanceof ExportError
           ? error
-          : new ExportError(`导出失败: ${(error as Error).message}`, 'UNKNOWN_ERROR', error)
+          : new ExportError(
+              `${t('components.excelExport.exportFailed')}: ${(error as Error).message}`,
+              'UNKNOWN_ERROR',
+              error
+            )
 
       // 触发错误事件
       emit('export-error', exportError)

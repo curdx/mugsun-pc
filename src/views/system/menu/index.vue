@@ -11,15 +11,21 @@
     />
     <ElCard class="art-table-card">
       <div class="menu-toolbar">
-        <ElButton v-perm="'sys:menu:save'" @click="showDialog('add')" v-ripple>新增菜单</ElButton>
+        <ElButton v-perm="'sys:menu:save'" @click="showDialog('add')" v-ripple>{{
+          $t('pages.system.menu.addMenu')
+        }}</ElButton>
       </div>
 
       <!-- 树表为自由增长内容：art-table-card 卡片体是 height:100%+overflow:hidden 裁剪，
            内部须自备滚动，否则矮视口下深层节点被切断且不可达（同 track/user 修法） -->
       <div v-loading="loading" class="menu-table-wrap">
         <ElTable :data="treeData" row-key="id" default-expand-all border>
-          <ElTableColumn prop="menuName" label="菜单名称" min-width="200" />
-          <ElTableColumn label="图标" width="80" align="center">
+          <ElTableColumn
+            prop="menuName"
+            :label="$t('pages.system.menu.fields.menuName')"
+            min-width="200"
+          />
+          <ElTableColumn :label="$t('pages.system.menu.fields.icon')" width="80" align="center">
             <template #default="{ row }">
               <span v-if="row.icon" class="menu-icon" :data-icon="row.icon">
                 <ArtSvgIcon :icon="row.icon" class="text-lg" />
@@ -27,48 +33,73 @@
               <span v-else>—</span>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="类型" width="90">
+          <ElTableColumn :label="$t('pages.system.menu.fields.type')" width="90">
             <template #default="{ row }">{{ TYPE_LABELS[row.menuType] ?? row.menuType }}</template>
           </ElTableColumn>
-          <ElTableColumn prop="path" label="路由地址" min-width="160" />
-          <ElTableColumn prop="permission" label="权限标识" min-width="200" show-overflow-tooltip />
-          <ElTableColumn prop="sort" label="排序" width="80" />
-          <ElTableColumn label="隐藏" width="80" align="center">
+          <ElTableColumn prop="path" :label="$t('pages.system.menu.fields.path')" min-width="160" />
+          <ElTableColumn
+            prop="permission"
+            :label="$t('pages.system.menu.fields.permission')"
+            min-width="200"
+            show-overflow-tooltip
+          />
+          <ElTableColumn prop="sort" :label="$t('pages.system.menu.fields.sort')" width="80" />
+          <ElTableColumn :label="$t('pages.system.menu.fields.isHide')" width="80" align="center">
             <template #default="{ row }">
               <ElTag :type="row.isHide === 1 ? 'danger' : 'success'">
-                {{ row.isHide === 1 ? '隐藏' : '显示' }}
+                {{
+                  row.isHide === 1
+                    ? $t('pages.system.menu.hideStatus.hide')
+                    : $t('pages.system.menu.hideStatus.show')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="缓存" width="80" align="center">
+          <ElTableColumn
+            :label="$t('pages.system.menu.fields.isKeepAlive')"
+            width="80"
+            align="center"
+          >
             <template #default="{ row }">
               <ElTag :type="row.isKeepAlive === 1 ? 'success' : 'info'">
-                {{ row.isKeepAlive === 1 ? '是' : '否' }}
+                {{
+                  row.isKeepAlive === 1 ? $t('pages.system.menu.yes') : $t('pages.system.menu.no')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="外链" width="80" align="center">
+          <ElTableColumn
+            :label="$t('pages.system.menu.fields.isExternal')"
+            width="80"
+            align="center"
+          >
             <template #default="{ row }">
               <ElTag :type="row.isExternal === 1 ? 'warning' : 'info'">
-                {{ row.isExternal === 1 ? '是' : '否' }}
+                {{
+                  row.isExternal === 1 ? $t('pages.system.menu.yes') : $t('pages.system.menu.no')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="240">
+          <ElTableColumn :label="$t('pages.system.menu.fields.operation')" width="240">
             <template #default="{ row }">
-              <ElButton v-perm="'sys:menu:save'" link type="primary" @click="showDialog('add', row)"
-                >新增下级</ElButton
+              <ElButton
+                v-perm="'sys:menu:save'"
+                link
+                type="primary"
+                @click="showDialog('add', row)"
+                >{{ $t('pages.system.menu.addChild') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:menu:save'"
                 link
                 type="primary"
                 @click="showDialog('edit', row)"
-                >编辑</ElButton
+                >{{ $t('pages.system.menu.edit') }}</ElButton
               >
-              <ElButton v-perm="'sys:menu:remove'" link type="danger" @click="deleteRow(row)"
-                >删除</ElButton
-              >
+              <ElButton v-perm="'sys:menu:remove'" link type="danger" @click="deleteRow(row)">{{
+                $t('pages.system.menu.delete')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -88,6 +119,7 @@
 
 <script setup lang="ts">
   import { ref, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import ArtSvgIcon from '@/components/core/base/art-svg-icon/index.vue'
   import { fetchMenuTree } from '@/api/menu'
@@ -98,7 +130,13 @@
 
   defineOptions({ name: 'Menus' })
 
-  const TYPE_LABELS: Record<string, string> = { M: '目录', C: '菜单', F: '按钮' }
+  const { t } = useI18n()
+
+  const TYPE_LABELS: Record<string, string> = {
+    M: t('pages.system.menu.type.directory'),
+    C: t('pages.system.menu.type.menu'),
+    F: t('pages.system.menu.type.button')
+  }
 
   // ===== 查询栏 =====
   const searchForm = ref({
@@ -108,20 +146,20 @@
   const searchItems = computed(() => [
     {
       key: 'menuName',
-      label: '菜单名称',
+      label: t('pages.system.menu.fields.menuName'),
       type: 'input',
-      props: { placeholder: '请输入菜单名称', clearable: true }
+      props: { placeholder: t('pages.system.menu.placeholder.menuName'), clearable: true }
     },
     {
       key: 'isHide',
-      label: '是否隐藏',
+      label: t('pages.system.menu.fields.isHideForm'),
       type: 'select',
       props: {
-        placeholder: '请选择',
+        placeholder: t('pages.system.menu.placeholder.isHide'),
         clearable: true,
         options: [
-          { label: '显示', value: 0 },
-          { label: '隐藏', value: 1 }
+          { label: t('pages.system.menu.hideStatus.show'), value: 0 },
+          { label: t('pages.system.menu.hideStatus.hide'), value: 1 }
         ]
       }
     }
@@ -167,13 +205,17 @@
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除菜单"${row.menuName}"吗？`, '删除菜单', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.menu.deleteConfirm', { name: row.menuName }),
+      t('pages.system.menu.deleteMenu'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveMenu(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.menu.deleteSuccess'))
       loadData()
     })
   }
@@ -183,7 +225,7 @@
     try {
       await fetchSaveMenu(form)
       dialogVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.menu.saveSuccess'))
       loadData()
     } finally {
       dialogSaving.value = false

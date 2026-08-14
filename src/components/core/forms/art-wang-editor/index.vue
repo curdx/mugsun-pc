@@ -22,11 +22,16 @@
   import { onBeforeUnmount, onMounted, shallowRef, computed } from 'vue'
   import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
   import { useUserStore } from '@/store/modules/user'
+  import { useI18n } from 'vue-i18n'
+  import { $t } from '@/locales'
   import EmojiText from '@/utils/ui/emojo'
   import { IDomEditor, IToolbarConfig, IEditorConfig } from '@wangeditor/editor'
+  import { ElMessage } from 'element-plus'
   import request from '@/utils/http'
 
   defineOptions({ name: 'ArtWangEditor' })
+
+  const { t } = useI18n()
 
   type InsertFnType = (url: string, alt: string, href: string) => void
 
@@ -59,7 +64,7 @@
   const props = withDefaults(defineProps<Props>(), {
     height: '500px',
     mode: 'default',
-    placeholder: '请输入内容...',
+    placeholder: $t('components.wangEditor.placeholder'),
     excludeKeys: () => ['fontFamily'],
     isCustomUpload: false
   })
@@ -125,11 +130,11 @@
           Authorization: userStore.accessToken
         },
         onSuccess() {
-          ElMessage.success(`图片上传成功 ${EmojiText[200]}`)
+          ElMessage.success(`${t('components.wangEditor.uploadSuccess')} ${EmojiText[200]}`)
         },
         onError(file: File, err: any, res: any) {
           console.error('图片上传失败:', err, res)
-          ElMessage.error(`图片上传失败 ${EmojiText[500]}`)
+          ElMessage.error(`${t('components.wangEditor.uploadFailed')} ${EmojiText[500]}`)
         }
       }
     }
@@ -161,10 +166,10 @@
         }
 
         insertFn(url, alt, href)
-        ElMessage.success(`图片上传成功 ${EmojiText[200]}`)
+        ElMessage.success(`${t('components.wangEditor.uploadSuccess')} ${EmojiText[200]}`)
       } catch (error) {
         console.error('图片上传失败:', error)
-        ElMessage.error(`图片上传失败 ${EmojiText[500]}`)
+        ElMessage.error(`${t('components.wangEditor.uploadFailed')} ${EmojiText[500]}`)
       }
     }
   }

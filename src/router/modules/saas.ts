@@ -8,7 +8,7 @@ export const saasRoutes: AppRouteRecord = {
   name: 'SaasOps',
   component: '/index/index',
   meta: {
-    title: '租户运营',
+    title: 'menus.saas.title',
     icon: 'ri:community-line',
     roles: ['R_SUPER']
   },
@@ -18,7 +18,7 @@ export const saasRoutes: AppRouteRecord = {
       name: 'Tenant',
       component: '/system/tenant',
       meta: {
-        title: '租户管理',
+        title: 'menus.saas.tenant',
         icon: 'ri:building-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -29,7 +29,7 @@ export const saasRoutes: AppRouteRecord = {
       name: 'TenantPackage',
       component: '/system/tenant-package',
       meta: {
-        title: '租户套餐',
+        title: 'menus.saas.tenantPackage',
         icon: 'ri:price-tag-3-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -40,7 +40,7 @@ export const saasRoutes: AppRouteRecord = {
       name: 'TenantDatasource',
       component: '/system/tenant-datasource',
       meta: {
-        title: '租户数据源',
+        title: 'menus.saas.tenantDatasource',
         icon: 'ri:database-2-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -51,7 +51,7 @@ export const saasRoutes: AppRouteRecord = {
       name: 'Customer',
       component: '/system/customer',
       meta: {
-        title: '客户管理',
+        title: 'menus.saas.customer',
         icon: 'ri:contacts-book-line',
         keepAlive: true,
         roles: ['R_SUPER']

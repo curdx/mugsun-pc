@@ -3,11 +3,11 @@
   <div class="art-full-height">
     <ElCard class="art-table-card">
       <div class="online-toolbar">
-        <span class="online-label">表单</span>
+        <span class="online-label">{{ $t('pages.system.onlineForm.formLabel') }}</span>
         <ElSelect
           v-model="tableId"
           filterable
-          placeholder="选择在线表单"
+          :placeholder="$t('pages.system.onlineForm.formPlaceholder')"
           style="width: 220px"
           @change="onSelect"
         >
@@ -58,12 +58,20 @@
             clearable
           />
         </template>
-        <ElButton v-if="tableId" type="primary" @click="reload">查询</ElButton>
-        <ElButton v-if="tableId" v-perm="'sys:online:edit'" @click="openAdd">新增</ElButton>
+        <ElButton v-if="tableId" type="primary" @click="reload">{{
+          $t('table.searchBar.search')
+        }}</ElButton>
+        <ElButton v-if="tableId" v-perm="'sys:online:edit'" @click="openAdd">{{
+          $t('pages.system.onlineForm.add')
+        }}</ElButton>
       </div>
 
       <!-- 未选表单时无列可渲（只剩孤立「#」表头），以空态替代表格 -->
-      <ElEmpty v-if="!tableId" description="请选择上方在线表单" style="margin-top: 12px" />
+      <ElEmpty
+        v-if="!tableId"
+        :description="$t('pages.system.onlineForm.emptyDesc')"
+        style="margin-top: 12px"
+      />
       <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，分页器固定在壳外，防矮视口裁切 -->
       <div v-else class="online-table-wrap">
         <ElTable :data="rows" border height="100%" v-loading="loading">
@@ -75,7 +83,12 @@
             :label="col.columnComment || col.javaField"
             min-width="140"
           />
-          <ElTableColumn v-if="tableId" label="操作" width="150" fixed="right">
+          <ElTableColumn
+            v-if="tableId"
+            :label="$t('pages.system.onlineForm.colOperation')"
+            width="150"
+            fixed="right"
+          >
             <template #default="{ row }">
               <ElButton
                 v-perm="'sys:online:edit'"
@@ -83,7 +96,7 @@
                 type="primary"
                 size="small"
                 @click="openEdit(row)"
-                >编辑</ElButton
+                >{{ $t('pages.system.onlineForm.edit') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:online:edit'"
@@ -91,7 +104,7 @@
                 type="danger"
                 size="small"
                 @click="remove(row)"
-                >删除</ElButton
+                >{{ $t('pages.system.onlineForm.remove') }}</ElButton
               >
             </template>
           </ElTableColumn>
@@ -110,7 +123,7 @@
 
       <ElDialog
         v-model="dialogVisible"
-        :title="form.id ? '编辑' : '新增'"
+        :title="form.id ? $t('pages.system.onlineForm.edit') : $t('pages.system.onlineForm.add')"
         width="560px"
         align-center
         class="online-form-dialog"
@@ -161,14 +174,18 @@
             <ElInput
               v-else-if="col.htmlType === 'select'"
               v-model="form[col.columnName]"
-              :placeholder="`${col.columnComment || col.javaField}（未配置字典，暂以输入代替）`"
+              :placeholder="
+                $t('pages.system.onlineForm.noDictPlaceholder', {
+                  name: col.columnComment || col.javaField
+                })
+              "
             />
             <ElInput v-else v-model="form[col.columnName]" />
           </ElFormItem>
         </ElForm>
         <template #footer>
-          <ElButton @click="dialogVisible = false">取消</ElButton>
-          <ElButton type="primary" @click="submit">提交</ElButton>
+          <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+          <ElButton type="primary" @click="submit">{{ $t('table.form.submit') }}</ElButton>
         </template>
       </ElDialog>
     </ElCard>
@@ -187,8 +204,11 @@
     fetchOnlineRemove
   } from '@/api/system-manage'
   import { useDictStore } from '@/store/modules/dict'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'OnlineForm' })
+
+  const { t } = useI18n()
 
   const dictStore = useDictStore()
 
@@ -268,7 +288,7 @@
     submitting.value = true
     try {
       await fetchOnlineSave(tableId.value, form.value)
-      ElMessage.success('操作成功')
+      ElMessage.success(t('pages.system.onlineForm.opSuccess'))
       dialogVisible.value = false
       await load()
     } finally {
@@ -277,9 +297,11 @@
   }
 
   const remove = async (row: any): Promise<void> => {
-    await ElMessageBox.confirm('确认删除？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('pages.system.onlineForm.removeConfirm'), t('common.tips'), {
+      type: 'warning'
+    })
     await fetchOnlineRemove(tableId.value, [row.id])
-    ElMessage.success('删除成功')
+    ElMessage.success(t('pages.system.onlineForm.removeSuccess'))
     await load()
   }
 

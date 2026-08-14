@@ -1,6 +1,11 @@
 <!-- 角色菜单授权弹窗（对接后端 /system/role/grant，el-tree 勾选 + /menu-ids 回显） -->
 <template>
-  <ElDialog v-model="dialogVisible" title="菜单授权" width="460px" align-center>
+  <ElDialog
+    v-model="dialogVisible"
+    :title="$t('pages.system.role.grantTitle')"
+    width="460px"
+    align-center
+  >
     <ElTree
       ref="treeRef"
       class="perm-tree"
@@ -12,14 +17,17 @@
     />
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="handleSubmit">保存</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="handleSubmit">{{
+          $t('pages.system.role.save')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import { ElMessage } from 'element-plus'
   import { fetchMenuTree } from '@/api/system-manage'
   import { fetchRoleMenuIds, grantRole } from '@/api/role'
@@ -36,6 +44,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -63,7 +73,7 @@
     submitting.value = true
     try {
       await grantRole(props.roleData.id, menuIds)
-      ElMessage.success('授权成功')
+      ElMessage.success(t('pages.system.role.grantSuccess'))
       dialogVisible.value = false
       emit('success')
     } finally {

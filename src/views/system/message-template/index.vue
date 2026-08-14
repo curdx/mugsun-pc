@@ -4,8 +4,12 @@
     <ElCard class="art-table-card" shadow="never">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton v-perm="'sys:message:manage'" type="primary" @click="showDialog('add')" v-ripple
-            >新增模板</ElButton
+          <ElButton
+            v-perm="'sys:message:manage'"
+            type="primary"
+            @click="showDialog('add')"
+            v-ripple
+            >{{ $t('pages.system.messageTemplate.addBtn') }}</ElButton
           >
         </template>
       </ArtTableHeader>
@@ -20,26 +24,52 @@
       />
     </ElCard>
 
-    <ElDialog v-model="dialogVisible" :title="form.id ? '编辑模板' : '新增模板'" width="640px">
+    <ElDialog
+      v-model="dialogVisible"
+      :title="
+        form.id
+          ? $t('pages.system.messageTemplate.editTitle')
+          : $t('pages.system.messageTemplate.addBtn')
+      "
+      width="640px"
+    >
       <ElForm :model="form" label-width="80px">
-        <ElFormItem label="模板编码" required>
-          <ElInput v-model="form.code" :disabled="!!form.id" placeholder="唯一编码，如 welcome" />
+        <ElFormItem :label="$t('pages.system.messageTemplate.codeLabel')" required>
+          <ElInput
+            v-model="form.code"
+            :disabled="!!form.id"
+            :placeholder="$t('pages.system.messageTemplate.codePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="标题" required>
-          <ElInput v-model="form.title" placeholder="支持 ${key} 占位，如 欢迎 ${name}" />
+        <ElFormItem :label="$t('pages.system.messageTemplate.titleLabel')" required>
+          <ElInput
+            v-model="form.title"
+            :placeholder="
+              $t('pages.system.messageTemplate.titlePlaceholder', {
+                key: '{key}',
+                name: '{name}'
+              })
+            "
+          />
         </ElFormItem>
-        <ElFormItem label="内容">
+        <ElFormItem :label="$t('pages.system.messageTemplate.contentLabel')">
           <ElInput
             v-model="form.content"
             type="textarea"
             :rows="5"
-            placeholder="支持 ${key} 占位，如 你好 ${name}，你的角色是 ${role}"
+            :placeholder="
+              $t('pages.system.messageTemplate.contentPlaceholder', {
+                key: '{key}',
+                name: '{name}',
+                role: '{role}'
+              })
+            "
           />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">确定</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="submit">{{ $t('common.confirm') }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -58,8 +88,11 @@
     fetchRemoveMsgTemplate
   } from '@/api/message'
   import { formatTableTime } from '@/utils/date'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'MessageTemplate' })
+
+  const { t } = useI18n()
 
   const {
     columns,
@@ -76,17 +109,17 @@
       apiParams: { pageNum: 1, pageSize: 10 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { prop: 'code', label: '编码', width: 160 },
-        { prop: 'title', label: '标题', minWidth: 220 },
+        { prop: 'code', label: t('pages.system.messageTemplate.colCode'), width: 160 },
+        { prop: 'title', label: t('pages.system.messageTemplate.titleLabel'), minWidth: 220 },
         {
           prop: 'createTime',
-          label: '创建时间',
+          label: t('pages.system.messageTemplate.colCreateTime'),
           minWidth: 180,
           formatter: (row: any) => formatTableTime(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.messageTemplate.colOperation'),
           width: 140,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -132,21 +165,23 @@
 
   const submit = async () => {
     if (!form.code?.trim() || !form.title?.trim()) {
-      return ElMessage.warning('请填写编码与标题')
+      return ElMessage.warning(t('pages.system.messageTemplate.requiredWarning'))
     }
     await fetchSaveMsgTemplate({ ...form })
-    ElMessage.success('保存成功')
+    ElMessage.success(t('pages.system.messageTemplate.saveSuccess'))
     dialogVisible.value = false
     refreshData()
   }
 
   const remove = (row: any) => {
-    ElMessageBox.confirm(`确定删除模板「${row.code}」吗？`, '删除', { type: 'warning' }).then(
-      async () => {
-        await fetchRemoveMsgTemplate([row.id])
-        ElMessage.success('删除成功')
-        refreshData()
-      }
-    )
+    ElMessageBox.confirm(
+      t('pages.system.messageTemplate.deleteConfirm', { name: row.code }),
+      t('pages.system.messageTemplate.deleteTitle'),
+      { type: 'warning' }
+    ).then(async () => {
+      await fetchRemoveMsgTemplate([row.id])
+      ElMessage.success(t('pages.system.messageTemplate.deleteSuccess'))
+      refreshData()
+    })
   }
 </script>

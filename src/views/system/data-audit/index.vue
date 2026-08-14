@@ -14,17 +14,30 @@
       >
       </ArtTable>
 
-      <ElDialog v-model="detailVisible" title="变更记录详情" width="820px" align-center>
+      <ElDialog
+        v-model="detailVisible"
+        :title="$t('pages.system.dataAudit.detailTitle')"
+        width="820px"
+        align-center
+      >
         <ElDescriptions :column="2" border size="small">
-          <ElDescriptionsItem label="业务对象">{{ bizLabel(current.bizTable) }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="业务ID">{{ current.bizId }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="操作人">{{ current.operator }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="时间">{{
+          <ElDescriptionsItem :label="$t('pages.system.dataAudit.bizObject')">{{
+            bizLabel(current.bizTable)
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.dataAudit.bizId')">{{
+            current.bizId
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.dataAudit.operator')">{{
+            current.operator
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.dataAudit.time')">{{
             formatTableTime(current.createTime)
           }}</ElDescriptionsItem>
         </ElDescriptions>
 
-        <ElDivider content-position="left">字段变更</ElDivider>
+        <ElDivider content-position="left">{{
+          $t('pages.system.dataAudit.fieldChanges')
+        }}</ElDivider>
         <ElTimeline v-if="changes.length">
           <ElTimelineItem
             v-for="(c, i) in changes"
@@ -35,15 +48,21 @@
             placement="top"
           >
             <div class="change-line">
-              <span class="old">{{ c.old || '空' }}</span>
+              <span class="old">{{ c.old || $t('pages.system.dataAudit.emptyText') }}</span>
               <ArtSvgIcon class="arrow" icon="ri:arrow-right-line" />
-              <span class="new">{{ c.new || '空' }}</span>
+              <span class="new">{{ c.new || $t('pages.system.dataAudit.emptyText') }}</span>
             </div>
           </ElTimelineItem>
         </ElTimeline>
-        <ElEmpty v-else description="无字段级变更" :image-size="60" />
+        <ElEmpty
+          v-else
+          :description="$t('pages.system.dataAudit.noFieldChanges')"
+          :image-size="60"
+        />
 
-        <ElDivider content-position="left">快照对比</ElDivider>
+        <ElDivider content-position="left">{{
+          $t('pages.system.dataAudit.snapshotDiff')
+        }}</ElDivider>
         <!-- eslint-disable-next-line vue/no-v-html -->
         <div class="diff-view" v-html="diffHtmlStr"></div>
       </ElDialog>
@@ -61,8 +80,11 @@
   import { createTwoFilesPatch } from 'diff'
   import { html as renderDiff } from 'diff2html'
   import 'diff2html/bundles/css/diff2html.min.css'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'DataAudit' })
+
+  const { t } = useI18n()
 
   interface FieldChange {
     label: string
@@ -70,8 +92,8 @@
     new: string
   }
 
-  const BIZ_LABELS: Record<string, string> = { sys_user: '用户' }
-  const bizLabel = (t: string): string => BIZ_LABELS[t] ?? t
+  const BIZ_LABEL_KEYS: Record<string, string> = { sys_user: 'pages.system.dataAudit.bizSysUser' }
+  const bizLabel = (key: string): string => (BIZ_LABEL_KEYS[key] ? t(BIZ_LABEL_KEYS[key]) : key)
 
   const detailVisible = ref(false)
   const detailLoading = ref(false)
@@ -97,7 +119,14 @@
         return s
       }
     }
-    const patch = createTwoFilesPatch('变更前', '变更后', pretty(before), pretty(after), '', '')
+    const patch = createTwoFilesPatch(
+      t('pages.system.dataAudit.before'),
+      t('pages.system.dataAudit.after'),
+      pretty(before),
+      pretty(after),
+      '',
+      ''
+    )
     return renderDiff(patch, {
       drawFileList: false,
       matching: 'lines',
@@ -122,7 +151,7 @@
 
   const summary = (row: Record<string, any>): string => {
     const cs = parseChanges(row.changeContent)
-    return cs.length ? cs.map((c) => c.label).join('、') : '—'
+    return cs.length ? cs.map((c) => c.label).join(t('pages.system.dataAudit.summarySep')) : '—'
   }
 
   const {
@@ -140,30 +169,30 @@
       apiParams: { pageNum: 1, pageSize: 20 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
+        { type: 'index', width: 60, label: t('table.column.index') },
         {
           prop: 'bizTable',
-          label: '业务对象',
+          label: t('pages.system.dataAudit.bizObject'),
           width: 120,
           formatter: (row: any) => h(ElTag, { type: 'info' }, () => bizLabel(row.bizTable))
         },
-        { prop: 'bizId', label: '业务ID', minWidth: 170 },
+        { prop: 'bizId', label: t('pages.system.dataAudit.bizId'), minWidth: 170 },
         {
           prop: 'summary',
-          label: '变更字段',
+          label: t('pages.system.dataAudit.changedFields'),
           minWidth: 160,
           formatter: (row: any) => summary(row)
         },
-        { prop: 'operator', label: '操作人', minWidth: 170 },
+        { prop: 'operator', label: t('pages.system.dataAudit.operator'), minWidth: 170 },
         {
           prop: 'createTime',
-          label: '时间',
+          label: t('pages.system.dataAudit.time'),
           minWidth: 180,
           formatter: (row: any) => formatTableTime(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.dataAudit.colOperation'),
           width: 90,
           fixed: 'right',
           formatter: (row: any) =>

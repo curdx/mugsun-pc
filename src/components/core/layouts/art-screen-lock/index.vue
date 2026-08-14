@@ -8,10 +8,12 @@
     >
       <div class="p-5 text-center select-none">
         <div class="mb-7.5 text-5xl"><ArtSvgIcon icon="ri:lock-2-line" /></div>
-        <h1 class="m-0 mb-5 text-3xl font-semibold text-danger">系统已锁定</h1>
+        <h1 class="m-0 mb-5 text-3xl font-semibold text-danger">
+          {{ $t('components.screenLock.lockedTitle') }}
+        </h1>
         <p class="max-w-125 m-0 text-lg leading-relaxed text-white">
-          检测到开发者工具已打开<br />
-          为了系统安全，请关闭开发者工具后继续使用
+          {{ $t('components.screenLock.devToolsDetected') }}<br />
+          {{ $t('components.screenLock.devToolsWarning') }}
         </p>
         <div class="mt-7.5 text-sm text-gray-400">Security Lock Activated</div>
       </div>
@@ -21,7 +23,11 @@
     <div v-if="!isLock">
       <ElDialog v-model="visible" :width="370" :show-close="false" @open="handleDialogOpen">
         <div class="flex-c flex-col">
-          <img class="w-16 h-16 rounded-full" src="@imgs/user/avatar.webp" alt="用户头像" />
+          <img
+            class="w-16 h-16 rounded-full"
+            src="@imgs/user/avatar.webp"
+            :alt="$t('components.screenLock.avatarAlt')"
+          />
           <div class="mt-7.5 mb-3.5 text-base font-medium">{{ userInfo.userName }}</div>
           <ElForm
             ref="formRef"
@@ -59,7 +65,11 @@
     <!-- 解锁界面 -->
     <div v-else class="unlock-content">
       <div class="flex-c flex-col w-80">
-        <img class="w-16 h-16 mt-5 rounded-full" src="@imgs/user/avatar.webp" alt="用户头像" />
+        <img
+          class="w-16 h-16 mt-5 rounded-full"
+          src="@imgs/user/avatar.webp"
+          :alt="$t('components.screenLock.avatarAlt')"
+        />
         <div class="mt-3 mb-3.5 text-base font-medium">
           {{ userInfo.userName }}
         </div>
@@ -108,7 +118,7 @@
 
 <script setup lang="ts">
   import { Lock, Unlock } from '@element-plus/icons-vue'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
   import { useI18n } from 'vue-i18n'
   import CryptoJS from 'crypto-js'
   import { useUserStore } from '@/store/modules/user'

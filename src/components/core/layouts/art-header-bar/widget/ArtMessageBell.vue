@@ -22,11 +22,17 @@
     <template #default>
       <div class="message-bell">
         <div class="bell-head">
-          <span class="bell-title">站内信</span>
-          <ElButton link type="primary" size="small" @click="readAll">全部已读</ElButton>
+          <span class="bell-title">{{ $t('components.messageBell.title') }}</span>
+          <ElButton link type="primary" size="small" @click="readAll">{{
+            $t('components.messageBell.readAll')
+          }}</ElButton>
         </div>
         <ElScrollbar max-height="360px">
-          <ElEmpty v-if="!list.length" description="暂无消息" :image-size="60" />
+          <ElEmpty
+            v-if="!list.length"
+            :description="$t('components.messageBell.emptyText')"
+            :image-size="60"
+          />
           <ul v-else class="bell-list">
             <li
               v-for="m in list"
@@ -45,7 +51,7 @@
             </li>
           </ul>
         </ElScrollbar>
-        <div class="bell-foot" @click="viewAll">查看全部</div>
+        <div class="bell-foot" @click="viewAll">{{ $t('notice.viewAll') }}</div>
       </div>
     </template>
   </ElPopover>
@@ -54,10 +60,13 @@
 <script setup lang="ts">
   import { useRouter } from 'vue-router'
   import { ElMessage } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
   import { useMessageStore } from '@/store/modules/message'
   import { fetchMsgRecent, fetchReadMessage, fetchReadAllMessage } from '@/api/message'
 
   defineOptions({ name: 'ArtMessageBell' })
+
+  const { t } = useI18n()
 
   const router = useRouter()
   const messageStore = useMessageStore()
@@ -89,7 +98,7 @@
     await fetchReadAllMessage()
     list.value.forEach((m) => (m.isRead = 1))
     messageStore.refreshUnread()
-    ElMessage.success('已全部标记已读')
+    ElMessage.success(t('components.messageBell.readAllSuccess'))
   }
 
   const viewAll = () => {

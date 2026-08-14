@@ -3,37 +3,77 @@
   <div class="flow-todo-page art-full-height">
     <ElCard class="art-table-card">
       <ElTabs v-model="tab" @tab-change="onTabChange">
-        <ElTabPane label="我的待办" name="todo">
+        <ElTabPane :label="$t('pages.system.flowTodo.tabTodo')" name="todo">
           <div class="flow-toolbar">
-            <ElButton :loading="loading" @click="loadTodo">刷新</ElButton>
+            <ElButton :loading="loading" @click="loadTodo">{{
+              $t('pages.system.flowTodo.refresh')
+            }}</ElButton>
           </div>
           <ElTable :data="todo" border :loading="loading">
-            <ElTableColumn type="index" label="序号" width="56" />
-            <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
-            <ElTableColumn prop="flowName" label="流程" min-width="120" />
-            <ElTableColumn prop="nodeName" label="当前节点" min-width="120" />
-            <ElTableColumn prop="createTime" label="到达时间" min-width="170">
+            <ElTableColumn type="index" :label="$t('table.column.index')" width="56" />
+            <ElTableColumn
+              prop="businessId"
+              :label="$t('pages.system.flowTodo.businessId')"
+              min-width="150"
+            />
+            <ElTableColumn
+              prop="flowName"
+              :label="$t('pages.system.flowTodo.flow')"
+              min-width="120"
+            />
+            <ElTableColumn
+              prop="nodeName"
+              :label="$t('pages.system.flowTodo.currentNode')"
+              min-width="120"
+            />
+            <ElTableColumn
+              prop="createTime"
+              :label="$t('pages.system.flowTodo.arriveTime')"
+              min-width="170"
+            >
               <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
             </ElTableColumn>
-            <ElTableColumn label="操作" width="300" fixed="right">
+            <ElTableColumn :label="$t('pages.system.flowTodo.actions')" width="300" fixed="right">
               <template #default="{ row }">
-                <ElButton link type="success" @click="open('pass', row)">通过</ElButton>
-                <ElButton link type="warning" @click="open('reject', row)">退回</ElButton>
-                <ElButton link type="primary" @click="showHistory(row)">进度</ElButton>
+                <ElButton link type="success" @click="open('pass', row)">{{
+                  $t('pages.system.flowTodo.pass')
+                }}</ElButton>
+                <ElButton link type="warning" @click="open('reject', row)">{{
+                  $t('pages.system.flowTodo.reject')
+                }}</ElButton>
+                <ElButton link type="primary" @click="showHistory(row)">{{
+                  $t('pages.system.flowTodo.progress')
+                }}</ElButton>
                 <ElDropdown class="flow-more" @command="(c: string) => open(c, row)">
                   <ElButton link type="info"
-                    >更多<ElIcon><ArrowDown /></ElIcon
+                    >{{ $t('pages.system.flowTodo.more') }}<ElIcon><ArrowDown /></ElIcon
                   ></ElButton>
                   <template #dropdown>
                     <ElDropdownMenu>
-                      <ElDropdownItem command="rejectNode">退回指定节点</ElDropdownItem>
-                      <ElDropdownItem command="transfer">转办</ElDropdownItem>
-                      <ElDropdownItem command="depute">委派</ElDropdownItem>
-                      <ElDropdownItem command="addSignature">加签</ElDropdownItem>
-                      <ElDropdownItem command="reductionSignature">减签</ElDropdownItem>
-                      <ElDropdownItem command="copy">抄送</ElDropdownItem>
-                      <ElDropdownItem command="revoke" divided>撤回</ElDropdownItem>
-                      <ElDropdownItem command="terminate">作废</ElDropdownItem>
+                      <ElDropdownItem command="rejectNode">{{
+                        $t('pages.system.flowTodo.rejectNode')
+                      }}</ElDropdownItem>
+                      <ElDropdownItem command="transfer">{{
+                        $t('pages.system.flowTodo.transfer')
+                      }}</ElDropdownItem>
+                      <ElDropdownItem command="depute">{{
+                        $t('pages.system.flowTodo.depute')
+                      }}</ElDropdownItem>
+                      <ElDropdownItem command="addSignature">{{
+                        $t('pages.system.flowTodo.addSignature')
+                      }}</ElDropdownItem>
+                      <ElDropdownItem command="reductionSignature">{{
+                        $t('pages.system.flowTodo.reductionSignature')
+                      }}</ElDropdownItem>
+                      <ElDropdownItem command="copy">{{
+                        $t('pages.system.flowTodo.copy')
+                      }}</ElDropdownItem>
+                      <ElDropdownItem command="revoke" divided>{{
+                        $t('pages.system.flowTodo.revoke')
+                      }}</ElDropdownItem>
+                      <ElDropdownItem command="terminate">{{
+                        $t('pages.system.flowTodo.terminate')
+                      }}</ElDropdownItem>
                     </ElDropdownMenu>
                   </template>
                 </ElDropdown>
@@ -42,25 +82,41 @@
           </ElTable>
         </ElTabPane>
 
-        <ElTabPane label="我的抄送" name="copy">
+        <ElTabPane :label="$t('pages.system.flowTodo.tabCopy')" name="copy">
           <div class="flow-toolbar">
-            <ElButton :loading="loading" @click="loadCopy">刷新</ElButton>
+            <ElButton :loading="loading" @click="loadCopy">{{
+              $t('pages.system.flowTodo.refresh')
+            }}</ElButton>
           </div>
           <ElTable :data="copyList" border :loading="loading">
-            <ElTableColumn type="index" label="序号" width="56" />
-            <ElTableColumn prop="businessId" label="业务单号" min-width="150" />
-            <ElTableColumn prop="flowName" label="流程" min-width="120" />
-            <ElTableColumn prop="flowStatus" label="状态" width="90">
+            <ElTableColumn type="index" :label="$t('table.column.index')" width="56" />
+            <ElTableColumn
+              prop="businessId"
+              :label="$t('pages.system.flowTodo.businessId')"
+              min-width="150"
+            />
+            <ElTableColumn
+              prop="flowName"
+              :label="$t('pages.system.flowTodo.flow')"
+              min-width="120"
+            />
+            <ElTableColumn prop="flowStatus" :label="$t('pages.system.flowTodo.status')" width="90">
               <template #default="{ row }">
                 <ArtDictTag :code="DICT_CODE.FLOW_STATUS" :value="row.flowStatus" />
               </template>
             </ElTableColumn>
-            <ElTableColumn prop="createTime" label="抄送时间" min-width="170">
+            <ElTableColumn
+              prop="createTime"
+              :label="$t('pages.system.flowTodo.copyTime')"
+              min-width="170"
+            >
               <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
             </ElTableColumn>
-            <ElTableColumn label="操作" width="90" fixed="right">
+            <ElTableColumn :label="$t('pages.system.flowTodo.actions')" width="90" fixed="right">
               <template #default="{ row }">
-                <ElButton link type="primary" @click="showHistory(row)">进度</ElButton>
+                <ElButton link type="primary" @click="showHistory(row)">{{
+                  $t('pages.system.flowTodo.progress')
+                }}</ElButton>
               </template>
             </ElTableColumn>
           </ElTable>
@@ -70,8 +126,12 @@
       <!-- 统一动作对话框 -->
       <ElDialog v-model="opVisible" :title="opTitle" width="480px" align-center>
         <ElForm label-width="72px">
-          <ElFormItem v-if="opKind === 'node'" label="退回节点">
-            <ElSelect v-model="opForm.nodeCode" placeholder="选择历史节点" style="width: 100%">
+          <ElFormItem v-if="opKind === 'node'" :label="$t('pages.system.flowTodo.rejectNodeLabel')">
+            <ElSelect
+              v-model="opForm.nodeCode"
+              :placeholder="$t('pages.system.flowTodo.selectHistoryNode')"
+              style="width: 100%"
+            >
               <ElOption
                 v-for="n in nodes"
                 :key="n.nodeCode"
@@ -80,7 +140,7 @@
               />
             </ElSelect>
           </ElFormItem>
-          <ElFormItem v-if="opKind === 'user'" label="选择人员">
+          <ElFormItem v-if="opKind === 'user'" :label="$t('pages.system.flowTodo.selectUser')">
             <ElSelect
               v-model="opForm.handlers"
               multiple
@@ -88,26 +148,33 @@
               remote
               :remote-method="searchUsers"
               :loading="userSearching"
-              placeholder="输入用户名/昵称搜索"
+              :placeholder="$t('pages.system.flowTodo.userSearchPlaceholder')"
               style="width: 100%"
               @change="syncSelected"
             >
               <ElOption v-for="u in users" :key="u.value" :label="u.label" :value="u.value" />
             </ElSelect>
           </ElFormItem>
-          <ElFormItem v-if="opAction !== 'copy'" label="审批意见">
-            <ElInput v-model="opForm.message" type="textarea" :rows="2" placeholder="选填" />
+          <ElFormItem v-if="opAction !== 'copy'" :label="$t('pages.system.flowTodo.opinion')">
+            <ElInput
+              v-model="opForm.message"
+              type="textarea"
+              :rows="2"
+              :placeholder="$t('pages.system.flowTodo.optional')"
+            />
           </ElFormItem>
         </ElForm>
         <template #footer>
-          <ElButton @click="opVisible = false">取消</ElButton>
-          <ElButton type="primary" :loading="submitting" @click="submitOp">确定</ElButton>
+          <ElButton @click="opVisible = false">{{ $t('common.cancel') }}</ElButton>
+          <ElButton type="primary" :loading="submitting" @click="submitOp">{{
+            $t('common.confirm')
+          }}</ElButton>
         </template>
       </ElDialog>
 
       <ElDialog
         v-model="historyVisible"
-        title="流转进度"
+        :title="$t('pages.system.flowTodo.historyTitle')"
         width="520px"
         align-center
         class="flow-history-dialog"
@@ -122,7 +189,9 @@
             <div class="flow-his-node">{{ h.nodeName }}</div>
             <div class="flow-his-meta">
               {{ statusText(h) }}
-              <span v-if="h.approver">· 处理人 {{ h.approver }}</span>
+              <span v-if="h.approver">{{
+                $t('pages.system.flowTodo.handlerText', { name: h.approver })
+              }}</span>
               <span v-if="h.message">· {{ h.message }}</span>
             </div>
           </ElTimelineItem>
@@ -134,6 +203,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, computed, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { ArrowDown } from '@element-plus/icons-vue'
   import { ElMessage } from 'element-plus'
   import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
@@ -156,6 +226,8 @@
   import { useUserSelectSearch } from '@/hooks'
 
   defineOptions({ name: 'FlowTodo' })
+
+  const { t } = useI18n()
 
   const dictStore = useDictStore()
 
@@ -186,52 +258,62 @@
     string,
     { title: string; kind: 'message' | 'node' | 'user'; run: (row: any) => Promise<any> }
   > = {
-    pass: { title: '通过', kind: 'message', run: (r) => fetchFlowHandle(r.taskId, opForm.message) },
+    pass: {
+      title: t('pages.system.flowTodo.pass'),
+      kind: 'message',
+      run: (r) => fetchFlowHandle(r.taskId, opForm.message)
+    },
     reject: {
-      title: '退回上一步',
+      title: t('pages.system.flowTodo.titleRejectPrev'),
       kind: 'message',
       run: (r) => fetchFlowReject(r.taskId, opForm.message)
     },
     rejectNode: {
-      title: '退回指定节点',
+      title: t('pages.system.flowTodo.rejectNode'),
       kind: 'node',
       run: (r) => fetchFlowRejectNode(r.taskId, opForm.nodeCode, opForm.message)
     },
     revoke: {
-      title: '撤回',
+      title: t('pages.system.flowTodo.revoke'),
       kind: 'message',
       run: (r) => fetchFlowRevoke(r.instanceId, opForm.message)
     },
     terminate: {
-      title: '作废',
+      title: t('pages.system.flowTodo.terminate'),
       kind: 'message',
       run: (r) => fetchFlowTerminate(r.taskId, opForm.message)
     },
     transfer: {
-      title: '转办',
+      title: t('pages.system.flowTodo.transfer'),
       kind: 'user',
       run: (r) => fetchFlowOperation(r.taskId, 'transfer', opForm.handlers, opForm.message)
     },
     depute: {
-      title: '委派',
+      title: t('pages.system.flowTodo.depute'),
       kind: 'user',
       run: (r) => fetchFlowOperation(r.taskId, 'depute', opForm.handlers, opForm.message)
     },
     addSignature: {
-      title: '加签',
+      title: t('pages.system.flowTodo.addSignature'),
       kind: 'user',
       run: (r) => fetchFlowOperation(r.taskId, 'addSignature', opForm.handlers, opForm.message)
     },
     reductionSignature: {
-      title: '减签',
+      title: t('pages.system.flowTodo.reductionSignature'),
       kind: 'user',
       run: (r) =>
         fetchFlowOperation(r.taskId, 'reductionSignature', opForm.handlers, opForm.message)
     },
-    copy: { title: '抄送', kind: 'user', run: (r) => fetchFlowCopy(r.taskId, opForm.handlers) }
+    copy: {
+      title: t('pages.system.flowTodo.copy'),
+      kind: 'user',
+      run: (r) => fetchFlowCopy(r.taskId, opForm.handlers)
+    }
   }
 
-  const opTitle = computed(() => ACTIONS[opAction.value]?.title || '操作')
+  const opTitle = computed(
+    () => ACTIONS[opAction.value]?.title || t('pages.system.flowTodo.opFallback')
+  )
   const opKind = computed(() => ACTIONS[opAction.value]?.kind)
 
   const loadTodo = async (): Promise<void> => {
@@ -273,7 +355,7 @@
     submitting.value = true
     try {
       await ACTIONS[opAction.value].run(opRow.value)
-      ElMessage.success('操作成功')
+      ElMessage.success(t('pages.system.flowTodo.msgSuccess'))
       opVisible.value = false
       loadTodo()
     } finally {
@@ -288,7 +370,9 @@
 
   // 字典运行时驱动：状态文案取 flow_status 字典（时间线纯文本场景用），不再手写 map
   const statusText = (h: any): string =>
-    dictStore.getItem(DICT_CODE.FLOW_STATUS, h.flowStatus)?.dictValue || h.skipType || '流转'
+    dictStore.getItem(DICT_CODE.FLOW_STATUS, h.flowStatus)?.dictValue ||
+    h.skipType ||
+    t('pages.system.flowTodo.statusFallback')
 
   const timelineType = (h: any): 'primary' | 'success' | 'warning' | 'danger' => {
     const s = String(h.flowStatus)

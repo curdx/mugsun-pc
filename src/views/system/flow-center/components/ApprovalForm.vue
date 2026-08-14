@@ -1,7 +1,7 @@
 <!-- 审批业务表单渲染：按字段权限只读/隐藏，支持取值/校验（发起、办理、查看三态复用） -->
 <template>
   <FormCreate v-if="hasForm" v-model:api="fApi" :rule="rule" :option="option" />
-  <ElEmpty v-else description="该流程未绑定业务表单" :image-size="60" />
+  <ElEmpty v-else :description="$t('pages.system.flowCenter.noForm')" :image-size="60" />
 </template>
 
 <script setup lang="ts">

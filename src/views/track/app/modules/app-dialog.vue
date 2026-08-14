@@ -2,38 +2,41 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增应用' : '编辑应用'"
+    :title="type === 'add' ? $t('pages.track.app.addApp') : $t('pages.track.app.editApp')"
     width="520px"
     align-center
     class="track-app-dialog"
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="96px">
-      <ElFormItem label="应用名称" prop="appName">
-        <ElInput v-model="formData.appName" placeholder="请输入应用名称" />
-      </ElFormItem>
-      <ElFormItem label="采样率" prop="sampleRate">
-        <ElInputNumber v-model="formData.sampleRate" :min="1" :max="100" :step="5" :precision="0" />
-        <span class="track-form-hint">百分比 1 ~ 100，100 表示全量采集</span>
-      </ElFormItem>
-      <ElFormItem label="启用" prop="enabled">
-        <ElSwitch v-model="formData.enabled" :active-value="1" :inactive-value="0" />
-      </ElFormItem>
-      <ElFormItem label="脱敏选择器" prop="maskSelectors">
+      <ElFormItem :label="$t('pages.track.app.appName')" prop="appName">
         <ElInput
-          v-model="formData.maskSelectors"
-          placeholder="逗号分隔的 CSS 选择器，如 .phone,#id-card"
+          v-model="formData.appName"
+          :placeholder="$t('pages.track.app.appNamePlaceholder')"
         />
       </ElFormItem>
-      <ElFormItem label="数据保留期" prop="retentionDays">
-        <ElInputNumber v-model="formData.retentionDays" :min="1" :max="3650" :precision="0" />
-        <span class="track-form-hint">单位：天</span>
+      <ElFormItem :label="$t('pages.track.app.sampleRate')" prop="sampleRate">
+        <ElInputNumber v-model="formData.sampleRate" :min="1" :max="100" :step="5" :precision="0" />
+        <span class="track-form-hint">{{ $t('pages.track.app.sampleRateHint') }}</span>
       </ElFormItem>
-      <ElFormItem label="会话回放" prop="replayEnabled">
+      <ElFormItem :label="$t('pages.track.shared.enabled')" prop="enabled">
+        <ElSwitch v-model="formData.enabled" :active-value="1" :inactive-value="0" />
+      </ElFormItem>
+      <ElFormItem :label="$t('pages.track.app.maskSelectors')" prop="maskSelectors">
+        <ElInput
+          v-model="formData.maskSelectors"
+          :placeholder="$t('pages.track.app.maskSelectorsPlaceholder')"
+        />
+      </ElFormItem>
+      <ElFormItem :label="$t('pages.track.app.retentionDaysLabel')" prop="retentionDays">
+        <ElInputNumber v-model="formData.retentionDays" :min="1" :max="3650" :precision="0" />
+        <span class="track-form-hint">{{ $t('pages.track.app.unitDay') }}</span>
+      </ElFormItem>
+      <ElFormItem :label="$t('pages.track.app.replayEnabledLabel')" prop="replayEnabled">
         <ElSwitch v-model="formData.replayEnabled" :active-value="1" :inactive-value="0" />
-        <span class="track-form-hint">开启后 SDK 常录，按采样率上传</span>
+        <span class="track-form-hint">{{ $t('pages.track.app.replayHint') }}</span>
       </ElFormItem>
       <template v-if="formData.replayEnabled === 1">
-        <ElFormItem label="回放采样率" prop="replaySampleRate">
+        <ElFormItem :label="$t('pages.track.app.replaySampleRate')" prop="replaySampleRate">
           <ElInputNumber
             v-model="formData.replaySampleRate"
             :min="0"
@@ -41,54 +44,63 @@
             :step="10"
             :precision="0"
           />
-          <span class="track-form-hint">百分比 0 ~ 100，0 表示仅含错误会话强制上传</span>
+          <span class="track-form-hint">{{ $t('pages.track.app.replaySampleRateHint') }}</span>
         </ElFormItem>
-        <ElFormItem label="回放保留期" prop="replayRetentionDays">
+        <ElFormItem :label="$t('pages.track.app.replayRetentionDays')" prop="replayRetentionDays">
           <ElInputNumber v-model="formData.replayRetentionDays" :min="1" :max="30" :precision="0" />
-          <span class="track-form-hint">单位：天，最长 30 天</span>
+          <span class="track-form-hint">{{ $t('pages.track.app.retention30Hint') }}</span>
         </ElFormItem>
       </template>
-      <ElFormItem label="接口监控" prop="apiMonitorEnabled">
+      <ElFormItem :label="$t('pages.track.app.apiMonitor')" prop="apiMonitorEnabled">
         <ElSwitch v-model="formData.apiMonitorEnabled" :active-value="1" :inactive-value="0" />
-        <span class="track-form-hint">开启后 SDK 记录页面接口调用（下次启动生效）</span>
+        <span class="track-form-hint">{{ $t('pages.track.app.apiMonitorHint') }}</span>
       </ElFormItem>
       <template v-if="formData.apiMonitorEnabled === 1">
-        <ElFormItem label="响应体采集" prop="apiBodyEnabled">
+        <ElFormItem :label="$t('pages.track.app.apiBody')" prop="apiBodyEnabled">
           <ElSwitch v-model="formData.apiBodyEnabled" :active-value="1" :inactive-value="0" />
-          <span class="track-form-hint">仅 JSON 接口，经独立通道上传；凭证端点永不采集</span>
+          <span class="track-form-hint">{{ $t('pages.track.app.apiBodyHint') }}</span>
         </ElFormItem>
         <template v-if="formData.apiBodyEnabled === 1">
-          <ElFormItem label="响应体脱敏" prop="apiBodyMaskEnabled">
+          <ElFormItem :label="$t('pages.track.app.apiBodyMask')" prop="apiBodyMaskEnabled">
             <ElSwitch v-model="formData.apiBodyMaskEnabled" :active-value="1" :inactive-value="0" />
-            <span class="track-form-hint">开启后 password/token/手机号等字段替换为 ***</span>
+            <span class="track-form-hint">{{ $t('pages.track.app.apiBodyMaskHint') }}</span>
           </ElFormItem>
-          <ElFormItem label="响应体保留期" prop="apiBodyRetentionDays">
+          <ElFormItem :label="$t('pages.track.app.apiBodyRetention')" prop="apiBodyRetentionDays">
             <ElInputNumber
               v-model="formData.apiBodyRetentionDays"
               :min="1"
               :max="30"
               :precision="0"
             />
-            <span class="track-form-hint">单位：天，最长 30 天</span>
+            <span class="track-form-hint">{{ $t('pages.track.app.retention30Hint') }}</span>
           </ElFormItem>
         </template>
       </template>
-      <ElFormItem label="错误告警" prop="alertEnabled">
+      <ElFormItem :label="$t('pages.track.app.alertEnabled')" prop="alertEnabled">
         <ElSwitch v-model="formData.alertEnabled" :active-value="1" :inactive-value="0" />
-        <span class="track-form-hint">新错误指纹或同指纹超阈值时站内信通知租户管理员</span>
+        <span class="track-form-hint">{{ $t('pages.track.app.alertHint') }}</span>
       </ElFormItem>
-      <ElFormItem v-if="formData.alertEnabled === 1" label="告警阈值" prop="alertThreshold">
+      <ElFormItem
+        v-if="formData.alertEnabled === 1"
+        :label="$t('pages.track.app.alertThreshold')"
+        prop="alertThreshold"
+      >
         <ElInputNumber v-model="formData.alertThreshold" :min="1" :max="1000" :precision="0" />
-        <span class="track-form-hint">10 分钟内同指纹错误超过该次数时告警</span>
+        <span class="track-form-hint">{{ $t('pages.track.app.alertThresholdHint') }}</span>
       </ElFormItem>
-      <ElFormItem label="备注" prop="remark">
-        <ElInput v-model="formData.remark" type="textarea" :rows="2" placeholder="请输入备注" />
+      <ElFormItem :label="$t('pages.track.app.remark')" prop="remark">
+        <ElInput
+          v-model="formData.remark"
+          type="textarea"
+          :rows="2"
+          :placeholder="$t('pages.track.app.remarkPlaceholder')"
+        />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="handleSubmit">{{ $t('table.form.submit') }}</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -96,6 +108,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   interface Props {
     visible: boolean
@@ -115,6 +128,8 @@
     get: () => props.visible,
     set: (value) => emit('update:visible', value)
   })
+
+  const { t } = useI18n()
 
   const formRef = ref<FormInstance>()
 
@@ -138,13 +153,25 @@
   })
 
   const rules: FormRules = {
-    appName: [{ required: true, message: '请输入应用名称', trigger: 'blur' }],
-    sampleRate: [{ required: true, message: '请设置采样率', trigger: 'blur' }],
-    retentionDays: [{ required: true, message: '请设置数据保留期', trigger: 'blur' }],
-    replaySampleRate: [{ required: true, message: '请设置回放采样率', trigger: 'blur' }],
-    replayRetentionDays: [{ required: true, message: '请设置回放保留期', trigger: 'blur' }],
-    apiBodyRetentionDays: [{ required: true, message: '请设置响应体保留期', trigger: 'blur' }],
-    alertThreshold: [{ required: true, message: '请设置告警阈值', trigger: 'blur' }]
+    appName: [
+      { required: true, message: t('pages.track.app.appNamePlaceholder'), trigger: 'blur' }
+    ],
+    sampleRate: [{ required: true, message: t('pages.track.app.ruleSampleRate'), trigger: 'blur' }],
+    retentionDays: [
+      { required: true, message: t('pages.track.app.ruleRetentionDays'), trigger: 'blur' }
+    ],
+    replaySampleRate: [
+      { required: true, message: t('pages.track.app.ruleReplaySampleRate'), trigger: 'blur' }
+    ],
+    replayRetentionDays: [
+      { required: true, message: t('pages.track.app.ruleReplayRetention'), trigger: 'blur' }
+    ],
+    apiBodyRetentionDays: [
+      { required: true, message: t('pages.track.app.ruleApiBodyRetention'), trigger: 'blur' }
+    ],
+    alertThreshold: [
+      { required: true, message: t('pages.track.app.ruleAlertThreshold'), trigger: 'blur' }
+    ]
   }
 
   watch(

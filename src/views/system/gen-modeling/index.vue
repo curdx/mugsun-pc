@@ -3,95 +3,106 @@
   <div class="art-full-height">
     <ElCard class="art-table-card">
       <ElTabs v-model="activeTab">
-        <ElTabPane label="规则建模" name="ai">
+        <ElTabPane :label="$t('pages.system.genModeling.tabModeling')" name="ai">
           <ElInput
             v-model="nl"
             type="textarea"
             :rows="3"
-            placeholder="用一句话描述（英文表名/字段名 + 中文含义 + 类型）。例：product_comment 商品评论；content 评论内容 文本，score 评分 整数，author 作者 文本，comment_time 评论时间 日期"
+            :placeholder="$t('pages.system.genModeling.nlPlaceholder')"
           />
           <div class="modeling-actions">
-            <ElButton type="primary" :loading="drafting" @click="genDraft">生成候选</ElButton>
-            <span class="modeling-tip"
-              >基于规则解析（英文标识符 + 中文含义 +
-              类型词），不支持自由中文描述；候选仅供人工确认修改，确认后才建表——绝不自动落库</span
-            >
+            <ElButton type="primary" :loading="drafting" @click="genDraft">{{
+              $t('pages.system.genModeling.genDraft')
+            }}</ElButton>
+            <span class="modeling-tip">{{ $t('pages.system.genModeling.ruleTip') }}</span>
           </div>
 
           <div v-if="candidate" class="candidate-box">
             <ElForm inline>
-              <ElFormItem label="表名">
+              <ElFormItem :label="$t('pages.system.genModeling.tableName')">
                 <ElInput v-model="candidate.table.tableName" style="width: 200px" />
               </ElFormItem>
-              <ElFormItem label="表说明">
+              <ElFormItem :label="$t('pages.system.genModeling.tableComment')">
                 <ElInput v-model="candidate.table.tableComment" style="width: 220px" />
               </ElFormItem>
             </ElForm>
             <ElTable :data="candidate.columns" border size="small">
               <ElTableColumn type="index" label="#" width="46" />
-              <ElTableColumn label="列名" min-width="150">
+              <ElTableColumn :label="$t('pages.system.genModeling.colColumnName')" min-width="150">
                 <template #default="{ row }">
                   <ElInput v-model="row.columnName" size="small" />
                 </template>
               </ElTableColumn>
-              <ElTableColumn label="说明" min-width="150">
+              <ElTableColumn :label="$t('pages.system.genModeling.colComment')" min-width="150">
                 <template #default="{ row }">
                   <ElInput v-model="row.columnComment" size="small" />
                 </template>
               </ElTableColumn>
-              <ElTableColumn label="类型" width="160">
+              <ElTableColumn :label="$t('pages.system.genModeling.colType')" width="160">
                 <template #default="{ row }">
                   <ElSelect v-model="row.javaType" size="small">
                     <ElOption v-for="t in javaTypes" :key="t" :label="t" :value="t" />
                   </ElSelect>
                 </template>
               </ElTableColumn>
-              <ElTableColumn label="操作" width="70">
+              <ElTableColumn :label="$t('pages.system.genModeling.colOperation')" width="70">
                 <template #default="{ $index }">
                   <ElButton
                     link
                     type="danger"
                     size="small"
                     @click="candidate.columns.splice($index, 1)"
-                    >删</ElButton
+                    >{{ $t('pages.system.genModeling.removeShort') }}</ElButton
                   >
                 </template>
               </ElTableColumn>
             </ElTable>
             <div class="modeling-actions">
-              <ElButton @click="addCol">加字段</ElButton>
+              <ElButton @click="addCol">{{ $t('pages.system.genModeling.addColumn') }}</ElButton>
               <ElButton
                 v-perm="'sys:gen:ddl'"
                 type="success"
                 :loading="confirming"
                 @click="confirmBuild(true)"
-                >确认并建表</ElButton
+                >{{ $t('pages.system.genModeling.confirmBuild') }}</ElButton
               >
-              <ElButton v-perm="'sys:gen:ddl'" :loading="confirming" @click="confirmBuild(false)"
-                >仅保存配置</ElButton
-              >
+              <ElButton v-perm="'sys:gen:ddl'" :loading="confirming" @click="confirmBuild(false)">{{
+                $t('pages.system.genModeling.saveOnly')
+              }}</ElButton>
             </div>
           </div>
         </ElTabPane>
 
-        <ElTabPane label="动态表管理" name="manage">
-          <ElButton @click="loadTables">刷新</ElButton>
+        <ElTabPane :label="$t('pages.system.genModeling.tabManage')" name="manage">
+          <ElButton @click="loadTables">{{ $t('pages.system.genModeling.refresh') }}</ElButton>
           <ElTable :data="tables" border v-loading="loading" style="margin-top: 10px">
             <ElTableColumn type="index" label="#" width="50" />
-            <ElTableColumn prop="tableName" label="表名" min-width="170" />
-            <ElTableColumn prop="functionName" label="功能" min-width="140" />
-            <ElTableColumn label="操作" width="400" fixed="right">
+            <ElTableColumn
+              prop="tableName"
+              :label="$t('pages.system.genModeling.tableName')"
+              min-width="170"
+            />
+            <ElTableColumn
+              prop="functionName"
+              :label="$t('pages.system.genModeling.colFunction')"
+              min-width="140"
+            />
+            <ElTableColumn
+              :label="$t('pages.system.genModeling.colOperation')"
+              width="400"
+              fixed="right"
+            >
               <template #default="{ row }">
-                <ElButton link type="primary" size="small" @click="openColumns(row)"
-                  >字段配置</ElButton
-                >
+                <ElButton link type="primary" size="small" @click="openColumns(row)">{{
+                  $t('pages.system.genModeling.columnsConfig')
+                }}</ElButton>
                 <ElButton
                   v-perm="'sys:gen:preview'"
                   link
                   type="info"
                   size="small"
                   @click="preview(row)"
-                  >预览DDL</ElButton
+                  >{{ $t('pages.system.genModeling.previewDdl') }}</ElButton
                 >
                 <ElButton
                   v-perm="'sys:gen:ddl'"
@@ -99,7 +110,7 @@
                   type="success"
                   size="small"
                   @click="doCreate(row)"
-                  >建表</ElButton
+                  >{{ $t('pages.system.genModeling.createTable') }}</ElButton
                 >
                 <ElButton
                   v-perm="'sys:gen:ddl'"
@@ -107,7 +118,7 @@
                   type="warning"
                   size="small"
                   @click="doSync(row, false)"
-                  >增量同步</ElButton
+                  >{{ $t('pages.system.genModeling.syncIncremental') }}</ElButton
                 >
                 <ElButton
                   v-perm="'sys:gen:ddl'"
@@ -115,7 +126,7 @@
                   type="danger"
                   size="small"
                   @click="doSync(row, true)"
-                  >强制重建</ElButton
+                  >{{ $t('pages.system.genModeling.syncForce') }}</ElButton
                 >
               </template>
             </ElTableColumn>
@@ -123,19 +134,26 @@
         </ElTabPane>
       </ElTabs>
 
-      <ElDialog v-model="ddlVisible" title="DDL 预览（不执行）" width="660px" align-center>
+      <ElDialog
+        v-model="ddlVisible"
+        :title="$t('pages.system.genModeling.ddlPreviewTitle')"
+        width="660px"
+        align-center
+      >
         <pre class="ddl-pre">{{ ddlText }}</pre>
       </ElDialog>
 
       <ElDialog
         v-model="colVisible"
-        :title="`字段配置 - ${editing?.table?.tableName || ''}`"
+        :title="
+          $t('pages.system.genModeling.columnsConfigTitle', {
+            name: editing?.table?.tableName || ''
+          })
+        "
         width="760px"
         align-center
       >
-        <div class="modeling-tip"
-          >改列名即走 RENAME（保数据），加字段即走 ADD；保存后点“同步到物理表”生效。</div
-        >
+        <div class="modeling-tip">{{ $t('pages.system.genModeling.columnsTip') }}</div>
         <ElTable
           :data="editing?.columns || []"
           border
@@ -144,39 +162,43 @@
           style="margin-top: 10px"
         >
           <ElTableColumn type="index" label="#" width="46" />
-          <ElTableColumn label="列名" min-width="160">
+          <ElTableColumn :label="$t('pages.system.genModeling.colColumnName')" min-width="160">
             <template #default="{ row }">
               <ElInput v-model="row.columnName" size="small" />
             </template>
           </ElTableColumn>
-          <ElTableColumn label="说明" min-width="150">
+          <ElTableColumn :label="$t('pages.system.genModeling.colComment')" min-width="150">
             <template #default="{ row }">
               <ElInput v-model="row.columnComment" size="small" />
             </template>
           </ElTableColumn>
-          <ElTableColumn label="类型" width="150">
+          <ElTableColumn :label="$t('pages.system.genModeling.colType')" width="150">
             <template #default="{ row }">
               <ElSelect v-model="row.javaType" size="small">
                 <ElOption v-for="t in javaTypes" :key="t" :label="t" :value="t" />
               </ElSelect>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="70">
+          <ElTableColumn :label="$t('pages.system.genModeling.colOperation')" width="70">
             <template #default="{ $index }">
-              <ElButton link type="danger" size="small" @click="editing.columns.splice($index, 1)"
-                >删</ElButton
+              <ElButton
+                link
+                type="danger"
+                size="small"
+                @click="editing.columns.splice($index, 1)"
+                >{{ $t('pages.system.genModeling.removeShort') }}</ElButton
               >
             </template>
           </ElTableColumn>
         </ElTable>
         <template #footer>
-          <ElButton @click="addEditCol">加字段</ElButton>
-          <ElButton v-perm="'sys:gen:edit'" type="primary" @click="saveColumns(false)"
-            >保存配置</ElButton
-          >
-          <ElButton v-perm="'sys:gen:ddl'" type="warning" @click="saveColumns(true)"
-            >保存并同步到物理表</ElButton
-          >
+          <ElButton @click="addEditCol">{{ $t('pages.system.genModeling.addColumn') }}</ElButton>
+          <ElButton v-perm="'sys:gen:edit'" type="primary" @click="saveColumns(false)">{{
+            $t('pages.system.genModeling.saveConfig')
+          }}</ElButton>
+          <ElButton v-perm="'sys:gen:ddl'" type="warning" @click="saveColumns(true)">{{
+            $t('pages.system.genModeling.saveAndSync')
+          }}</ElButton>
         </template>
       </ElDialog>
     </ElCard>
@@ -196,8 +218,11 @@
     fetchAiDraft,
     fetchAiConfirm
   } from '@/api/system-manage'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'GenModeling' })
+
+  const { t } = useI18n()
 
   const javaTypes = [
     'String',
@@ -253,7 +278,11 @@
         columns: candidate.value.columns,
         build
       })
-      ElMessage.success(build ? '已确认并建表' : '已保存配置')
+      ElMessage.success(
+        build
+          ? t('pages.system.genModeling.confirmBuilt')
+          : t('pages.system.genModeling.saveOnlySuccess')
+      )
       candidate.value = null
       nl.value = ''
       activeTab.value = 'manage'
@@ -274,26 +303,36 @@
 
   const preview = async (row: any): Promise<void> => {
     const stmts = (await fetchDdlPreview(row.id, false)) || []
-    ddlText.value = stmts.length ? stmts.join(';\n\n') + ';' : '（无结构变更）'
+    ddlText.value = stmts.length
+      ? stmts.join(';\n\n') + ';'
+      : t('pages.system.genModeling.noChanges')
     ddlVisible.value = true
   }
 
   const doCreate = async (row: any): Promise<void> => {
-    await ElMessageBox.confirm(`确认按配置建物理表 ${row.tableName}？`, '建表', { type: 'warning' })
+    await ElMessageBox.confirm(
+      t('pages.system.genModeling.createConfirm', { name: row.tableName }),
+      t('pages.system.genModeling.createTable'),
+      { type: 'warning' }
+    )
     await fetchDdlCreate(row.id)
-    ElMessage.success('建表成功')
+    ElMessage.success(t('pages.system.genModeling.createSuccess'))
   }
 
   const doSync = async (row: any, force: boolean): Promise<void> => {
     await ElMessageBox.confirm(
       force
-        ? `强制重建将 DROP 并重建 ${row.tableName}，数据全部丢失！`
-        : `增量同步 ${row.tableName}（新增走 ADD、改名走 RENAME，保数据）？`,
-      force ? '强制重建' : '增量同步',
+        ? t('pages.system.genModeling.forceConfirm', { name: row.tableName })
+        : t('pages.system.genModeling.incrementalConfirm', { name: row.tableName }),
+      force
+        ? t('pages.system.genModeling.syncForce')
+        : t('pages.system.genModeling.syncIncremental'),
       { type: force ? 'error' : 'warning' }
     )
     await fetchDdlSync(row.id, force)
-    ElMessage.success(force ? '重建成功' : '同步成功')
+    ElMessage.success(
+      force ? t('pages.system.genModeling.forceSuccess') : t('pages.system.genModeling.syncSuccess')
+    )
   }
 
   // 打开字段配置：拉元数据并快照原列名，用于改名追踪
@@ -334,9 +373,9 @@
       await fetchSaveGenMeta({ table, columns })
       if (sync) {
         await fetchDdlSync(table.id, false)
-        ElMessage.success('已保存并同步到物理表')
+        ElMessage.success(t('pages.system.genModeling.saveAndSyncSuccess'))
       } else {
-        ElMessage.success('配置已保存')
+        ElMessage.success(t('pages.system.genModeling.configSaved'))
       }
       colVisible.value = false
     } finally {

@@ -6,15 +6,15 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="days">
-        <ElRadioButton :value="1">今天</ElRadioButton>
-        <ElRadioButton :value="7">近 7 天</ElRadioButton>
-        <ElRadioButton :value="30">近 30 天</ElRadioButton>
+        <ElRadioButton :value="1">{{ $t('pages.track.shared.today') }}</ElRadioButton>
+        <ElRadioButton :value="7">{{ $t('pages.track.shared.last7Days') }}</ElRadioButton>
+        <ElRadioButton :value="30">{{ $t('pages.track.shared.last30Days') }}</ElRadioButton>
       </ElRadioGroup>
     </div>
 
@@ -33,11 +33,22 @@
     </ElCard>
 
     <!-- 指纹组内错误事件详情抽屉 -->
-    <ElDrawer v-model="detailVisible" size="760px" :title="`错误详情 · ${currentMessage}`">
+    <ElDrawer
+      v-model="detailVisible"
+      size="760px"
+      :title="$t('pages.track.error.detailTitle', { msg: currentMessage })"
+    >
       <div class="track-detail-meta">
-        <ElTag size="small" type="danger" effect="plain">指纹 {{ currentFingerprint }}</ElTag>
+        <ElTag size="small" type="danger" effect="plain"
+          >{{ $t('pages.track.error.fingerprint') }} {{ currentFingerprint }}</ElTag
+        >
         <span class="track-detail-count">
-          共 {{ detailPagination.total }} 次 · 影响会话 {{ current.sessionCount ?? '-' }}
+          {{
+            $t('pages.track.error.detailCount', {
+              total: detailPagination.total,
+              sessions: current.sessionCount ?? '-'
+            })
+          }}
         </span>
       </div>
       <ArtTable
@@ -58,6 +69,7 @@
 
 <script setup lang="ts">
   import { h, ref } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useTable } from '@/hooks/core/useTable'
   import { fetchTrackErrorDetail, fetchTrackErrorPage } from '@/api/track'
@@ -69,6 +81,8 @@
   import { ElOption, ElRadioButton, ElRadioGroup, ElSelect, ElTag } from 'element-plus'
 
   defineOptions({ name: 'TrackError' })
+
+  const { t } = useI18n()
 
   const { appOptions, appKey, days, appsLoading } = useTrackApp()
 
@@ -92,31 +106,42 @@
       immediate: false,
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'message', label: '错误摘要', minWidth: 260, showOverflowTooltip: true },
-        { prop: 'eventCount', label: '次数', width: 100, align: 'right', headerAlign: 'right' },
+        { type: 'index', width: 60, label: t('pages.track.shared.index') },
+        {
+          prop: 'message',
+          label: t('pages.track.error.summary'),
+          minWidth: 260,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'eventCount',
+          label: t('pages.track.shared.count'),
+          width: 100,
+          align: 'right',
+          headerAlign: 'right'
+        },
         {
           prop: 'sessionCount',
-          label: '影响会话',
+          label: t('pages.track.error.affectedSessions'),
           width: 100,
           align: 'right',
           headerAlign: 'right'
         },
         {
           prop: 'firstTime',
-          label: '首次发生',
+          label: t('pages.track.error.firstSeen'),
           minWidth: 150,
           formatter: (row: any) => fmtTrackTime(row.firstTime)
         },
         {
           prop: 'lastTime',
-          label: '最近发生',
+          label: t('pages.track.shared.lastSeen'),
           minWidth: 150,
           formatter: (row: any) => fmtTrackTime(row.lastTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.track.shared.operation'),
           width: 80,
           fixed: 'right',
           formatter: (row: any) =>
@@ -162,41 +187,50 @@
   const expandRow = (row: Record<string, any>) =>
     h('div', { class: 'track-error-expand' }, [
       h('div', { class: 'track-error-kv' }, [
-        h('span', { class: 'track-error-k' }, '页面'),
-        h('span', `${row.urlPath || '-'}（路由 ${row.routePath || '-'}）`)
+        h('span', { class: 'track-error-k' }, t('pages.track.shared.page')),
+        h(
+          'span',
+          `${row.urlPath || '-'}${t('pages.track.error.routeSuffix', { route: row.routePath || '-' })}`
+        )
       ]),
       h('div', { class: 'track-error-kv' }, [
         h('span', { class: 'track-error-k' }, 'Release'),
         h('span', row.release || '-')
       ]),
       h('div', { class: 'track-error-kv' }, [
-        h('span', { class: 'track-error-k' }, '会话'),
-        h('span', `${row.sessionId || '-'} / 访客 ${row.distinctId || '-'}`)
+        h('span', { class: 'track-error-k' }, t('pages.track.shared.session')),
+        h(
+          'span',
+          t('pages.track.error.sessionVisitor', {
+            session: row.sessionId || '-',
+            visitor: row.distinctId || '-'
+          })
+        )
       ]),
       // 会话回放联动（G100）：探测有回放块才渲染入口；点击打开共享播放器抽屉
       hasPerm('sys:track-replay:view')
         ? h('div', { class: 'track-error-kv' }, [
-            h('span', { class: 'track-error-k' }, '会话回放'),
+            h('span', { class: 'track-error-k' }, t('pages.track.error.sessionReplay')),
             h(ReplayEntryButton, { sessionId: row.sessionId, onOpen: openReplay })
           ])
         : null,
       h('div', { class: 'track-error-kv' }, [
-        h('span', { class: 'track-error-k' }, '事件ID'),
+        h('span', { class: 'track-error-k' }, t('pages.track.error.eventId')),
         h('span', row.eventId || '-')
       ]),
       h('div', { class: 'track-error-kv' }, [
-        h('span', { class: 'track-error-k' }, '堆栈'),
+        h('span', { class: 'track-error-k' }, t('pages.track.error.stack')),
         h('pre', { class: 'track-error-pre' }, row.stack || '-')
       ]),
       // 堆栈还原（G101）：仅带 release 的错误行可定位符号表；组件内自查符号表存在性并给引导
       row.release
         ? h('div', { class: 'track-error-kv' }, [
-            h('span', { class: 'track-error-k' }, '还原'),
+            h('span', { class: 'track-error-k' }, t('pages.track.error.restore')),
             h(StackRestore, { appKey: appKey.value, release: row.release, stack: row.stack || '' })
           ])
         : null,
       h('div', { class: 'track-error-kv' }, [
-        h('span', { class: 'track-error-k' }, '上下文'),
+        h('span', { class: 'track-error-k' }, t('pages.track.error.context')),
         h('pre', { class: 'track-error-pre' }, prettyProps(row.props))
       ])
     ])
@@ -220,12 +254,22 @@
         { type: 'expand', formatter: (row: any) => expandRow(row) },
         {
           prop: 'time',
-          label: '时间',
+          label: t('pages.track.shared.time'),
           width: 160,
           formatter: (row: any) => fmtTrackTime(row.time)
         },
-        { prop: 'message', label: '消息', minWidth: 220, showOverflowTooltip: true },
-        { prop: 'urlPath', label: '页面', minWidth: 160, showOverflowTooltip: true },
+        {
+          prop: 'message',
+          label: t('pages.track.error.message'),
+          minWidth: 220,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'urlPath',
+          label: t('pages.track.shared.page'),
+          minWidth: 160,
+          showOverflowTooltip: true
+        },
         { prop: 'release', label: 'Release', width: 110, showOverflowTooltip: true }
       ]
     },

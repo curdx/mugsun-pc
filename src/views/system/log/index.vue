@@ -12,8 +12,12 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton v-perm="'sys:oper-log:verify'" :loading="verifyLoading" @click="verify" v-ripple
-            >完整性验签</ElButton
+          <ElButton
+            v-perm="'sys:oper-log:verify'"
+            :loading="verifyLoading"
+            @click="verify"
+            v-ripple
+            >{{ $t('pages.system.log.verifyBtn') }}</ElButton
           >
         </template>
       </ArtTableHeader>
@@ -28,41 +32,65 @@
       >
       </ArtTable>
 
-      <ElDialog v-model="verifyVisible" title="审计完整性验签" width="480px" align-center>
+      <ElDialog
+        v-model="verifyVisible"
+        :title="$t('pages.system.log.verifyTitle')"
+        width="480px"
+        align-center
+      >
         <ElAlert
           :type="verifyResult.valid ? 'success' : 'error'"
-          :title="verifyResult.valid ? verifyResult.message : '检测到篡改'"
+          :title="verifyResult.valid ? verifyResult.message : $t('pages.system.log.tampered')"
           :closable="false"
           show-icon
         />
         <ElDescriptions v-if="!verifyResult.valid" :column="1" border class="verify-detail">
-          <ElDescriptionsItem label="首个被篡改记录">{{
+          <ElDescriptionsItem :label="$t('pages.system.log.tamperedId')">{{
             verifyResult.tamperedId
           }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="原因">{{ verifyResult.reason }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="此前已验签"
-            >{{ verifyResult.verifiedBefore }} 条</ElDescriptionsItem
-          >
+          <ElDescriptionsItem :label="$t('pages.system.log.reason')">{{
+            verifyResult.reason
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.log.verifiedBefore')">
+            {{ $t('pages.system.log.verifiedCount', { count: verifyResult.verifiedBefore }) }}
+          </ElDescriptionsItem>
         </ElDescriptions>
       </ElDialog>
 
-      <ElDialog v-model="detailVisible" title="日志详情" width="640px" align-center>
+      <ElDialog
+        v-model="detailVisible"
+        :title="$t('pages.system.log.detailTitle')"
+        width="640px"
+        align-center
+      >
         <ElDescriptions :column="1" border>
-          <ElDescriptionsItem label="标题">{{ current.title }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="方法">{{ current.method }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="请求">
+          <ElDescriptionsItem :label="$t('pages.system.log.fieldTitle')">
+            {{ current.title }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.log.fieldMethod')">
+            {{ current.method }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.log.fieldRequest')">
             {{ current.requestMethod }} {{ current.requestUri }}
           </ElDescriptionsItem>
-          <ElDescriptionsItem label="操作人">{{ current.operator }}</ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.log.operator')">
+            {{ current.operator }}
+          </ElDescriptionsItem>
           <ElDescriptionsItem label="IP">{{ current.ip }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="耗时">{{ current.duration }} ms</ElDescriptionsItem>
-          <ElDescriptionsItem label="状态">{{
-            current.status === 1 ? '成功' : '失败'
-          }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="参数">
+          <ElDescriptionsItem :label="$t('pages.system.log.fieldDuration')">
+            {{ current.duration }} ms
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.log.status')">
+            {{
+              current.status === 1
+                ? $t('pages.system.log.statusSuccess')
+                : $t('pages.system.log.statusFail')
+            }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.log.fieldParams')">
             <div class="log-params">{{ current.params }}</div>
           </ElDescriptionsItem>
-          <ElDescriptionsItem v-if="current.errorMsg" label="错误">
+          <ElDescriptionsItem v-if="current.errorMsg" :label="$t('pages.system.log.fieldError')">
             <div class="log-params">{{ current.errorMsg }}</div>
           </ElDescriptionsItem>
         </ElDescriptions>
@@ -79,8 +107,11 @@
   import { fetchOperLogPage, fetchOperLogVerify } from '@/api/system-manage'
   import { formatTableTime } from '@/utils/date'
   import { ElMessage, ElTag } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'OperLog' })
+
+  const { t } = useI18n()
 
   const detailVisible = ref(false)
   const current = ref<Record<string, any>>({})
@@ -98,39 +129,39 @@
   const searchItems = computed(() => [
     {
       key: 'title',
-      label: '模块',
+      label: t('pages.system.log.searchModule'),
       type: 'input',
-      props: { placeholder: '请输入操作模块', clearable: true }
+      props: { placeholder: t('pages.system.log.searchModulePlaceholder'), clearable: true }
     },
     {
       key: 'operator',
-      label: '操作人',
+      label: t('pages.system.log.operator'),
       type: 'input',
-      props: { placeholder: '请输入操作人', clearable: true }
+      props: { placeholder: t('pages.system.log.searchOperatorPlaceholder'), clearable: true }
     },
     {
       key: 'status',
-      label: '状态',
+      label: t('pages.system.log.status'),
       type: 'select',
       props: {
-        placeholder: '请选择状态',
+        placeholder: t('pages.system.log.searchStatusPlaceholder'),
         clearable: true,
         options: [
-          { label: '成功', value: 1 },
-          { label: '失败', value: 0 }
+          { label: t('pages.system.log.statusSuccess'), value: 1 },
+          { label: t('pages.system.log.statusFail'), value: 0 }
         ]
       }
     },
     {
       key: 'timeRange',
-      label: '时间范围',
+      label: t('pages.system.log.searchTimeRange'),
       type: 'datetimerange',
       span: 8,
       props: {
         type: 'datetimerange',
         valueFormat: 'YYYY-MM-DD HH:mm:ss',
-        startPlaceholder: '开始时间',
-        endPlaceholder: '结束时间',
+        startPlaceholder: t('pages.system.log.startTime'),
+        endPlaceholder: t('pages.system.log.endTime'),
         clearable: true
       }
     }
@@ -154,36 +185,41 @@
       apiParams: { pageNum: 1, pageSize: 20 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'title', label: '操作', minWidth: 140 },
-        { prop: 'requestMethod', label: '请求方式', width: 100 },
-        { prop: 'requestUri', label: '请求地址', minWidth: 200, showOverflowTooltip: true },
+        { type: 'index', width: 60, label: t('table.column.index') },
+        { prop: 'title', label: t('pages.system.log.colOperation'), minWidth: 140 },
+        { prop: 'requestMethod', label: t('pages.system.log.colRequestMethod'), width: 100 },
+        {
+          prop: 'requestUri',
+          label: t('pages.system.log.colRequestUri'),
+          minWidth: 200,
+          showOverflowTooltip: true
+        },
         {
           prop: 'operator',
-          label: '操作人',
+          label: t('pages.system.log.operator'),
           width: 120,
           // 后端富化 operatorName（昵称/用户名），历史/已删用户回退原 id
           formatter: (row: any) => row.operatorName || row.operator || '—'
         },
-        { prop: 'duration', label: '耗时(ms)', width: 100 },
+        { prop: 'duration', label: t('pages.system.log.colDuration'), width: 100 },
         {
           prop: 'status',
-          label: '状态',
+          label: t('pages.system.log.status'),
           width: 90,
           formatter: (row: any) =>
             row.status === 1
-              ? h(ElTag, { type: 'success' }, () => '成功')
-              : h(ElTag, { type: 'danger' }, () => '失败')
+              ? h(ElTag, { type: 'success' }, () => t('pages.system.log.statusSuccess'))
+              : h(ElTag, { type: 'danger' }, () => t('pages.system.log.statusFail'))
         },
         {
           prop: 'createTime',
-          label: '时间',
+          label: t('pages.system.log.colTime'),
           minWidth: 180,
           formatter: (row: any) => formatTableTime(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.log.colOperation'),
           width: 90,
           fixed: 'right',
           formatter: (row: any) =>
@@ -238,7 +274,7 @@
       verifyResult.value = (await fetchOperLogVerify()) ?? {}
       verifyVisible.value = true
       if (verifyResult.value.valid) {
-        ElMessage.success(verifyResult.value.message || '审计链完整')
+        ElMessage.success(verifyResult.value.message || t('pages.system.log.verifyChainOk'))
       }
     } finally {
       verifyLoading.value = false

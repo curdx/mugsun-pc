@@ -2,8 +2,12 @@
      纯文本/span 渲染（禁 v-html）；还原命中的原始路径+行列高亮。 -->
 <template>
   <div class="track-stack-restore">
-    <ElButton v-if="state === 'idle'" size="small" @click="restore">还原堆栈</ElButton>
-    <span v-else-if="state === 'loading'" class="track-restore-tip">正在还原…</span>
+    <ElButton v-if="state === 'idle'" size="small" @click="restore">{{
+      $t('pages.track.error.restoreStack')
+    }}</ElButton>
+    <span v-else-if="state === 'loading'" class="track-restore-tip">{{
+      $t('pages.track.error.restoring')
+    }}</span>
     <span v-else-if="state === 'none'" class="track-restore-tip">{{ hint }}</span>
     <pre v-else class="track-error-pre track-restore-pre"><div
       v-for="(l, i) in lines"
@@ -14,6 +18,7 @@
 
 <script setup lang="ts">
   import { fetchTrackSourcemapPage, fetchTrackSourcemapRaw } from '@/api/track'
+  import { useI18n } from 'vue-i18n'
 
   interface Props {
     appKey: string
@@ -22,6 +27,8 @@
   }
 
   const props = defineProps<Props>()
+
+  const { t } = useI18n()
 
   type RestoreState = 'idle' | 'loading' | 'done' | 'none'
 
@@ -57,7 +64,7 @@
       })
       const records: any[] = resp?.records ?? []
       if (records.length === 0) {
-        hint.value = '该 Release 尚未上传符号表，上传符号表后可还原'
+        hint.value = t('pages.track.error.noSourcemap')
         state.value = 'none'
         return
       }
@@ -102,7 +109,7 @@
           out.push(original)
         }
         if (matched === 0) {
-          hint.value = '堆栈帧未匹配到该 Release 的符号表文件'
+          hint.value = t('pages.track.error.noFrameMatch')
           state.value = 'none'
           return
         }

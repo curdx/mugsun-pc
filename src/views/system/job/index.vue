@@ -3,50 +3,71 @@
   <div class="job-page art-full-height">
     <ElCard class="art-table-card">
       <div class="job-toolbar">
-        <ElButton v-perm="'sys:job:save'" type="primary" @click="showDialog()">新建任务</ElButton>
+        <ElButton v-perm="'sys:job:save'" type="primary" @click="showDialog()">{{
+          $t('pages.system.job.createJob')
+        }}</ElButton>
       </div>
 
       <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
       <div class="job-table-wrap">
         <ElTable :data="tableData" border height="100%" v-loading="loading">
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="jobName" label="任务名称" min-width="140" />
-          <ElTableColumn label="处理器" min-width="150" show-overflow-tooltip>
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+          <ElTableColumn prop="jobName" :label="$t('pages.system.job.jobName')" min-width="140" />
+          <ElTableColumn
+            :label="$t('pages.system.job.processor')"
+            min-width="150"
+            show-overflow-tooltip
+          >
             <template #default="{ row }">{{ simpleName(row.processorInfo) }}</template>
           </ElTableColumn>
-          <ElTableColumn prop="jobParams" label="任务参数" min-width="110" show-overflow-tooltip>
+          <ElTableColumn
+            prop="jobParams"
+            :label="$t('pages.system.job.jobParams')"
+            min-width="110"
+            show-overflow-tooltip
+          >
             <template #default="{ row }">{{ row.jobParams || '—' }}</template>
           </ElTableColumn>
-          <ElTableColumn label="触发方式" min-width="150">
+          <ElTableColumn :label="$t('pages.system.job.triggerType')" min-width="150">
             <template #default="{ row }">
-              {{ row.timeExpression ? `CRON ${row.timeExpression}` : '手动触发' }}
+              {{
+                row.timeExpression
+                  ? `CRON ${row.timeExpression}`
+                  : $t('pages.system.job.manualTrigger')
+              }}
             </template>
           </ElTableColumn>
-          <ElTableColumn label="下次触发" min-width="160">
+          <ElTableColumn :label="$t('pages.system.job.nextTrigger')" min-width="160">
             <template #default="{ row }">{{ fmt(row.nextTriggerTime) }}</template>
           </ElTableColumn>
-          <ElTableColumn label="状态" width="100">
+          <ElTableColumn :label="$t('pages.system.job.status')" width="100">
             <template #default="{ row }">
               <ElTag :type="row.status === 1 ? 'success' : 'info'">
-                {{ row.status === 1 ? '启用' : '停用' }}
+                {{
+                  row.status === 1 ? $t('pages.system.job.enable') : $t('pages.system.job.disable')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="280" fixed="right">
+          <ElTableColumn :label="$t('pages.system.job.colOperation')" width="280" fixed="right">
             <template #default="{ row }">
-              <ElButton v-perm="'sys:job:run'" link type="success" @click="run(row)"
-                >立即执行</ElButton
-              >
-              <ElButton v-perm="'sys:job:save'" link type="primary" @click="showDialog(row)"
-                >编辑</ElButton
-              >
+              <ElButton v-perm="'sys:job:run'" link type="success" @click="run(row)">{{
+                $t('pages.system.job.runNow')
+              }}</ElButton>
+              <ElButton v-perm="'sys:job:save'" link type="primary" @click="showDialog(row)">{{
+                $t('pages.system.job.edit')
+              }}</ElButton>
               <ElButton v-perm="'sys:job:edit'" link type="warning" @click="toggle(row)">
-                {{ row.status === 1 ? '停用' : '启用' }}
+                {{
+                  row.status === 1 ? $t('pages.system.job.disable') : $t('pages.system.job.enable')
+                }}
               </ElButton>
-              <ElButton link type="primary" @click="showLogs(row)">日志</ElButton>
-              <ElButton v-perm="'sys:job:remove'" link type="danger" @click="remove(row)"
-                >删除</ElButton
-              >
+              <ElButton link type="primary" @click="showLogs(row)">{{
+                $t('pages.system.job.logs')
+              }}</ElButton>
+              <ElButton v-perm="'sys:job:remove'" link type="danger" @click="remove(row)">{{
+                $t('pages.system.job.remove')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -56,19 +77,29 @@
     <!-- 新建 / 编辑 -->
     <ElDialog
       v-model="dialogVisible"
-      :title="form.id ? '编辑任务' : '新建任务'"
+      :title="form.id ? $t('pages.system.job.editJob') : $t('pages.system.job.createJob')"
       width="500px"
       align-center
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="90px">
-        <ElFormItem label="任务名称" prop="jobName">
-          <ElInput v-model="form.jobName" placeholder="请输入任务名称" />
+        <ElFormItem :label="$t('pages.system.job.jobName')" prop="jobName">
+          <ElInput
+            v-model="form.jobName"
+            :placeholder="$t('pages.system.job.jobNamePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="描述">
-          <ElInput v-model="form.jobDescription" placeholder="任务描述" />
+        <ElFormItem :label="$t('pages.system.job.description')">
+          <ElInput
+            v-model="form.jobDescription"
+            :placeholder="$t('pages.system.job.descriptionPlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="处理器" prop="processorInfo">
-          <ElSelect v-model="form.processorInfo" placeholder="请选择处理器" style="width: 100%">
+        <ElFormItem :label="$t('pages.system.job.processor')" prop="processorInfo">
+          <ElSelect
+            v-model="form.processorInfo"
+            :placeholder="$t('pages.system.job.processorPlaceholder')"
+            style="width: 100%"
+          >
             <ElOption
               v-for="p in processorOptions"
               :key="p.value"
@@ -77,41 +108,58 @@
             />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem label="任务参数">
+        <ElFormItem :label="$t('pages.system.job.jobParams')">
           <ElInput
             v-model="form.jobParams"
-            placeholder="jobParams（如缓存分组前缀 mugsun:dict，可空）"
+            :placeholder="$t('pages.system.job.jobParamsPlaceholder')"
           />
         </ElFormItem>
-        <ElFormItem label="触发方式" prop="timeExpressionType">
+        <ElFormItem :label="$t('pages.system.job.triggerType')" prop="timeExpressionType">
           <ElSelect v-model="form.timeExpressionType" style="width: 100%">
-            <ElOption label="手动触发" value="API" />
-            <ElOption label="定时 CRON" value="CRON" />
+            <ElOption :label="$t('pages.system.job.manualTrigger')" value="API" />
+            <ElOption :label="$t('pages.system.job.cronTrigger')" value="CRON" />
           </ElSelect>
         </ElFormItem>
         <ElFormItem v-if="form.timeExpressionType === 'CRON'" label="CRON" prop="timeExpression">
-          <ElInput v-model="form.timeExpression" placeholder="如 0 * * * * ?" />
+          <ElInput
+            v-model="form.timeExpression"
+            :placeholder="$t('pages.system.job.cronPlaceholder')"
+          />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="submit">{{ $t('table.form.submit') }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 执行日志 -->
-    <ElDialog v-model="logsVisible" title="执行日志" width="680px" align-center>
+    <ElDialog
+      v-model="logsVisible"
+      :title="$t('pages.system.job.logsTitle')"
+      width="680px"
+      align-center
+    >
       <ElTable :data="logs" border size="small" max-height="420">
-        <ElTableColumn prop="instanceId" label="实例ID" min-width="180" />
-        <ElTableColumn label="状态" width="100">
+        <ElTableColumn
+          prop="instanceId"
+          :label="$t('pages.system.job.instanceId')"
+          min-width="180"
+        />
+        <ElTableColumn :label="$t('pages.system.job.status')" width="100">
           <template #default="{ row }">
             <ElTag :type="instTagType(row.status)">{{ instStatus(row.status) }}</ElTag>
           </template>
         </ElTableColumn>
-        <ElTableColumn label="触发时间" min-width="170">
+        <ElTableColumn :label="$t('pages.system.job.triggerTime')" min-width="170">
           <template #default="{ row }">{{ fmt(row.actualTriggerTime) }}</template>
         </ElTableColumn>
-        <ElTableColumn prop="result" label="结果" min-width="140" show-overflow-tooltip />
+        <ElTableColumn
+          prop="result"
+          :label="$t('pages.system.job.result')"
+          min-width="140"
+          show-overflow-tooltip
+        />
       </ElTable>
     </ElDialog>
   </div>
@@ -131,8 +179,11 @@
     fetchJobInstances
   } from '@/api/system-manage'
   import { ElMessage, ElMessageBox } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Job' })
+
+  const { t } = useI18n()
 
   const tableData = ref<any[]>([])
   const loading = ref(false)
@@ -154,9 +205,15 @@
   })
 
   const rules: FormRules = {
-    jobName: [{ required: true, message: '请输入任务名称', trigger: 'blur' }],
-    processorInfo: [{ required: true, message: '请选择处理器', trigger: 'change' }],
-    timeExpression: [{ required: true, message: '请输入 CRON 表达式', trigger: 'blur' }]
+    jobName: [
+      { required: true, message: t('pages.system.job.jobNamePlaceholder'), trigger: 'blur' }
+    ],
+    processorInfo: [
+      { required: true, message: t('pages.system.job.processorPlaceholder'), trigger: 'change' }
+    ],
+    timeExpression: [
+      { required: true, message: t('pages.system.job.cronRequired'), trigger: 'blur' }
+    ]
   }
 
   /** 全限定类名 → 简单类名展示 */
@@ -207,7 +264,7 @@
       try {
         await fetchSaveJob({ ...form })
         dialogVisible.value = false
-        ElMessage.success('保存成功')
+        ElMessage.success(t('pages.system.job.saveSuccess'))
         loadData()
       } finally {
         saving.value = false
@@ -217,33 +274,37 @@
 
   const run = async (row: any): Promise<void> => {
     const instanceId = await fetchRunJob(row.id)
-    ElMessage.success(`已触发，实例ID ${instanceId}`)
+    ElMessage.success(t('pages.system.job.triggered', { id: instanceId }))
   }
 
   const toggle = async (row: any): Promise<void> => {
     if (row.status === 1) {
       await ElMessageBox.confirm(
-        `停用后任务「${row.jobName}」不再按计划触发，确认停用？`,
-        '停用任务',
+        t('pages.system.job.disableConfirm', { name: row.jobName }),
+        t('pages.system.job.disableTitle'),
         { type: 'warning' }
       )
       await fetchDisableJob(row.id)
-      ElMessage.success('已停用')
+      ElMessage.success(t('pages.system.job.disabled'))
     } else {
       await fetchEnableJob(row.id)
-      ElMessage.success('已启用')
+      ElMessage.success(t('pages.system.job.enabled'))
     }
     loadData()
   }
 
   const remove = (row: any): void => {
-    ElMessageBox.confirm(`确定删除任务"${row.jobName}"吗？`, '删除任务', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.job.removeConfirm', { name: row.jobName }),
+      t('pages.system.job.removeTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchDeleteJob(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.job.removeSuccess'))
       loadData()
     })
   }
@@ -255,13 +316,13 @@
 
   const instStatus = (s: number): string => {
     const map: Record<number, string> = {
-      1: '等待派发',
-      2: '等待接收',
-      3: '运行中',
-      4: '失败',
-      5: '成功',
-      9: '取消',
-      10: '停止'
+      1: t('pages.system.job.instWaitingDispatch'),
+      2: t('pages.system.job.instWaitingReceive'),
+      3: t('pages.system.job.instRunning'),
+      4: t('pages.system.job.instFailed'),
+      5: t('pages.system.job.instSuccess'),
+      9: t('pages.system.job.instCanceled'),
+      10: t('pages.system.job.instStopped')
     }
     return map[s] || String(s)
   }

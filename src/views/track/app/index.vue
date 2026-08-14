@@ -4,10 +4,10 @@
     <ElCard class="art-table-card">
       <ElTabs v-model="tab">
         <!-- ===== 应用管理 ===== -->
-        <ElTabPane label="应用管理" name="app">
+        <ElTabPane :label="$t('pages.track.app.tabApp')" name="app">
           <div class="track-app-toolbar">
             <ElButton v-perm="'sys:track-app:add'" @click="showDialog('add')" v-ripple>
-              新增应用
+              {{ $t('pages.track.app.addApp') }}
             </ElButton>
           </div>
 
@@ -23,29 +23,34 @@
         </ElTabPane>
 
         <!-- ===== 事件定义 ===== -->
-        <ElTabPane label="事件定义" name="eventDef" lazy>
+        <ElTabPane :label="$t('pages.track.app.tabEventDef')" name="eventDef" lazy>
           <div class="track-app-toolbar">
             <ElSelect
               v-model="appKey"
               :loading="appsLoading"
-              placeholder="请选择应用"
+              :placeholder="$t('pages.track.shared.appPlaceholder')"
               class="track-app-select"
             >
               <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
             </ElSelect>
             <ElInput
               v-model="defEventName"
-              placeholder="事件名筛选，回车生效"
+              :placeholder="$t('pages.track.shared.eventFilterPlaceholder')"
               clearable
               class="track-def-input"
               @keyup.enter="loadDefs"
               @clear="loadDefs"
             />
-            <ElSelect v-model="defStatus" placeholder="状态" clearable class="track-def-status">
-              <ElOption label="启用" :value="1" />
-              <ElOption label="停用" :value="0" />
+            <ElSelect
+              v-model="defStatus"
+              :placeholder="$t('pages.track.shared.status')"
+              clearable
+              class="track-def-status"
+            >
+              <ElOption :label="$t('pages.track.shared.enabled')" :value="1" />
+              <ElOption :label="$t('pages.track.shared.disabled')" :value="0" />
             </ElSelect>
-            <ElButton @click="loadDefs" v-ripple>查询</ElButton>
+            <ElButton @click="loadDefs" v-ripple>{{ $t('pages.track.shared.search') }}</ElButton>
           </div>
 
           <ArtTable
@@ -59,32 +64,34 @@
           </ArtTable>
         </ElTabPane>
         <!-- ===== 符号表（sourcemap） ===== -->
-        <ElTabPane label="符号表" name="sourcemap" lazy>
+        <ElTabPane :label="$t('pages.track.app.tabSourcemap')" name="sourcemap" lazy>
           <div class="track-app-toolbar">
             <ElSelect
               v-model="appKey"
               :loading="appsLoading"
-              placeholder="请选择应用"
+              :placeholder="$t('pages.track.shared.appPlaceholder')"
               class="track-app-select"
             >
               <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
             </ElSelect>
             <ElInput
               v-model="smRelease"
-              placeholder="Release 筛选，回车生效"
+              :placeholder="$t('pages.track.app.releaseFilterPlaceholder')"
               clearable
               class="track-sm-release"
               @keyup.enter="loadSourcemaps"
               @clear="loadSourcemaps"
             />
-            <ElButton @click="loadSourcemaps" v-ripple>查询</ElButton>
+            <ElButton @click="loadSourcemaps" v-ripple>{{
+              $t('pages.track.shared.search')
+            }}</ElButton>
             <ElButton
               v-perm="'sys:track-app:edit'"
               type="primary"
               @click="smUploadVisible = true"
               v-ripple
             >
-              上传符号表
+              {{ $t('pages.track.app.uploadSourcemap') }}
             </ElButton>
           </div>
 
@@ -100,26 +107,34 @@
         </ElTabPane>
 
         <!-- ===== 圈选规则（G104 可视化埋点） ===== -->
-        <ElTabPane label="圈选规则" name="visual" lazy>
+        <ElTabPane :label="$t('pages.track.app.tabVisual')" name="visual" lazy>
           <div class="track-app-toolbar">
             <ElSelect
               v-model="appKey"
               :loading="appsLoading"
-              placeholder="请选择应用"
+              :placeholder="$t('pages.track.shared.appPlaceholder')"
               class="track-app-select"
             >
               <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
             </ElSelect>
             <ElButton v-perm="'sys:track-visual:edit'" type="primary" @click="enterVisual" v-ripple>
-              <ArtSvgIcon icon="ri:crosshair-2-line" class="track-visual-enter-icon" />进入圈选
+              <ArtSvgIcon icon="ri:crosshair-2-line" class="track-visual-enter-icon" />{{
+                $t('pages.track.app.enterVisual')
+              }}
             </ElButton>
-            <ElSelect v-model="vrStatus" placeholder="状态" class="track-def-status">
-              <ElOption label="全部" value="" />
-              <ElOption label="启用" :value="1" />
-              <ElOption label="停用" :value="0" />
+            <ElSelect
+              v-model="vrStatus"
+              :placeholder="$t('pages.track.shared.status')"
+              class="track-def-status"
+            >
+              <ElOption :label="$t('pages.track.shared.all')" value="" />
+              <ElOption :label="$t('pages.track.shared.enabled')" :value="1" />
+              <ElOption :label="$t('pages.track.shared.disabled')" :value="0" />
             </ElSelect>
-            <ElButton @click="loadVisualRules" v-ripple>查询</ElButton>
-            <span class="track-visual-hint">规则确认后实时下发，接入端下次启动生效</span>
+            <ElButton @click="loadVisualRules" v-ripple>{{
+              $t('pages.track.shared.search')
+            }}</ElButton>
+            <span class="track-visual-hint">{{ $t('pages.track.app.visualHint') }}</span>
           </div>
 
           <!-- 圈选草稿条：令牌有效期内常驻，3s 轮询草稿；令牌仅存内存，刷新即失效 -->
@@ -132,10 +147,10 @@
           >
             <template #title>
               <span class="track-visual-bar-text">
-                圈选进行中，令牌 {{ visualRemainMin }} 分钟内有效（刷新页面即失效，需重新进入圈选）
+                {{ $t('pages.track.app.visualBarText', { min: visualRemainMin }) }}
               </span>
               <ElButton size="small" class="track-visual-bar-end" @click="endVisual">
-                结束圈选
+                {{ $t('pages.track.app.endVisual') }}
               </ElButton>
             </template>
           </ElAlert>
@@ -144,7 +159,7 @@
           <div v-if="visualDrafts.length" class="track-visual-drafts">
             <div v-for="d in visualDrafts" :key="d.draftId" class="track-visual-draft">
               <ElTag size="small" effect="plain" class="track-visual-draft-name">
-                {{ d.eventName || '未命名' }}
+                {{ d.eventName || $t('pages.track.app.unnamed') }}
               </ElTag>
               <ElTooltip :content="d.selector" placement="top">
                 <span class="track-visual-draft-selector">{{ d.selector }}</span>
@@ -162,7 +177,7 @@
                   size="small"
                   @click="confirmDraft(d)"
                 >
-                  确认
+                  {{ $t('pages.track.app.confirmDraft') }}
                 </ElButton>
                 <ElButton
                   v-perm="'sys:track-visual:edit'"
@@ -171,7 +186,7 @@
                   size="small"
                   @click="discardDraft(d)"
                 >
-                  丢弃
+                  {{ $t('pages.track.app.discardDraft') }}
                 </ElButton>
               </span>
             </div>
@@ -215,21 +230,30 @@
       />
 
       <!-- 新增成功：展示 appKey + 接入代码片段 -->
-      <ElDialog v-model="createdVisible" title="应用创建成功" width="560px" align-center>
+      <ElDialog
+        v-model="createdVisible"
+        :title="$t('pages.track.app.createdTitle')"
+        width="560px"
+        align-center
+      >
         <ElAlert
           type="success"
           :closable="false"
           show-icon
-          title="请妥善保存 AppKey，接入 SDK 时使用"
+          :title="$t('pages.track.app.createdTip')"
         />
         <div class="track-created-appkey">
           <span class="track-created-value">{{ createdApp.appKey }}</span>
-          <ElButton size="small" @click="copyAppKey(createdApp.appKey)">复制</ElButton>
+          <ElButton size="small" @click="copyAppKey(createdApp.appKey)">{{
+            $t('pages.track.shared.copy')
+          }}</ElButton>
         </div>
-        <p class="track-created-tip">接入代码片段：</p>
+        <p class="track-created-tip">{{ $t('pages.track.app.snippetLabel') }}</p>
         <pre class="track-created-snippet">{{ createdSnippet }}</pre>
         <template #footer>
-          <ElButton type="primary" @click="createdVisible = false">知道了</ElButton>
+          <ElButton type="primary" @click="createdVisible = false">{{
+            $t('pages.track.app.gotIt')
+          }}</ElButton>
         </template>
       </ElDialog>
     </ElCard>
@@ -238,6 +262,7 @@
 
 <script setup lang="ts">
   import { h, ref } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import { useCrud } from '@/hooks/core/useCrud'
   import { useTable } from '@/hooks/core/useTable'
@@ -280,6 +305,8 @@
 
   defineOptions({ name: 'TrackApp' })
 
+  const { t } = useI18n()
+
   const tab = ref('app')
   // legacy: true 兜底非安全上下文（http 内网）下 navigator.clipboard 不可用
   const { copy } = useClipboard({ legacy: true })
@@ -288,17 +315,17 @@
     if (!appKey) return
     try {
       await copy(appKey)
-      ElMessage.success('AppKey 已复制')
+      ElMessage.success(t('pages.track.app.copySuccess'))
     } catch {
-      ElMessage.error('复制失败，请手动复制')
+      ElMessage.error(t('pages.track.app.copyFailed'))
     }
   }
 
   // ===== 应用 CRUD（列表/弹窗/删除由 useCrud 收敛；提交自处理以拿到新增返回的完整实体） =====
   const enabledTag = (v: any) =>
     v === 1 || v === true
-      ? h(ElTag, { type: 'success' }, () => '启用')
-      : h(ElTag, { type: 'info' }, () => '停用')
+      ? h(ElTag, { type: 'success' }, () => t('pages.track.shared.enabled'))
+      : h(ElTag, { type: 'info' }, () => t('pages.track.shared.disabled'))
 
   const {
     columns,
@@ -317,11 +344,16 @@
   } = useCrud({
     listApi: fetchTrackAppPage,
     removeApi: fetchRemoveTrackApp,
-    label: '应用',
+    label: t('pages.track.app.entity'),
     rowName: (row) => row.appName,
     columnsFactory: () => [
-      { type: 'index', width: 60, label: '序号' },
-      { prop: 'appName', label: '应用名称', minWidth: 120, showOverflowTooltip: true },
+      { type: 'index', width: 60, label: t('pages.track.shared.index') },
+      {
+        prop: 'appName',
+        label: t('pages.track.app.appName'),
+        minWidth: 120,
+        showOverflowTooltip: true
+      },
       {
         prop: 'appKey',
         label: 'AppKey',
@@ -336,45 +368,46 @@
             h(
               ElButton,
               { link: true, type: 'primary', size: 'small', onClick: () => copyAppKey(row.appKey) },
-              () => '复制'
+              () => t('pages.track.shared.copy')
             )
           ])
       },
-      { prop: 'platform', label: '平台', width: 80 },
+      { prop: 'platform', label: t('pages.track.app.platform'), width: 80 },
       {
         prop: 'sampleRate',
-        label: '采样率',
+        label: t('pages.track.app.sampleRate'),
         width: 90,
         // 后端 sample_rate 为百分比整数（1..100，100=全量）
         formatter: (row: any) => `${row.sampleRate ?? 100}%`
       },
       {
         prop: 'enabled',
-        label: '状态',
+        label: t('pages.track.shared.status'),
         width: 90,
         formatter: (row: any) => enabledTag(row.enabled)
       },
       {
         prop: 'retentionDays',
-        label: '保留期',
+        label: t('pages.track.app.retentionDays'),
         width: 90,
-        formatter: (row: any) => `${row.retentionDays ?? '-'} 天`
+        formatter: (row: any) =>
+          t('pages.track.app.retentionDaysValue', { days: row.retentionDays ?? '-' })
       },
       {
         prop: 'replayEnabled',
-        label: '回放',
+        label: t('pages.track.shared.replay'),
         width: 90,
         formatter: (row: any) => enabledTag(row.replayEnabled)
       },
       {
         prop: 'createTime',
-        label: '创建时间',
+        label: t('pages.track.shared.createTime'),
         minWidth: 170,
         formatter: (row: any) => fmtTrackTimeAuto(row.createTime)
       },
       {
         prop: 'operation',
-        label: '操作',
+        label: t('pages.track.shared.operation'),
         width: 130,
         fixed: 'right',
         // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -410,7 +443,7 @@ const track = createTracker({
   const onSubmitApp = async (form: Record<string, any>): Promise<void> => {
     const saved = await fetchSaveTrackApp(form)
     dialogVisible.value = false
-    ElMessage.success('保存成功')
+    ElMessage.success(t('pages.track.shared.saveSuccess'))
     if (dialogType.value === 'add') {
       await refreshCreate()
       // 同步共享应用下拉，事件定义 tab 立即可选新应用
@@ -446,32 +479,52 @@ const track = createTracker({
       immediate: false,
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'eventName', label: '事件名', minWidth: 160, showOverflowTooltip: true },
-        { prop: 'displayName', label: '显示名', minWidth: 140, showOverflowTooltip: true },
-        { prop: 'description', label: '描述', minWidth: 180, showOverflowTooltip: true },
-        { prop: 'owner', label: '负责人', width: 110, formatter: (row: any) => row.owner || '-' },
+        { type: 'index', width: 60, label: t('pages.track.shared.index') },
+        {
+          prop: 'eventName',
+          label: t('pages.track.shared.eventName'),
+          minWidth: 160,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'displayName',
+          label: t('pages.track.app.displayName'),
+          minWidth: 140,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'description',
+          label: t('pages.track.app.description'),
+          minWidth: 180,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'owner',
+          label: t('pages.track.app.owner'),
+          width: 110,
+          formatter: (row: any) => row.owner || '-'
+        },
         {
           prop: 'status',
-          label: '状态',
+          label: t('pages.track.shared.status'),
           width: 90,
           formatter: (row: any) => enabledTag(row.status)
         },
         {
           prop: 'firstSeenTime',
-          label: '首次上报',
+          label: t('pages.track.app.firstReport'),
           minWidth: 150,
           formatter: (row: any) => fmtTrackTimeAuto(row.firstSeenTime)
         },
         {
           prop: 'lastSeenTime',
-          label: '最近上报',
+          label: t('pages.track.app.lastReport'),
           minWidth: 150,
           formatter: (row: any) => fmtTrackTimeAuto(row.lastSeenTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.track.shared.operation'),
           width: 80,
           fixed: 'right',
           formatter: (row: any) =>
@@ -522,7 +575,7 @@ const track = createTracker({
       status: form.status
     })
     defDialogVisible.value = false
-    ElMessage.success('保存成功')
+    ElMessage.success(t('pages.track.shared.saveSuccess'))
     await fetchDefs()
   }
 
@@ -547,12 +600,17 @@ const track = createTracker({
       immediate: false,
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
+        { type: 'index', width: 60, label: t('pages.track.shared.index') },
         { prop: 'release', label: 'Release', minWidth: 130, showOverflowTooltip: true },
-        { prop: 'filename', label: '文件名', minWidth: 220, showOverflowTooltip: true },
+        {
+          prop: 'filename',
+          label: t('pages.track.app.filename'),
+          minWidth: 220,
+          showOverflowTooltip: true
+        },
         {
           prop: 'sizeBytes',
-          label: '大小',
+          label: t('pages.track.shared.size'),
           width: 100,
           align: 'right',
           headerAlign: 'right',
@@ -560,13 +618,13 @@ const track = createTracker({
         },
         {
           prop: 'createTime',
-          label: '上传时间',
+          label: t('pages.track.app.uploadTime'),
           minWidth: 150,
           formatter: (row: any) => fmtTrackTimeAuto(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.track.shared.operation'),
           width: 80,
           fixed: 'right',
           formatter: (row: any) =>
@@ -604,22 +662,22 @@ const track = createTracker({
     form.append('release', payload.release)
     await fetchUploadTrackSourcemap(form)
     smUploadVisible.value = false
-    ElMessage.success('上传成功')
+    ElMessage.success(t('pages.track.app.uploadSuccess'))
     await fetchSourcemaps()
   }
 
   const handleSmDelete = async (row: Record<string, any>): Promise<void> => {
     await ElMessageBox.confirm(
-      `确认删除符号表「${row.filename}」（${row.release}）？`,
-      '删除确认',
+      t('pages.track.app.deleteSourcemapConfirm', { filename: row.filename, release: row.release }),
+      t('pages.track.shared.deleteConfirmTitle'),
       {
         type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消'
+        confirmButtonText: t('pages.track.shared.del'),
+        cancelButtonText: t('common.cancel')
       }
     )
     await fetchRemoveTrackSourcemap(row.id)
-    ElMessage.success('已删除')
+    ElMessage.success(t('pages.track.shared.deletedSuccess'))
     await fetchSourcemaps()
   }
 
@@ -645,7 +703,7 @@ const track = createTracker({
     if (!visualToken.value) return
     if (Date.now() >= visualExpireAt.value) {
       endVisual()
-      ElMessage.info('圈选令牌已到期，如需继续请重新进入圈选')
+      ElMessage.info(t('pages.track.app.tokenExpired'))
       return
     }
     syncRemainMin()
@@ -662,20 +720,20 @@ const track = createTracker({
 
   const enterVisual = async (): Promise<void> => {
     if (!appKey.value) {
-      ElMessage.warning('请先选择应用')
+      ElMessage.warning(t('pages.track.app.selectAppFirst'))
       return
     }
     let targetUrl: string
     try {
       const { value } = await ElMessageBox.prompt(
-        '请输入圈选目标页面 URL（将在新窗口打开并进入圈选模式）',
-        '进入圈选',
+        t('pages.track.app.visualPromptMsg'),
+        t('pages.track.app.enterVisual'),
         {
-          confirmButtonText: '进入',
-          cancelButtonText: '取消',
+          confirmButtonText: t('pages.track.app.enter'),
+          cancelButtonText: t('common.cancel'),
           inputValue: window.location.origin,
           inputPattern: /^https?:\/\/.+/,
-          inputErrorMessage: '仅支持 http(s) 开头的 URL'
+          inputErrorMessage: t('pages.track.app.invalidUrl')
         }
       )
       targetUrl = value
@@ -711,15 +769,15 @@ const track = createTracker({
     let eventName: string
     try {
       const { value } = await ElMessageBox.prompt(
-        '确认事件名（确认后生成圈选规则并进入事件定义）',
-        '确认草稿',
+        t('pages.track.app.confirmDraftMsg'),
+        t('pages.track.app.confirmDraftTitle'),
         {
-          confirmButtonText: '确认',
-          cancelButtonText: '取消',
+          confirmButtonText: t('pages.track.app.confirmDraft'),
+          cancelButtonText: t('common.cancel'),
           inputValue: draft.eventName,
           inputValidator: (v: string) => {
             if (!EVENT_NAME_PATTERN.test(v ?? '')) {
-              ElMessage.error('事件名须字母开头，仅字母/数字/下划线，最长 64 位')
+              ElMessage.error(t('pages.track.app.eventNameInvalid'))
               return false
             }
             return true
@@ -732,19 +790,25 @@ const track = createTracker({
     }
     await fetchTrackVisualConfirm({ token: visualToken.value, draftId: draft.draftId, eventName })
     visualDrafts.value = visualDrafts.value.filter((d) => d.draftId !== draft.draftId)
-    ElMessage.success('已确认为圈选规则')
+    ElMessage.success(t('pages.track.app.draftConfirmed'))
     await refreshVisualRules()
   }
 
   const discardDraft = async (draft: Record<string, any>): Promise<void> => {
-    await ElMessageBox.confirm(`确认丢弃草稿「${draft.eventName || '未命名'}」？`, '丢弃确认', {
-      type: 'warning',
-      confirmButtonText: '丢弃',
-      cancelButtonText: '取消'
-    })
+    await ElMessageBox.confirm(
+      t('pages.track.app.discardConfirm', {
+        name: draft.eventName || t('pages.track.app.unnamed')
+      }),
+      t('pages.track.app.discardConfirmTitle'),
+      {
+        type: 'warning',
+        confirmButtonText: t('pages.track.app.discardDraft'),
+        cancelButtonText: t('common.cancel')
+      }
+    )
     await fetchTrackVisualDiscard({ token: visualToken.value, draftId: draft.draftId })
     visualDrafts.value = visualDrafts.value.filter((d) => d.draftId !== draft.draftId)
-    ElMessage.success('已丢弃')
+    ElMessage.success(t('pages.track.app.discarded'))
   }
 
   const {
@@ -765,11 +829,16 @@ const track = createTracker({
       immediate: false,
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'eventName', label: '事件名', minWidth: 140, showOverflowTooltip: true },
+        { type: 'index', width: 60, label: t('pages.track.shared.index') },
+        {
+          prop: 'eventName',
+          label: t('pages.track.shared.eventName'),
+          minWidth: 140,
+          showOverflowTooltip: true
+        },
         {
           prop: 'selector',
-          label: '选择器',
+          label: t('pages.track.app.selector'),
           minWidth: 220,
           // 代码体 + 省略 + 悬浮全量；样式走 :deep()（formatter 产物不带本页 scopeId）
           formatter: (row: any) =>
@@ -781,21 +850,21 @@ const track = createTracker({
         },
         {
           prop: 'routePath',
-          label: '路由',
+          label: t('pages.track.app.route'),
           minWidth: 130,
           showOverflowTooltip: true,
-          formatter: (row: any) => row.routePath || '全站'
+          formatter: (row: any) => row.routePath || t('pages.track.app.allSite')
         },
         {
           prop: 'matchText',
-          label: '匹配文本',
+          label: t('pages.track.app.matchText'),
           minWidth: 120,
           showOverflowTooltip: true,
-          formatter: (row: any) => row.matchText || '不限'
+          formatter: (row: any) => row.matchText || t('pages.track.app.noLimit')
         },
         {
           prop: 'status',
-          label: '状态',
+          label: t('pages.track.shared.status'),
           width: 90,
           formatter: (row: any) =>
             hasPerm('sys:track-visual:edit')
@@ -809,13 +878,13 @@ const track = createTracker({
         },
         {
           prop: 'createTime',
-          label: '创建时间',
+          label: t('pages.track.shared.createTime'),
           minWidth: 150,
           formatter: (row: any) => fmtTrackTimeAuto(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.track.shared.operation'),
           width: 130,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -863,7 +932,9 @@ const track = createTracker({
         status
       })
       row.status = status
-      ElMessage.success(status === 1 ? '已启用' : '已停用')
+      ElMessage.success(
+        status === 1 ? t('pages.track.app.enabledMsg') : t('pages.track.app.disabledMsg')
+      )
     } catch {
       // 开关为受控渲染（不绑 update:modelValue），失败刷新整表对齐服务端
       await refreshVisualRules()
@@ -884,18 +955,22 @@ const track = createTracker({
       status: form.status
     })
     vrDialogVisible.value = false
-    ElMessage.success('保存成功')
+    ElMessage.success(t('pages.track.shared.saveSuccess'))
     await refreshVisualRules()
   }
 
   const handleRuleDelete = async (row: Record<string, any>): Promise<void> => {
-    await ElMessageBox.confirm(`确认删除圈选规则「${row.eventName}」？`, '删除确认', {
-      type: 'warning',
-      confirmButtonText: '删除',
-      cancelButtonText: '取消'
-    })
+    await ElMessageBox.confirm(
+      t('pages.track.app.deleteRuleConfirm', { name: row.eventName }),
+      t('pages.track.shared.deleteConfirmTitle'),
+      {
+        type: 'warning',
+        confirmButtonText: t('pages.track.shared.del'),
+        cancelButtonText: t('common.cancel')
+      }
+    )
     await fetchRemoveTrackVisualRule(row.id)
-    ElMessage.success('已删除')
+    ElMessage.success(t('pages.track.shared.deletedSuccess'))
     await refreshVisualRules()
   }
 </script>

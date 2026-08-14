@@ -9,6 +9,8 @@
   },
   "scripts": {
     "dev": "vite --open",
+    "dev:e2e": "vite --port 3007",
+    "setup:sdk": "pnpm --dir ../mugsun-track install && pnpm --dir ../mugsun-track build",
     "build": "vue-tsc --noEmit && vite build",
     "serve": "vite preview",
     "gen:api": "openapi-typescript http://localhost:8080/v3/api-docs -o src/types/api/openapi.d.ts",

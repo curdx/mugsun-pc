@@ -6,17 +6,19 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="days">
-        <ElRadioButton :value="1">今天</ElRadioButton>
-        <ElRadioButton :value="7">近 7 天</ElRadioButton>
-        <ElRadioButton :value="30">近 30 天</ElRadioButton>
+        <ElRadioButton :value="1">{{ $t('pages.track.shared.today') }}</ElRadioButton>
+        <ElRadioButton :value="7">{{ $t('pages.track.shared.last7Days') }}</ElRadioButton>
+        <ElRadioButton :value="30">{{ $t('pages.track.shared.last30Days') }}</ElRadioButton>
       </ElRadioGroup>
-      <ElButton :loading="loading" @click="loadAll" v-ripple>刷新</ElButton>
+      <ElButton :loading="loading" @click="loadAll" v-ripple>{{
+        $t('pages.track.shared.refresh')
+      }}</ElButton>
     </div>
 
     <!-- 指标卡 -->
@@ -38,7 +40,7 @@
     <ElRow :gutter="16" class="track-row">
       <ElCol :xs="24" :lg="18">
         <div class="art-card track-chart-card">
-          <p class="track-card-title">访问趋势</p>
+          <p class="track-card-title">{{ $t('pages.track.overview.visitTrend') }}</p>
           <ArtLineChart
             :data="trendSeries"
             :x-axis-data="trendLabels"
@@ -52,14 +54,14 @@
       </ElCol>
       <ElCol :xs="24" :lg="6">
         <div class="art-card track-online-card" v-loading="onlineLoading && !onlineLoaded">
-          <p class="track-card-title">当前在线</p>
+          <p class="track-card-title">{{ $t('pages.track.overview.onlineNow') }}</p>
           <div class="track-online-body">
             <span class="track-online-dot"></span>
             <span class="track-online-count">{{ online }}</span>
           </div>
-          <p class="track-online-sub"
-            >近 {{ Math.round(windowSeconds / 60) }} 分钟活跃会话 · 5s 轮询</p
-          >
+          <p class="track-online-sub">{{
+            $t('pages.track.overview.onlineSub', { min: Math.round(windowSeconds / 60) })
+          }}</p>
         </div>
       </ElCol>
     </ElRow>
@@ -68,22 +70,29 @@
     <ElRow :gutter="16" class="track-row">
       <ElCol :xs="24" :lg="12">
         <div class="art-card track-chart-card">
-          <p class="track-card-title">Top 页面</p>
+          <p class="track-card-title">{{ $t('pages.track.overview.topPages') }}</p>
           <ElTable :data="topPages" v-loading="loading" size="default" max-height="320">
-            <ElTableColumn type="index" label="序号" width="60" />
-            <ElTableColumn prop="pagePath" label="页面路径" min-width="200" show-overflow-tooltip />
+            <ElTableColumn type="index" :label="$t('pages.track.shared.index')" width="60" />
+            <ElTableColumn
+              prop="pagePath"
+              :label="$t('pages.track.overview.pagePath')"
+              min-width="200"
+              show-overflow-tooltip
+            />
             <ElTableColumn prop="pv" label="PV" width="90" align="right" />
             <ElTableColumn prop="uv" label="UV" width="90" align="right" />
-            <ElTableColumn label="平均停留" width="110" align="right">
+            <ElTableColumn :label="$t('pages.track.overview.avgStay')" width="110" align="right">
               <template #default="{ row }">{{ fmtAvgStay(row.avgDurationMs) }}</template>
             </ElTableColumn>
-            <template #empty><ElEmpty description="暂无数据" :image-size="60" /></template>
+            <template #empty
+              ><ElEmpty :description="$t('pages.track.shared.noData')" :image-size="60"
+            /></template>
           </ElTable>
         </div>
       </ElCol>
       <ElCol :xs="24" :sm="8" :lg="4">
         <div class="art-card track-chart-card">
-          <p class="track-card-title">来源分布</p>
+          <p class="track-card-title">{{ $t('pages.track.overview.referrerDist') }}</p>
           <ArtRingChart
             :data="referrerDist"
             :loading="loading"
@@ -95,7 +104,7 @@
       </ElCol>
       <ElCol :xs="24" :sm="8" :lg="4">
         <div class="art-card track-chart-card">
-          <p class="track-card-title">设备分布</p>
+          <p class="track-card-title">{{ $t('pages.track.overview.deviceDist') }}</p>
           <ArtRingChart
             :data="deviceDist"
             :loading="loading"
@@ -107,7 +116,7 @@
       </ElCol>
       <ElCol :xs="24" :sm="8" :lg="4">
         <div class="art-card track-chart-card">
-          <p class="track-card-title">浏览器 Top</p>
+          <p class="track-card-title">{{ $t('pages.track.overview.browserTop') }}</p>
           <ArtRingChart
             :data="browserTop"
             :loading="loading"
@@ -128,12 +137,15 @@
     fetchTrackPages,
     fetchTrackTrend
   } from '@/api/track'
+  import { useI18n } from 'vue-i18n'
   import { fmtTrackClock, fmtTrackDuration, useTrackApp } from '@/views/track/shared/useTrackApp'
   import { useChartOps } from '@/hooks/core/useChart'
   import type { LineDataItem, PieDataItem } from '@/types/component/chart'
   import { ElButton, ElOption, ElRadioButton, ElRadioGroup, ElSelect } from 'element-plus'
 
   defineOptions({ name: 'TrackOverview' })
+
+  const { t } = useI18n()
 
   const { appOptions, appKey, days, appsLoading } = useTrackApp()
 
@@ -162,7 +174,7 @@
   const statCards = computed(() => [
     {
       key: 'pv',
-      label: '浏览量(PV)',
+      label: t('pages.track.overview.pvLabel'),
       value: cards.pv,
       icon: 'ri:eye-line',
       bg: 'var(--el-color-primary-light-9)',
@@ -170,7 +182,7 @@
     },
     {
       key: 'uv',
-      label: '访客数(UV)',
+      label: t('pages.track.overview.uvLabel'),
       value: cards.uv,
       icon: 'ri:user-line',
       bg: 'var(--el-color-success-light-9)',
@@ -178,7 +190,7 @@
     },
     {
       key: 'sessionCount',
-      label: '会话数',
+      label: t('pages.track.shared.sessionCount'),
       value: cards.sessionCount,
       icon: 'ri:chat-1-line',
       bg: 'var(--el-color-warning-light-9)',
@@ -186,7 +198,7 @@
     },
     {
       key: 'eventCount',
-      label: '事件数',
+      label: t('pages.track.shared.eventCount'),
       value: cards.eventCount,
       icon: 'ri:flashlight-line',
       bg: 'var(--el-color-danger-light-9)',
@@ -194,7 +206,7 @@
     },
     {
       key: 'avgSessionDurationMs',
-      label: '平均会话时长',
+      label: t('pages.track.overview.avgSessionDuration'),
       value: fmtTrackDuration(cards.avgSessionDurationMs),
       icon: 'ri:time-line',
       bg: 'var(--el-color-info-light-9)',
@@ -202,7 +214,7 @@
     },
     {
       key: 'bounceRate',
-      label: '跳出率',
+      label: t('pages.track.overview.bounceRate'),
       value: `${(Number(cards.bounceRate || 0) * 100).toFixed(1)}%`,
       icon: 'ri:logout-box-line',
       bg: 'var(--el-color-error-light-9)',
@@ -220,8 +232,11 @@
     trendLabels.value = list.map((r) => (byDay ? String(r.date).slice(5) : fmtTrackClock(r.time)))
     const series: LineDataItem[] = [
       { name: 'PV', data: list.map((r) => Number(r.pv ?? 0)), showAreaColor: true },
-      { name: '会话数', data: list.map((r) => Number(r.sessionCount ?? 0)) },
-      { name: '事件数', data: list.map((r) => Number(r.eventCount ?? 0)) }
+      {
+        name: t('pages.track.shared.sessionCount'),
+        data: list.map((r) => Number(r.sessionCount ?? 0))
+      },
+      { name: t('pages.track.shared.eventCount'), data: list.map((r) => Number(r.eventCount ?? 0)) }
     ]
     if (byDay) {
       series.splice(1, 0, { name: 'UV', data: list.map((r) => Number(r.uv ?? 0)) })

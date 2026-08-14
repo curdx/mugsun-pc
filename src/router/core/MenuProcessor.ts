@@ -117,14 +117,20 @@ export class MenuProcessor {
   /**
    * 菜单名对齐静态路由（后端返回的派生名 → 静态路由 name）。
    * 按「父路径拼接」计算全路径与 asyncRoutes 索引匹配；匹配不到保留后端派生名（新生成/外部菜单）。
+   * 标题同步对齐：命中静态路由即以其 menus.* i18n key 替换后端中文名，未命中保留后端原文。
    */
   private adoptStaticNames(menuList: AppRouteRecord[], parentPath = ''): void {
-    const index = this.staticNameIndex()
+    const index = this.staticRouteIndex()
     for (const item of menuList) {
       const fullPath = this.buildFullPath(item.path || '', parentPath)
-      const staticName = index.get(fullPath)
-      if (staticName) {
-        item.name = staticName
+      const staticRoute = index.get(fullPath)
+      if (staticRoute) {
+        if (staticRoute.name) {
+          item.name = staticRoute.name
+        }
+        if (item.meta && staticRoute.title) {
+          item.meta = { ...item.meta, title: staticRoute.title }
+        }
       }
       if (item.children?.length) {
         this.adoptStaticNames(item.children, fullPath)
@@ -132,26 +138,27 @@ export class MenuProcessor {
     }
   }
 
-  /** 静态路由 全路径 → name 索引（惰性构建一次） */
-  private _staticNameIndex?: Map<string, string>
-  private staticNameIndex(): Map<string, string> {
-    if (this._staticNameIndex) {
-      return this._staticNameIndex
+  /** 静态路由 全路径 → name/title 索引（惰性构建一次） */
+  private _staticRouteIndex?: Map<string, { name?: string; title?: string }>
+  private staticRouteIndex(): Map<string, { name?: string; title?: string }> {
+    if (this._staticRouteIndex) {
+      return this._staticRouteIndex
     }
-    const index = new Map<string, string>()
+    const index = new Map<string, { name?: string; title?: string }>()
     const walk = (routes: AppRouteRecord[], parentPath = '') => {
       for (const route of routes) {
         const fullPath = this.buildFullPath(route.path || '', parentPath)
-        if (route.name) {
-          index.set(fullPath, String(route.name))
-        }
+        index.set(fullPath, {
+          name: route.name ? String(route.name) : undefined,
+          title: route.meta?.title
+        })
         if (route.children?.length) {
           walk(route.children, fullPath)
         }
       }
     }
     walk(asyncRoutes)
-    this._staticNameIndex = index
+    this._staticRouteIndex = index
     return index
   }
 

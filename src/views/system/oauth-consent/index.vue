@@ -3,42 +3,53 @@
   <div class="oauth-consent">
     <ElCard class="consent-card">
       <template #header>
-        <span class="consent-title">授权确认</span>
+        <span class="consent-title">{{ $t('pages.system.oauthConsent.title') }}</span>
       </template>
-      <div v-if="loading" class="consent-loading">加载中…</div>
+      <div v-if="loading" class="consent-loading">{{
+        $t('pages.system.oauthConsent.loading')
+      }}</div>
       <template v-else-if="info">
         <p class="consent-line">
-          应用 <b>{{ info.clientName || info.clientId }}</b> 请求访问你的账号，授权范围：
+          {{ $t('pages.system.oauthConsent.appPrefix') }}
+          <b>{{ info.clientName || info.clientId }}</b>
+          {{ $t('pages.system.oauthConsent.requestSuffix') }}
         </p>
         <ul class="consent-scopes">
           <li v-for="s in info.scopes" :key="s">
             <ElTag size="small">{{ s }}</ElTag>
           </li>
-          <li v-if="!info.scopes || info.scopes.length === 0" class="consent-empty"
-            >（无特定范围）</li
-          >
+          <li v-if="!info.scopes || info.scopes.length === 0" class="consent-empty">{{
+            $t('pages.system.oauthConsent.noScopes')
+          }}</li>
         </ul>
         <div v-if="issuedCode" class="consent-code">
-          授权码（无回调地址，直接展示）：<code>{{ issuedCode }}</code>
+          {{ $t('pages.system.oauthConsent.codeLabel') }}<code>{{ issuedCode }}</code>
         </div>
         <div class="consent-actions">
-          <ElButton @click="deny">拒绝</ElButton>
-          <ElButton type="primary" :loading="submitting" @click="approve">同意授权</ElButton>
+          <ElButton @click="deny">{{ $t('pages.system.oauthConsent.deny') }}</ElButton>
+          <ElButton type="primary" :loading="submitting" @click="approve">{{
+            $t('pages.system.oauthConsent.approve')
+          }}</ElButton>
         </div>
       </template>
-      <div v-else class="consent-error">{{ errorMsg || '参数错误' }}</div>
+      <div v-else class="consent-error">
+        {{ errorMsg || $t('pages.system.oauthConsent.paramError') }}
+      </div>
     </ElCard>
   </div>
 </template>
 
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { useRoute, useRouter } from 'vue-router'
   import { ElMessage } from 'element-plus'
   import { fetchOauthAuthorizeInfo, fetchOauthAuthorizeConfirm } from '@/api/oauth'
   import { useUserStore } from '@/store/modules/user'
 
   defineOptions({ name: 'OauthConsent' })
+
+  const { t } = useI18n()
 
   const route = useRoute()
   const router = useRouter()
@@ -67,14 +78,14 @@
     }
     const { clientId, scope } = q()
     if (!clientId) {
-      errorMsg.value = '缺少 client_id'
+      errorMsg.value = t('pages.system.oauthConsent.missingClientId')
       loading.value = false
       return
     }
     try {
       info.value = await fetchOauthAuthorizeInfo({ client_id: clientId, scope })
     } catch (e: any) {
-      errorMsg.value = e?.message || '客户端无效'
+      errorMsg.value = e?.message || t('pages.system.oauthConsent.invalidClient')
     } finally {
       loading.value = false
     }
@@ -95,10 +106,10 @@
         window.location.href = `${redirect}${sep}code=${encodeURIComponent(resp.code)}${statePart}`
       } else {
         issuedCode.value = resp.code
-        ElMessage.success('授权成功')
+        ElMessage.success(t('pages.system.oauthConsent.msgSuccess'))
       }
     } catch (e: any) {
-      ElMessage.error(e?.message || '授权失败')
+      ElMessage.error(e?.message || t('pages.system.oauthConsent.msgFailed'))
     } finally {
       submitting.value = false
     }

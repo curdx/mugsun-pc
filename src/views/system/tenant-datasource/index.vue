@@ -3,13 +3,13 @@
   <div class="tds-page art-full-height">
     <ElCard class="art-table-card">
       <div class="tds-toolbar">
-        <ElButton v-perm="'sys:tenant-datasource:save'" type="primary" @click="showCreate"
-          >新增数据源</ElButton
-        >
+        <ElButton v-perm="'sys:tenant-datasource:save'" type="primary" @click="showCreate">{{
+          $t('pages.system.tenantDatasource.create')
+        }}</ElButton>
         <ElAlert
           type="info"
           :closable="false"
-          title="为租户配置独立库后，该租户的业务数据（客户管理）将写入其独立数据库，实现多源隔离。"
+          :title="$t('pages.system.tenantDatasource.alertTip')"
         />
       </div>
 
@@ -17,41 +17,71 @@
            内部须自备滚动，否则矮视口下底部行被切断且不可达（同 track/user 修法） -->
       <div v-loading="loading" class="tds-table-wrap">
         <ElTable :data="tableData" border>
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="tenantCode" label="租户编号" width="120" />
-          <ElTableColumn prop="dsUrl" label="数据源 URL" min-width="280" show-overflow-tooltip />
-          <ElTableColumn prop="dsUsername" label="用户名" width="120" />
-          <ElTableColumn label="隔离策略" width="160">
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+          <ElTableColumn
+            prop="tenantCode"
+            :label="$t('pages.system.tenantDatasource.tenantCode')"
+            width="120"
+          />
+          <ElTableColumn
+            prop="dsUrl"
+            :label="$t('pages.system.tenantDatasource.dsUrl')"
+            min-width="280"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="dsUsername"
+            :label="$t('pages.system.tenantDatasource.username')"
+            width="120"
+          />
+          <ElTableColumn :label="$t('pages.system.tenantDatasource.isolation')" width="160">
             <template #default="{ row }">
               <!-- schema 策略展示「Schema + schema 名」，列宽按内容预留，避免溢出被裁 -->
               <ElTag :type="row.isolationType === 2 ? 'warning' : 'primary'">
-                {{ row.isolationType === 2 ? `Schema ${row.schemaName || ''}` : '独立库' }}
+                {{
+                  row.isolationType === 2
+                    ? $t('pages.system.tenantDatasource.schemaTag', { name: row.schemaName || '' })
+                    : $t('pages.system.tenantDatasource.isolatedDb')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="状态" width="90">
+          <ElTableColumn :label="$t('pages.system.tenantDatasource.status')" width="90">
             <template #default="{ row }">
               <ElTag :type="row.status === 1 ? 'success' : 'info'">
-                {{ row.status === 1 ? '启用' : '停用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.tenantDatasource.enabled')
+                    : $t('pages.system.tenantDatasource.disabled')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
-          <ElTableColumn label="操作" width="150" fixed="right">
+          <ElTableColumn
+            prop="remark"
+            :label="$t('pages.system.tenantDatasource.remark')"
+            min-width="140"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            :label="$t('pages.system.tenantDatasource.actions')"
+            width="150"
+            fixed="right"
+          >
             <template #default="{ row }">
               <ElButton
                 v-perm="'sys:tenant-datasource:save'"
                 link
                 type="primary"
                 @click="showEdit(row)"
-                >编辑</ElButton
+                >{{ $t('pages.system.tenantDatasource.edit') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:tenant-datasource:remove'"
                 link
                 type="danger"
                 @click="remove(row)"
-                >删除</ElButton
+                >{{ $t('pages.system.tenantDatasource.delete') }}</ElButton
               >
             </template>
           </ElTableColumn>
@@ -61,48 +91,72 @@
 
     <ElDialog
       v-model="dialogVisible"
-      :title="form.id ? '编辑数据源' : '新增数据源'"
+      :title="
+        form.id
+          ? $t('pages.system.tenantDatasource.editTitle')
+          : $t('pages.system.tenantDatasource.create')
+      "
       width="560px"
       align-center
       class="tds-dialog"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <ElFormItem label="租户编号" prop="tenantCode">
-          <ElInput v-model="form.tenantCode" placeholder="如 866786" :disabled="!!form.id" />
+        <ElFormItem :label="$t('pages.system.tenantDatasource.tenantCode')" prop="tenantCode">
+          <ElInput
+            v-model="form.tenantCode"
+            :placeholder="$t('pages.system.tenantDatasource.tenantCodePlaceholder')"
+            :disabled="!!form.id"
+          />
         </ElFormItem>
-        <ElFormItem label="隔离策略" prop="isolationType">
+        <ElFormItem :label="$t('pages.system.tenantDatasource.isolation')" prop="isolationType">
           <ElSelect v-model="form.isolationType" style="width: 100%">
-            <ElOption label="独立库（独立 JDBC 连接）" :value="1" />
-            <ElOption label="独立 schema（同库 search_path）" :value="2" />
+            <ElOption :label="$t('pages.system.tenantDatasource.isolationDb')" :value="1" />
+            <ElOption :label="$t('pages.system.tenantDatasource.isolationSchema')" :value="2" />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem v-if="form.isolationType === 2" label="schema 名称" prop="schemaName">
-          <ElInput v-model="form.schemaName" placeholder="如 t_866786" />
+        <ElFormItem
+          v-if="form.isolationType === 2"
+          :label="$t('pages.system.tenantDatasource.schemaName')"
+          prop="schemaName"
+        >
+          <ElInput
+            v-model="form.schemaName"
+            :placeholder="$t('pages.system.tenantDatasource.schemaNamePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="数据源 URL" prop="dsUrl">
+        <ElFormItem :label="$t('pages.system.tenantDatasource.dsUrl')" prop="dsUrl">
           <ElInput v-model="form.dsUrl" placeholder="jdbc:postgresql://host:5432/db" />
         </ElFormItem>
-        <ElFormItem label="用户名" prop="dsUsername">
-          <ElInput v-model="form.dsUsername" placeholder="数据库用户名" />
+        <ElFormItem :label="$t('pages.system.tenantDatasource.username')" prop="dsUsername">
+          <ElInput
+            v-model="form.dsUsername"
+            :placeholder="$t('pages.system.tenantDatasource.usernamePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="密码" prop="dsPassword">
+        <ElFormItem :label="$t('pages.system.tenantDatasource.password')" prop="dsPassword">
           <ElInput
             v-model="form.dsPassword"
             type="password"
             show-password
-            placeholder="数据库密码"
+            :placeholder="$t('pages.system.tenantDatasource.passwordPlaceholder')"
           />
         </ElFormItem>
-        <ElFormItem label="状态">
+        <ElFormItem :label="$t('pages.system.tenantDatasource.status')">
           <ElSwitch v-model="form.status" :active-value="1" :inactive-value="0" />
         </ElFormItem>
-        <ElFormItem label="备注">
-          <ElInput v-model="form.remark" type="textarea" placeholder="备注" />
+        <ElFormItem :label="$t('pages.system.tenantDatasource.remark')">
+          <ElInput
+            v-model="form.remark"
+            type="textarea"
+            :placeholder="$t('pages.system.tenantDatasource.remarkPlaceholder')"
+          />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="dialogSaving" @click="submit">保存</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="dialogSaving" @click="submit">{{
+          $t('pages.system.tenantDatasource.save')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -110,6 +164,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import {
@@ -119,6 +174,8 @@
   } from '@/api/datasource'
 
   defineOptions({ name: 'TenantDatasource' })
+
+  const { t } = useI18n()
 
   const tableData = ref<any[]>([])
   const loading = ref(false)
@@ -139,9 +196,23 @@
   })
 
   const rules: FormRules = {
-    tenantCode: [{ required: true, message: '请输入租户编号', trigger: 'blur' }],
-    dsUrl: [{ required: true, message: '请输入数据源 URL', trigger: 'blur' }],
-    dsUsername: [{ required: true, message: '请输入用户名', trigger: 'blur' }]
+    tenantCode: [
+      {
+        required: true,
+        message: t('pages.system.tenantDatasource.tenantCodeRequired'),
+        trigger: 'blur'
+      }
+    ],
+    dsUrl: [
+      { required: true, message: t('pages.system.tenantDatasource.dsUrlRequired'), trigger: 'blur' }
+    ],
+    dsUsername: [
+      {
+        required: true,
+        message: t('pages.system.tenantDatasource.usernameRequired'),
+        trigger: 'blur'
+      }
+    ]
   }
 
   const loadData = async (): Promise<void> => {
@@ -193,7 +264,7 @@
       dialogSaving.value = true
       try {
         await fetchSubmitTenantDatasource({ ...form })
-        ElMessage.success('保存成功')
+        ElMessage.success(t('pages.system.tenantDatasource.msgSaved'))
         dialogVisible.value = false
         loadData()
       } finally {
@@ -203,13 +274,17 @@
   }
 
   const remove = (row: any): void => {
-    ElMessageBox.confirm(`确定删除租户"${row.tenantCode}"的独立数据源吗？`, '删除数据源', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.tenantDatasource.confirmDelete', { code: row.tenantCode }),
+      t('pages.system.tenantDatasource.deleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveTenantDatasource(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.tenantDatasource.msgDeleted'))
       loadData()
     })
   }

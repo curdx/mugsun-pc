@@ -12,9 +12,12 @@
 <script setup lang="ts">
   import type { EChartsOption } from '@/plugins/echarts'
   import { useChartOps, useChartComponent } from '@/hooks/core/useChart'
+  import { useI18n } from 'vue-i18n'
   import type { RingChartProps } from '@/types/component/chart'
 
   defineOptions({ name: 'ArtRingChart' })
+
+  const { t } = useI18n()
 
   const props = withDefaults(defineProps<RingChartProps>(), {
     // 基础配置
@@ -72,7 +75,7 @@
           legend: props.showLegend ? getLegendStyle(props.legendPosition) : undefined,
           series: [
             {
-              name: '数据占比',
+              name: t('components.ringChart.seriesName'),
               type: 'pie',
               radius: props.radius,
               center: getCenterPosition(),

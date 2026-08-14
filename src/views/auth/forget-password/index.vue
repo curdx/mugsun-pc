@@ -9,7 +9,7 @@
       <div class="auth-right-wrap">
         <div class="form">
           <h3 class="title">{{ $t('forgetPassword.title') }}</h3>
-          <p class="sub-title">通过绑定邮箱接收验证码，重置账号密码</p>
+          <p class="sub-title">{{ $t('pages.auth.forgetPassword.subTitle') }}</p>
 
           <ElForm
             class="mt-7.5"
@@ -23,7 +23,7 @@
               <ElInput
                 class="custom-height"
                 v-model.trim="formData.username"
-                placeholder="请输入账号"
+                :placeholder="$t('login.placeholder.username')"
               />
             </ElFormItem>
 
@@ -31,7 +31,7 @@
               <ElInput
                 class="custom-height"
                 v-model.trim="formData.tenantId"
-                placeholder="租户编号（留空为平台租户）"
+                :placeholder="$t('pages.auth.tenantPlaceholder')"
                 maxlength="12"
               />
             </ElFormItem>
@@ -42,24 +42,24 @@
                 <ElInput
                   class="custom-height"
                   v-model.trim="formData.captchaCode"
-                  placeholder="请输入图形验证码"
+                  :placeholder="$t('pages.auth.captchaPlaceholder')"
                   maxlength="4"
                 />
                 <img
                   v-if="captchaImage"
                   :src="captchaImage"
                   class="captcha-img"
-                  title="点击刷新验证码"
-                  alt="验证码"
+                  :title="$t('pages.auth.captchaRefresh')"
+                  :alt="$t('pages.auth.captchaAlt')"
                   @click="loadCaptcha"
                 />
                 <div
                   v-else
                   class="captcha-img captcha-reload"
-                  title="点击重新加载"
+                  :title="$t('pages.auth.captchaReload')"
                   @click="loadCaptcha"
                 >
-                  加载失败
+                  {{ $t('pages.auth.captchaLoadFailed') }}
                 </div>
               </div>
             </ElFormItem>
@@ -70,7 +70,7 @@
                 <ElInput
                   class="custom-height"
                   v-model.trim="formData.code"
-                  placeholder="请输入邮箱验证码"
+                  :placeholder="$t('pages.auth.forgetPassword.emailCodePlaceholder')"
                   maxlength="6"
                 />
                 <ElButton
@@ -79,7 +79,7 @@
                   :loading="sending"
                   @click="sendCode"
                 >
-                  {{ countdown > 0 ? countdown + 's' : '发送验证码' }}
+                  {{ countdown > 0 ? countdown + 's' : $t('pages.auth.sendCode') }}
                 </ElButton>
               </div>
             </ElFormItem>
@@ -88,7 +88,7 @@
               <ElInput
                 class="custom-height"
                 v-model.trim="formData.newPassword"
-                placeholder="请输入新密码"
+                :placeholder="$t('pages.auth.forgetPassword.newPasswordPlaceholder')"
                 type="password"
                 autocomplete="off"
                 show-password
@@ -99,7 +99,7 @@
               <ElInput
                 class="custom-height"
                 v-model.trim="formData.confirmPassword"
-                placeholder="请再次输入新密码"
+                :placeholder="$t('pages.auth.forgetPassword.confirmPasswordPlaceholder')"
                 type="password"
                 autocomplete="off"
                 show-password
@@ -133,7 +133,7 @@
 
 <script setup lang="ts">
   import { useI18n } from 'vue-i18n'
-  import type { FormInstance, FormRules } from 'element-plus'
+  import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
   import { fetchCaptcha, fetchForgetCode, fetchForgetReset } from '@/api/auth'
   import { encryptPassword } from '@/utils/gm'
 
@@ -148,7 +148,7 @@
     confirmPassword: string
   }
 
-  const { locale } = useI18n()
+  const { t, locale } = useI18n()
   const router = useRouter()
   const formRef = ref<FormInstance>()
   const formKey = ref(0)
@@ -205,11 +205,11 @@
   // 发送邮箱验证码：账号+图形验证码前置校验；账号不存在后端同样返回成功（防枚举）
   const sendCode = async () => {
     if (!formData.username) {
-      ElMessage.warning('请先输入账号')
+      ElMessage.warning(t('pages.auth.forgetPassword.enterUsernameFirst'))
       return
     }
     if (!formData.captchaCode) {
-      ElMessage.warning('请先输入图形验证码')
+      ElMessage.warning(t('pages.auth.forgetPassword.enterCaptchaFirst'))
       return
     }
     try {
@@ -221,7 +221,7 @@
         captchaCode: formData.captchaCode
       })
       startCountdown()
-      ElMessage.success('若账号存在且已绑定邮箱，验证码已发送')
+      ElMessage.success(t('pages.auth.forgetPassword.codeSent'))
     } catch (error) {
       // 失败刷新图形验证码（答案已在后端消费）
       loadCaptcha()
@@ -237,23 +237,33 @@
     callback: (error?: Error) => void
   ) => {
     if (!value) {
-      callback(new Error('请再次输入新密码'))
+      callback(new Error(t('pages.auth.forgetPassword.confirmPasswordPlaceholder')))
       return
     }
     if (value !== formData.newPassword) {
-      callback(new Error('两次密码不一致'))
+      callback(new Error(t('pages.auth.forgetPassword.passwordMismatch')))
       return
     }
     callback()
   }
 
   const rules = computed<FormRules<ForgetForm>>(() => ({
-    username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
-    captchaCode: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }],
-    code: [{ required: true, message: '请输入邮箱验证码', trigger: 'blur' }],
+    username: [{ required: true, message: t('login.placeholder.username'), trigger: 'blur' }],
+    captchaCode: [{ required: true, message: t('pages.auth.captchaPlaceholder'), trigger: 'blur' }],
+    code: [
+      {
+        required: true,
+        message: t('pages.auth.forgetPassword.emailCodePlaceholder'),
+        trigger: 'blur'
+      }
+    ],
     newPassword: [
-      { required: true, message: '请输入新密码', trigger: 'blur' },
-      { min: 8, message: '密码至少 8 位，且含大小写/数字/特殊字符中至少 3 类', trigger: 'blur' }
+      {
+        required: true,
+        message: t('pages.auth.forgetPassword.newPasswordPlaceholder'),
+        trigger: 'blur'
+      },
+      { min: 8, message: t('pages.auth.forgetPassword.passwordRule'), trigger: 'blur' }
     ],
     confirmPassword: [{ required: true, validator: validateConfirmPassword, trigger: 'blur' }]
   }))
@@ -270,7 +280,7 @@
         code: formData.code,
         newPassword: await encryptPassword(formData.newPassword)
       })
-      ElMessage.success('密码已重置，请使用新密码登录')
+      ElMessage.success(t('pages.auth.forgetPassword.resetSuccess'))
       router.push({ name: 'Login' })
     } catch (error) {
       console.error('[ForgetPassword] reset failed:', error)

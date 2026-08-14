@@ -2,17 +2,19 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    title="导入用户"
+    :title="$t('pages.system.user.importDialog.title')"
     width="620px"
     align-center
     @closed="resetState"
   >
     <div class="import-tips">
-      <span>请按模板填写后上传，部门/岗位按名称匹配，新用户初始密码为系统初始密码。</span>
-      <ElButton link type="primary" @click="downloadUserImportTemplate()">下载模板</ElButton>
+      <span>{{ $t('pages.system.user.importDialog.tips') }}</span>
+      <ElButton link type="primary" @click="downloadUserImportTemplate()">{{
+        $t('pages.system.user.importDialog.downloadTemplate')
+      }}</ElButton>
     </div>
     <ElCheckbox v-model="updateSupport">
-      覆盖已存在的账号（按用户名更新昵称/状态/邮箱/部门/岗位，不更新密码与手机号）
+      {{ $t('pages.system.user.importDialog.overwrite') }}
     </ElCheckbox>
     <ElUpload
       ref="uploadRef"
@@ -26,7 +28,10 @@
       style="margin-top: 12px"
     >
       <ElIcon class="el-icon--upload"><UploadFilled /></ElIcon>
-      <div class="el-upload__text">将文件拖到此处，或<em>点击选择</em></div>
+      <div class="el-upload__text">
+        {{ $t('pages.system.user.importDialog.uploadText')
+        }}<em>{{ $t('pages.system.user.importDialog.uploadLink') }}</em>
+      </div>
     </ElUpload>
 
     <!-- 导入结果：成败计数 + 失败明细 -->
@@ -34,26 +39,49 @@
       <ElAlert
         :type="result.failCount > 0 ? 'warning' : 'success'"
         :closable="false"
-        :title="`导入完成：成功 ${result.successCount} 条，失败 ${result.failCount} 条`"
+        :title="
+          $t('pages.system.user.importDialog.resultTitle', {
+            success: result.successCount,
+            fail: result.failCount
+          })
+        "
       />
       <template v-if="result.failList.length > 0">
         <div class="fail-header">
-          <span>失败明细</span>
-          <ElButton link type="primary" @click="downloadFailList">下载失败明细</ElButton>
+          <span>{{ $t('pages.system.user.importDialog.failDetail') }}</span>
+          <ElButton link type="primary" @click="downloadFailList">{{
+            $t('pages.system.user.importDialog.downloadFailList')
+          }}</ElButton>
         </div>
         <ElTable :data="result.failList" border size="small" max-height="240">
-          <ElTableColumn prop="rowIndex" label="行号" width="80" />
-          <ElTableColumn prop="username" label="用户名" min-width="120" show-overflow-tooltip />
-          <ElTableColumn prop="reason" label="失败原因" min-width="180" show-overflow-tooltip />
+          <ElTableColumn
+            prop="rowIndex"
+            :label="$t('pages.system.user.importDialog.rowIndex')"
+            width="80"
+          />
+          <ElTableColumn
+            prop="username"
+            :label="$t('pages.system.user.fields.username')"
+            min-width="120"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="reason"
+            :label="$t('pages.system.user.importDialog.reason')"
+            min-width="180"
+            show-overflow-tooltip
+          />
         </ElTable>
       </template>
     </div>
 
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">关闭</ElButton>
+        <ElButton @click="dialogVisible = false">{{
+          $t('pages.system.user.importDialog.close')
+        }}</ElButton>
         <ElButton type="primary" :loading="importing" :disabled="!file" @click="handleImport">
-          开始导入
+          {{ $t('pages.system.user.importDialog.startImport') }}
         </ElButton>
       </div>
     </template>
@@ -63,6 +91,7 @@
 <script setup lang="ts">
   import * as XLSX from 'xlsx'
   import FileSaver from 'file-saver'
+  import { useI18n } from 'vue-i18n'
   import { UploadFilled } from '@element-plus/icons-vue'
   import { ElMessage } from 'element-plus'
   import type { UploadFile, UploadInstance, UploadRawFile } from 'element-plus'
@@ -80,6 +109,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -126,7 +157,9 @@
       const data = await importUser(file.value, updateSupport.value)
       result.value = data ?? { successCount: 0, failCount: 0, failList: [] }
       if (result.value.failCount === 0) {
-        ElMessage.success(`导入成功 ${result.value.successCount} 条`)
+        ElMessage.success(
+          t('pages.system.user.importDialog.importSuccess', { count: result.value.successCount })
+        )
       }
       // 有成功写入即刷新列表（含部分成功）
       if (result.value.successCount > 0) {

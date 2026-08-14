@@ -8,7 +8,7 @@ export const dashboardRoutes: AppRouteRecord = {
   name: 'Dashboard',
   component: '/index/index',
   meta: {
-    title: '工作台',
+    title: 'menus.dashboard.workbench',
     icon: 'ri:dashboard-line'
   },
   children: [
@@ -17,7 +17,7 @@ export const dashboardRoutes: AppRouteRecord = {
       name: 'Console',
       component: '/dashboard/console',
       meta: {
-        title: '工作台',
+        title: 'menus.dashboard.console',
         icon: 'ri:dashboard-line',
         keepAlive: true
       }

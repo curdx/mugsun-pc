@@ -12,7 +12,9 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton v-perm="'sys:role:save'" @click="showDialog('add')" v-ripple>新增角色</ElButton>
+          <ElButton v-perm="'sys:role:save'" @click="showDialog('add')" v-ripple>{{
+            $t('pages.system.role.addRole')
+          }}</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -45,6 +47,7 @@
 
 <script setup lang="ts">
   import { h, ref, nextTick } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useTable } from '@/hooks/core/useTable'
@@ -57,6 +60,8 @@
 
   defineOptions({ name: 'Role' })
 
+  const { t } = useI18n()
+
   // ===== 查询栏 =====
   const searchForm = ref({
     roleName: '',
@@ -65,24 +70,24 @@
   const searchItems = [
     {
       key: 'roleName',
-      label: '角色名称',
+      label: t('pages.system.role.fields.roleName'),
       type: 'input',
-      props: { placeholder: '请输入角色名称', clearable: true }
+      props: { placeholder: t('pages.system.role.placeholder.roleName'), clearable: true }
     },
     {
       key: 'roleCode',
-      label: '角色编码',
+      label: t('pages.system.role.fields.roleCode'),
       type: 'input',
-      props: { placeholder: '请输入角色编码', clearable: true }
+      props: { placeholder: t('pages.system.role.placeholder.roleCode'), clearable: true }
     }
   ]
 
   const SCOPE_LABELS: Record<number, string> = {
-    1: '全部数据',
-    2: '本部门数据',
-    3: '本部门及子部门',
-    4: '仅本人数据',
-    5: '自定义部门'
+    1: t('pages.system.role.scope.all'),
+    2: t('pages.system.role.scope.dept'),
+    3: t('pages.system.role.scope.deptAndChildren'),
+    4: t('pages.system.role.scope.self'),
+    5: t('pages.system.role.scope.custom')
   }
 
   const dialogType = ref<DialogType>('add')
@@ -115,19 +120,19 @@
       apiParams: { pageNum: 1, pageSize: 20 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'roleName', label: '角色名称', minWidth: 140 },
-        { prop: 'roleCode', label: '角色编码', minWidth: 140 },
+        { type: 'index', width: 60, label: t('table.column.index') },
+        { prop: 'roleName', label: t('pages.system.role.fields.roleName'), minWidth: 140 },
+        { prop: 'roleCode', label: t('pages.system.role.fields.roleCode'), minWidth: 140 },
         {
           prop: 'dataScope',
-          label: '数据范围',
+          label: t('pages.system.role.fields.dataScope'),
           minWidth: 140,
           formatter: (row: any) => SCOPE_LABELS[row.dataScope as number] ?? '-'
         },
-        { prop: 'sort', label: '排序', width: 100 },
+        { prop: 'sort', label: t('pages.system.role.fields.sort'), width: 100 },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.role.fields.operation'),
           width: 180,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -149,7 +154,7 @@
                       style: 'margin-left:8px',
                       onClick: () => showPermission(row)
                     },
-                    () => '授权'
+                    () => t('pages.system.role.grant')
                   )
                 : null
             ])
@@ -191,13 +196,17 @@
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除角色"${row.roleName}"吗？`, '删除角色', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.role.deleteConfirm', { name: row.roleName }),
+      t('pages.system.role.deleteRole'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await removeRole([row.id])
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.role.deleteSuccess'))
       refreshData()
     })
   }
@@ -207,7 +216,7 @@
     try {
       await saveRole(form)
       dialogVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.role.saveSuccess'))
       refreshData()
     } finally {
       dialogSaving.value = false

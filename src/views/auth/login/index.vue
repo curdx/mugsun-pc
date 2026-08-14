@@ -12,8 +12,8 @@
           <p class="sub-title">{{ $t('login.subTitle') }}</p>
 
           <ElTabs v-model="loginType" class="login-tabs">
-            <ElTabPane label="账号登录" name="account" />
-            <ElTabPane label="短信登录" name="sms" />
+            <ElTabPane :label="$t('pages.auth.login.accountTab')" name="account" />
+            <ElTabPane :label="$t('pages.auth.login.smsTab')" name="sms" />
           </ElTabs>
 
           <!-- 账号密码登录 -->
@@ -47,7 +47,7 @@
             <ElFormItem prop="tenantId">
               <ElInput
                 class="custom-height"
-                placeholder="租户编号（留空为平台租户）"
+                :placeholder="$t('pages.auth.tenantPlaceholder')"
                 v-model.trim="formData.tenantId"
                 maxlength="12"
               />
@@ -58,7 +58,7 @@
               <div class="flex w-full gap-2">
                 <ElInput
                   class="custom-height"
-                  placeholder="请输入验证码"
+                  :placeholder="$t('pages.auth.login.captchaCodePlaceholder')"
                   v-model.trim="formData.captchaCode"
                   maxlength="4"
                 />
@@ -66,17 +66,17 @@
                   v-if="captchaImage"
                   :src="captchaImage"
                   class="captcha-img"
-                  title="点击刷新验证码"
-                  alt="验证码"
+                  :title="$t('pages.auth.captchaRefresh')"
+                  :alt="$t('pages.auth.captchaAlt')"
                   @click="loadCaptcha"
                 />
                 <div
                   v-else
                   class="captcha-img captcha-reload"
-                  title="点击重新加载"
+                  :title="$t('pages.auth.captchaReload')"
                   @click="loadCaptcha"
                 >
-                  加载失败
+                  {{ $t('pages.auth.captchaLoadFailed') }}
                 </div>
               </div>
             </ElFormItem>
@@ -115,7 +115,7 @@
             <ElFormItem prop="phone">
               <ElInput
                 class="custom-height"
-                placeholder="请输入手机号"
+                :placeholder="$t('pages.auth.login.phonePlaceholder')"
                 v-model.trim="smsForm.phone"
                 maxlength="11"
               />
@@ -124,7 +124,7 @@
               <div class="flex w-full gap-2">
                 <ElInput
                   class="custom-height"
-                  placeholder="请输入短信验证码"
+                  :placeholder="$t('pages.auth.login.smsCodePlaceholder')"
                   v-model.trim="smsForm.code"
                   maxlength="6"
                 />
@@ -133,7 +133,7 @@
                   :disabled="smsCountdown > 0"
                   @click="sendSmsCode"
                 >
-                  {{ smsCountdown > 0 ? smsCountdown + 's' : '发送验证码' }}
+                  {{ smsCountdown > 0 ? smsCountdown + 's' : $t('pages.auth.sendCode') }}
                 </ElButton>
               </div>
             </ElFormItem>
@@ -141,7 +141,7 @@
               <div class="flex w-full gap-2">
                 <ElInput
                   class="custom-height"
-                  placeholder="请输入图形验证码"
+                  :placeholder="$t('pages.auth.captchaPlaceholder')"
                   v-model.trim="smsForm.captchaCode"
                   maxlength="4"
                 />
@@ -149,17 +149,17 @@
                   v-if="captchaImage"
                   :src="captchaImage"
                   class="captcha-img"
-                  title="点击刷新验证码"
-                  alt="验证码"
+                  :title="$t('pages.auth.captchaRefresh')"
+                  :alt="$t('pages.auth.captchaAlt')"
                   @click="loadCaptcha"
                 />
                 <div
                   v-else
                   class="captcha-img captcha-reload"
-                  title="点击重新加载"
+                  :title="$t('pages.auth.captchaReload')"
                   @click="loadCaptcha"
                 >
-                  加载失败
+                  {{ $t('pages.auth.captchaLoadFailed') }}
                 </div>
               </div>
             </ElFormItem>
@@ -179,7 +179,7 @@
 
           <!-- 第三方登录：按 /auth/social/sources 动态渲染（有真实源显示真实按钮、无则整区隐藏；mock 维持 DEV-only） -->
           <div class="social-login" v-if="showSocialArea">
-            <ElDivider>第三方登录</ElDivider>
+            <ElDivider>{{ $t('pages.auth.login.socialDivider') }}</ElDivider>
             <ElButton
               v-for="src in socialSources"
               :key="src"
@@ -187,7 +187,7 @@
               @click="handleSocialLogin(src)"
               v-ripple
             >
-              {{ socialLabel(src) }} 登录
+              {{ $t('pages.auth.login.socialBtn', { name: socialLabel(src) }) }}
             </ElButton>
             <ElButton
               v-if="showMockSocial && socialMockAllowed"
@@ -195,7 +195,7 @@
               @click="handleSocialLogin('mock')"
               v-ripple
             >
-              模拟第三方登录
+              {{ $t('pages.auth.login.mockSocialBtn') }}
             </ElButton>
           </div>
 
@@ -255,13 +255,13 @@
   const showSocialArea = computed(
     () => socialSources.value.length > 0 || (showMockSocial && socialMockAllowed.value)
   )
-  const SOCIAL_LABELS: Record<string, string> = {
+  const SOCIAL_LABELS = computed<Record<string, string>>(() => ({
     github: 'GitHub',
     gitee: 'Gitee',
     qq: 'QQ',
-    wechat_open: '微信'
-  }
-  const socialLabel = (source: string) => SOCIAL_LABELS[source] || source
+    wechat_open: t('pages.auth.login.wechat')
+  }))
+  const socialLabel = (source: string) => SOCIAL_LABELS.value[source] || source
   const loadSocialSources = async () => {
     try {
       const data = await fetchSocialSources()
@@ -291,7 +291,9 @@
   const rules = computed<FormRules>(() => ({
     username: [{ required: true, message: t('login.placeholder.username'), trigger: 'blur' }],
     password: [{ required: true, message: t('login.placeholder.password'), trigger: 'blur' }],
-    captchaCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+    captchaCode: [
+      { required: true, message: t('pages.auth.login.captchaCodePlaceholder'), trigger: 'blur' }
+    ]
   }))
 
   const loading = ref(false)
@@ -302,11 +304,11 @@
   const smsForm = reactive({ phone: '', code: '', captchaCode: '' })
   const smsRules = computed<FormRules>(() => ({
     phone: [
-      { required: true, message: '请输入手机号', trigger: 'blur' },
-      { pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }
+      { required: true, message: t('pages.auth.login.phonePlaceholder'), trigger: 'blur' },
+      { pattern: /^1\d{10}$/, message: t('pages.auth.phoneInvalid'), trigger: 'blur' }
     ],
-    code: [{ required: true, message: '请输入短信验证码', trigger: 'blur' }],
-    captchaCode: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }]
+    code: [{ required: true, message: t('pages.auth.login.smsCodePlaceholder'), trigger: 'blur' }],
+    captchaCode: [{ required: true, message: t('pages.auth.captchaPlaceholder'), trigger: 'blur' }]
   }))
   const smsCountdown = ref(0)
   let smsTimer: ReturnType<typeof setInterval> | null = null
@@ -339,14 +341,14 @@
       const { authorizeUrl } = await fetchSocialRender(source)
       window.location.href = authorizeUrl
     } catch (e: any) {
-      ElMessage.error(e?.message || '发起第三方登录失败')
+      ElMessage.error(e?.message || t('pages.auth.login.socialLoginFailed'))
     }
   }
 
   // 发送短信验证码（开发环境后端回显，自动填充）
   const sendSmsCode = async () => {
     if (!/^1\d{10}$/.test(smsForm.phone)) {
-      ElMessage.warning('请先输入正确的手机号')
+      ElMessage.warning(t('pages.auth.login.enterValidPhone'))
       return
     }
     try {
@@ -361,9 +363,9 @@
       }, 1000)
       if (resp?.code) {
         smsForm.code = resp.code
-        ElMessage.success(`验证码已发送（开发回显：${resp.code}）`)
+        ElMessage.success(t('pages.auth.login.smsCodeSentEcho', { code: resp.code }))
       } else {
-        ElMessage.success('验证码已发送')
+        ElMessage.success(t('pages.auth.login.smsCodeSent'))
       }
     } catch (error) {
       console.error('[Login] send sms code failed:', error)
@@ -462,11 +464,11 @@
       // 双因子登录：需二次验证码
       if (resp.twoFactorRequired) {
         const { value: code } = await ElMessageBox.prompt(
-          '登录验证码已发送（无凭证时降级为日志，开发环境已自动填充）',
-          '双因子验证',
+          t('pages.auth.login.twoFactorMessage'),
+          t('pages.auth.login.twoFactorTitle'),
           {
-            confirmButtonText: '验证',
-            cancelButtonText: '取消',
+            confirmButtonText: t('pages.auth.login.twoFactorConfirm'),
+            cancelButtonText: t('common.cancel'),
             inputValue: resp.twoFactorCode || ''
           }
         )

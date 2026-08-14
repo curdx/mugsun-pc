@@ -3,29 +3,36 @@
   <div class="crypto-demo">
     <ElCard shadow="never">
       <template #header>
-        <span>接口国密加解密演示（SM4）</span>
+        <span>{{ $t('pages.system.crypto.cardTitle') }}</span>
       </template>
       <ElAlert
         type="info"
         :closable="false"
-        title="输入文本后点击「加密发送」：前端 sm-crypto 将请求体 SM4 加密为密文发送，后端解密处理后再将响应加密返回，前端解密展示。可在浏览器网络面板核对请求/响应均为密文。"
+        :title="$t('pages.system.crypto.alertText')"
         class="mb-4"
       />
-      <ElInput v-model="inputText" type="textarea" :rows="3" placeholder="请输入要加密传输的文本" />
+      <ElInput
+        v-model="inputText"
+        type="textarea"
+        :rows="3"
+        :placeholder="$t('pages.system.crypto.inputPlaceholder')"
+      />
       <ElButton type="primary" class="mt-3" :loading="loading" @click="handleSend">
-        加密发送
+        {{ $t('pages.system.crypto.sendBtn') }}
       </ElButton>
 
       <div v-if="requestCipher" class="result mt-4">
         <ElDescriptions :column="1" border>
-          <ElDescriptionsItem label="① 原始明文">{{ inputText }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="② 加密后请求体(发往后端)">
+          <ElDescriptionsItem :label="$t('pages.system.crypto.labelPlain')">{{
+            inputText
+          }}</ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.crypto.labelRequestCipher')">
             <span class="cipher">{{ requestCipher }}</span>
           </ElDescriptionsItem>
-          <ElDescriptionsItem label="③ 后端响应密文(dataType=ENCRYPT)">
+          <ElDescriptionsItem :label="$t('pages.system.crypto.labelResponseCipher')">
             <span class="cipher">{{ responseCipher }}</span>
           </ElDescriptionsItem>
-          <ElDescriptionsItem label="④ 前端解密结果">
+          <ElDescriptionsItem :label="$t('pages.system.crypto.labelDecrypted')">
             <span class="plain">{{ decrypted }}</span>
           </ElDescriptionsItem>
         </ElDescriptions>
@@ -39,13 +46,16 @@
   import { ElMessage } from 'element-plus'
   import request from '@/utils/http'
   import { isHttpError } from '@/utils/http/error'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'CryptoDemo' })
+
+  const { t } = useI18n()
 
   // 与后端 mugsun.crypto.api-key 一致的 16 字节密钥
   const apiKey = Array.from(new TextEncoder().encode('mugsun-api-key16'))
 
-  const inputText = ref('你好，Mugsun 国密加解密！')
+  const inputText = ref(t('pages.system.crypto.defaultText'))
   const requestCipher = ref('')
   const responseCipher = ref('')
   const decrypted = ref('')
@@ -72,7 +82,7 @@
 
   const handleSend = async () => {
     if (!inputText.value) {
-      ElMessage.warning('请输入文本')
+      ElMessage.warning(t('pages.system.crypto.inputRequired'))
       return
     }
     loading.value = true
@@ -97,7 +107,7 @@
       }
     } catch (e) {
       // 网络/服务端错误已由请求层统一弹提示，这里仅兜底本地加解密异常，避免双重 toast
-      if (!isHttpError(e)) ElMessage.error('加解密失败')
+      if (!isHttpError(e)) ElMessage.error(t('pages.system.crypto.cryptoFailed'))
       console.error('[CryptoDemo]', e)
     } finally {
       loading.value = false

@@ -4,9 +4,14 @@
     <ElRow :gutter="16">
       <ElCol :xs="24" :md="10">
         <ElCard>
-          <template #header>个人信息</template>
+          <template #header>{{ $t('pages.system.userCenter.infoTitle') }}</template>
           <div class="uc-avatar-row">
-            <img v-if="info.avatar" :src="info.avatar" class="uc-avatar" alt="头像" />
+            <img
+              v-if="info.avatar"
+              :src="info.avatar"
+              class="uc-avatar"
+              :alt="$t('pages.system.userCenter.avatarAlt')"
+            />
             <div v-else class="uc-avatar uc-avatar-fallback">
               {{ (info.nickName || info.userName || '?').slice(0, 1) }}
             </div>
@@ -16,40 +21,54 @@
               accept="image/*"
               :on-change="handleAvatarChange"
             >
-              <ElButton size="small" :loading="avatarUploading">更换头像</ElButton>
+              <ElButton size="small" :loading="avatarUploading">{{
+                $t('pages.system.userCenter.changeAvatar')
+              }}</ElButton>
             </ElUpload>
           </div>
           <ElDescriptions :column="1" border>
-            <ElDescriptionsItem label="账号">{{ info.userName }}</ElDescriptionsItem>
-            <ElDescriptionsItem label="昵称">{{ info.nickName }}</ElDescriptionsItem>
-            <ElDescriptionsItem label="邮箱">{{ info.email || '未绑定' }}</ElDescriptionsItem>
-            <ElDescriptionsItem label="手机">{{ info.phone || '未绑定' }}</ElDescriptionsItem>
-            <ElDescriptionsItem label="角色">{{ roleNames }}</ElDescriptionsItem>
+            <ElDescriptionsItem :label="$t('pages.system.userCenter.labelUsername')">{{
+              info.userName
+            }}</ElDescriptionsItem>
+            <ElDescriptionsItem :label="$t('pages.system.userCenter.labelNickname')">{{
+              info.nickName
+            }}</ElDescriptionsItem>
+            <ElDescriptionsItem :label="$t('pages.system.userCenter.labelEmail')">{{
+              info.email || $t('pages.system.userCenter.unbound')
+            }}</ElDescriptionsItem>
+            <ElDescriptionsItem :label="$t('pages.system.userCenter.labelPhone')">{{
+              info.phone || $t('pages.system.userCenter.unbound')
+            }}</ElDescriptionsItem>
+            <ElDescriptionsItem :label="$t('pages.system.userCenter.labelRoles')">{{
+              roleNames
+            }}</ElDescriptionsItem>
           </ElDescriptions>
         </ElCard>
       </ElCol>
 
       <ElCol :xs="24" :md="14">
         <ElCard class="uc-form-card">
-          <template #header>修改昵称</template>
+          <template #header>{{ $t('pages.system.userCenter.editNicknameTitle') }}</template>
           <ElForm ref="infoRef" :model="infoForm" :rules="infoRules" label-width="90px">
-            <ElFormItem label="昵称" prop="nickname">
+            <ElFormItem :label="$t('pages.system.userCenter.labelNickname')" prop="nickname">
               <ElInput
                 v-model="infoForm.nickname"
-                placeholder="请输入新昵称"
+                :placeholder="$t('pages.system.userCenter.nicknamePlaceholder')"
                 style="max-width: 320px"
               />
             </ElFormItem>
             <ElFormItem>
-              <ElButton type="primary" :loading="infoSaving" @click="saveInfo">保存</ElButton>
+              <ElButton type="primary" :loading="infoSaving" @click="saveInfo">{{
+                $t('pages.system.userCenter.save')
+              }}</ElButton>
             </ElFormItem>
           </ElForm>
         </ElCard>
 
         <ElCard class="uc-form-card">
-          <template #header>修改密码</template>
+          <template #header>{{ $t('pages.system.userCenter.editPasswordTitle') }}</template>
           <ElForm ref="pwdRef" :model="pwdForm" :rules="pwdRules" label-width="90px">
-            <ElFormItem label="原密码" prop="oldPassword">
+            <ElFormItem :label="$t('pages.system.userCenter.oldPassword')" prop="oldPassword">
               <ElInput
                 v-model="pwdForm.oldPassword"
                 type="password"
@@ -57,7 +76,7 @@
                 style="max-width: 320px"
               />
             </ElFormItem>
-            <ElFormItem label="新密码" prop="newPassword">
+            <ElFormItem :label="$t('pages.system.userCenter.newPassword')" prop="newPassword">
               <ElInput
                 v-model="pwdForm.newPassword"
                 type="password"
@@ -65,7 +84,10 @@
                 style="max-width: 320px"
               />
             </ElFormItem>
-            <ElFormItem label="确认密码" prop="confirmPassword">
+            <ElFormItem
+              :label="$t('pages.system.userCenter.confirmPassword')"
+              prop="confirmPassword"
+            >
               <ElInput
                 v-model="pwdForm.confirmPassword"
                 type="password"
@@ -74,19 +96,25 @@
               />
             </ElFormItem>
             <ElFormItem>
-              <ElButton type="primary" :loading="pwdSaving" @click="savePassword">保存</ElButton>
+              <ElButton type="primary" :loading="pwdSaving" @click="savePassword">{{
+                $t('pages.system.userCenter.save')
+              }}</ElButton>
             </ElFormItem>
           </ElForm>
         </ElCard>
 
         <!-- 第三方账号：mock 来源仅 dev 且后端允许时可见（门控与登录页对齐，生产绝不出现） -->
         <ElCard class="uc-form-card" v-if="showMockBind">
-          <template #header>第三方账号</template>
+          <template #header>{{ $t('pages.system.userCenter.socialTitle') }}</template>
           <div class="uc-social">
-            <span>模拟第三方（mock）</span>
+            <span>{{ $t('pages.system.userCenter.mockSocial') }}</span>
             <div>
-              <ElButton type="primary" size="small" @click="bindSocial('mock')">绑定</ElButton>
-              <ElButton size="small" @click="unbindSocial('mock')">解绑</ElButton>
+              <ElButton type="primary" size="small" @click="bindSocial('mock')">{{
+                $t('pages.system.userCenter.bind')
+              }}</ElButton>
+              <ElButton size="small" @click="unbindSocial('mock')">{{
+                $t('pages.system.userCenter.unbind')
+              }}</ElButton>
             </div>
           </div>
         </ElCard>
@@ -109,8 +137,11 @@
   import { fetchRoleCodeSelect } from '@/api/role'
   import { encryptPassword } from '@/utils/gm'
   import { ElMessage } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'UserCenter' })
+
+  const { t } = useI18n()
 
   const userStore = useUserStore()
   const info = computed<any>(() => userStore.getUserInfo || {})
@@ -140,7 +171,9 @@
   const infoForm = reactive({ nickname: info.value.nickName || '' })
   const infoSaving = ref(false)
   const infoRules: FormRules = {
-    nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }]
+    nickname: [
+      { required: true, message: t('pages.system.userCenter.nicknameRequired'), trigger: 'blur' }
+    ]
   }
 
   const saveInfo = async (): Promise<void> => {
@@ -151,7 +184,7 @@
       try {
         await fetchUpdateInfo({ nickname: infoForm.nickname })
         userStore.setUserInfo({ ...(userStore.getUserInfo as any), nickName: infoForm.nickname })
-        ElMessage.success('昵称已修改')
+        ElMessage.success(t('pages.system.userCenter.nicknameSaved'))
       } finally {
         infoSaving.value = false
       }
@@ -166,23 +199,23 @@
     const raw = uploadFile.raw
     if (!raw) return
     if (!raw.type.startsWith('image/')) {
-      ElMessage.warning('仅支持图片文件')
+      ElMessage.warning(t('pages.system.userCenter.imageOnly'))
       return
     }
     if (raw.size > AVATAR_MAX_SIZE) {
-      ElMessage.warning('头像大小不能超过 2MB')
+      ElMessage.warning(t('pages.system.userCenter.avatarTooLarge'))
       return
     }
     try {
       avatarUploading.value = true
       const attach = await uploadAvatarFile(raw)
       if (!attach?.url) {
-        ElMessage.error('头像上传失败：未返回可访问地址')
+        ElMessage.error(t('pages.system.userCenter.avatarUploadFailed'))
         return
       }
       await fetchUpdateAvatar({ avatar: attach.url })
       userStore.setUserInfo({ ...(userStore.getUserInfo as any), avatar: attach.url })
-      ElMessage.success('头像已更新')
+      ElMessage.success(t('pages.system.userCenter.avatarUpdated'))
     } catch (error) {
       console.error('[UserCenter] upload avatar failed:', error)
     } finally {
@@ -194,19 +227,23 @@
   const pwdForm = reactive({ oldPassword: '', newPassword: '', confirmPassword: '' })
   const pwdSaving = ref(false)
   const pwdRules: FormRules = {
-    oldPassword: [{ required: true, message: '请输入原密码', trigger: 'blur' }],
+    oldPassword: [
+      { required: true, message: t('pages.system.userCenter.oldPasswordRequired'), trigger: 'blur' }
+    ],
     newPassword: [
       {
         required: true,
         min: 8,
-        message: '密码至少 8 位，且含大小写/数字/特殊字符中至少 3 类',
+        message: t('pages.system.userCenter.passwordRule'),
         trigger: 'blur'
       }
     ],
     confirmPassword: [
       {
         validator: (_r: any, v: string, cb: any) =>
-          v === pwdForm.newPassword ? cb() : cb(new Error('两次密码不一致')),
+          v === pwdForm.newPassword
+            ? cb()
+            : cb(new Error(t('pages.system.userCenter.passwordMismatch'))),
         trigger: 'blur'
       }
     ]
@@ -222,7 +259,7 @@
           oldPassword: await encryptPassword(pwdForm.oldPassword),
           newPassword: await encryptPassword(pwdForm.newPassword)
         })
-        ElMessage.success('密码已修改，请重新登录')
+        ElMessage.success(t('pages.system.userCenter.passwordSaved'))
         pwdForm.oldPassword = ''
         pwdForm.newPassword = ''
         pwdForm.confirmPassword = ''
@@ -254,13 +291,13 @@
       const { authorizeUrl } = await fetchSocialRender(source)
       window.location.href = authorizeUrl
     } catch (e: any) {
-      ElMessage.error(e?.message || '发起绑定失败')
+      ElMessage.error(e?.message || t('pages.system.userCenter.bindFailed'))
     }
   }
 
   const unbindSocial = async (source: string) => {
     await fetchSocialUnbind(source)
-    ElMessage.success('已解绑')
+    ElMessage.success(t('pages.system.userCenter.unbindSuccess'))
   }
 </script>
 

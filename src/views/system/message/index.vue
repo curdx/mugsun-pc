@@ -4,7 +4,7 @@
     <ElCard class="art-table-card" shadow="never">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton @click="readAll" v-ripple>全部已读</ElButton>
+          <ElButton @click="readAll" v-ripple>{{ $t('pages.system.message.readAllBtn') }}</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -37,14 +37,21 @@
     fetchRemoveMyMessage
   } from '@/api/message'
   import { formatTableTime } from '@/utils/date'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Message' })
+
+  const { t } = useI18n()
 
   const messageStore = useMessageStore()
   const viewVisible = ref(false)
   const current = reactive<any>({ title: '', content: '', sendTime: '' })
 
-  const TYPE_LABEL: Record<string, string> = { system: '系统', notice: '通知', todo: '待办' }
+  const TYPE_LABEL: Record<string, string> = {
+    system: t('pages.system.message.typeSystem'),
+    notice: t('pages.system.message.typeNotice'),
+    todo: t('pages.system.message.typeTodo')
+  }
 
   const {
     columns,
@@ -61,31 +68,33 @@
       apiParams: { pageNum: 1, pageSize: 10 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { prop: 'title', label: '标题', minWidth: 240 },
+        { prop: 'title', label: t('pages.system.message.colTitle'), minWidth: 240 },
         {
           prop: 'type',
-          label: '类型',
+          label: t('pages.system.message.colType'),
           width: 90,
           formatter: (row: any) => TYPE_LABEL[row.type] || row.type
         },
         {
           prop: 'isRead',
-          label: '状态',
+          label: t('pages.system.message.colStatus'),
           width: 90,
           formatter: (row: any) =>
             h(ElTag, { type: row.isRead === 1 ? 'info' : 'danger' }, () =>
-              row.isRead === 1 ? '已读' : '未读'
+              row.isRead === 1
+                ? t('pages.system.message.statusRead')
+                : t('pages.system.message.statusUnread')
             )
         },
         {
           prop: 'sendTime',
-          label: '发送时间',
+          label: t('pages.system.message.colSendTime'),
           minWidth: 180,
           formatter: (row: any) => formatTableTime(row.sendTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.message.colOperation'),
           width: 140,
           fixed: 'right',
           formatter: (row: any) =>
@@ -93,12 +102,12 @@
               h(
                 ElButton,
                 { link: true, type: 'primary', size: 'small', onClick: () => view(row) },
-                () => '查看'
+                () => t('pages.system.message.viewBtn')
               ),
               h(
                 ElButton,
                 { link: true, type: 'danger', size: 'small', onClick: () => remove(row) },
-                () => '删除'
+                () => t('pages.system.message.deleteBtn')
               )
             ])
         }
@@ -127,15 +136,19 @@
 
   const readAll = async () => {
     await fetchReadAllMessage()
-    ElMessage.success('已全部标记已读')
+    ElMessage.success(t('pages.system.message.readAllSuccess'))
     messageStore.refreshUnread()
     refreshData()
   }
 
   const remove = (row: any) => {
-    ElMessageBox.confirm('确定删除该消息吗？', '删除', { type: 'warning' }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.message.deleteConfirm'),
+      t('pages.system.message.deleteBtn'),
+      { type: 'warning' }
+    ).then(async () => {
       await fetchRemoveMyMessage([row.id])
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.message.deleteSuccess'))
       messageStore.refreshUnread()
       refreshData()
     })

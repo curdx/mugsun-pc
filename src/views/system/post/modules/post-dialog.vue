@@ -2,31 +2,40 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增岗位' : '编辑岗位'"
+    :title="type === 'add' ? $t('pages.system.post.addPost') : $t('pages.system.post.editPost')"
     width="500px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-      <ElFormItem label="岗位名称" prop="postName">
-        <ElInput v-model="formData.postName" placeholder="请输入岗位名称" />
+      <ElFormItem :label="$t('pages.system.post.fields.postName')" prop="postName">
+        <ElInput
+          v-model="formData.postName"
+          :placeholder="$t('pages.system.post.placeholder.postName')"
+        />
       </ElFormItem>
-      <ElFormItem label="岗位编码" prop="postCode">
-        <ElInput v-model="formData.postCode" placeholder="请输入岗位编码" />
+      <ElFormItem :label="$t('pages.system.post.fields.postCode')" prop="postCode">
+        <ElInput
+          v-model="formData.postCode"
+          :placeholder="$t('pages.system.post.placeholder.postCode')"
+        />
       </ElFormItem>
-      <ElFormItem label="排序" prop="sort">
+      <ElFormItem :label="$t('pages.system.post.fields.sort')" prop="sort">
         <ElInputNumber v-model="formData.sort" :min="0" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">{{
+          $t('table.form.submit')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -45,6 +54,8 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
+  const { t } = useI18n()
+
   const dialogVisible = computed({
     get: () => props.visible,
     set: (value) => emit('update:visible', value)
@@ -59,10 +70,14 @@
     sort: 0
   })
 
-  const rules: FormRules = {
-    postName: [{ required: true, message: '请输入岗位名称', trigger: 'blur' }],
-    postCode: [{ required: true, message: '请输入岗位编码', trigger: 'blur' }]
-  }
+  const rules = computed<FormRules>(() => ({
+    postName: [
+      { required: true, message: t('pages.system.post.placeholder.postName'), trigger: 'blur' }
+    ],
+    postCode: [
+      { required: true, message: t('pages.system.post.placeholder.postCode'), trigger: 'blur' }
+    ]
+  }))
 
   watch(
     () => [props.visible, props.postData],

@@ -4,9 +4,9 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton v-perm="'sys:notice:manage'" @click="showDialog('add')" v-ripple
-            >新增公告</ElButton
-          >
+          <ElButton v-perm="'sys:notice:manage'" @click="showDialog('add')" v-ripple>{{
+            $t('pages.system.notice.addBtn')
+          }}</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -45,8 +45,11 @@
   import { formatTableTime } from '@/utils/date'
   import { hasPerm } from '@/utils/permission'
   import { DialogType } from '@/types'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Notice' })
+
+  const { t } = useI18n()
 
   const dialogType = ref<DialogType>('add')
   const dialogVisible = ref(false)
@@ -68,11 +71,11 @@
       apiParams: { pageNum: 1, pageSize: 20 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'title', label: '标题', minWidth: 200 },
+        { type: 'index', width: 60, label: t('pages.system.notice.colIndex') },
+        { prop: 'title', label: t('pages.system.notice.colTitle'), minWidth: 200 },
         {
           prop: 'category',
-          label: '分类',
+          label: t('pages.system.notice.colCategory'),
           width: 100,
           // 字典运行时驱动：改用 ArtDictTag，不再手写 CATEGORY_MAP
           formatter: (row: any) =>
@@ -80,33 +83,33 @@
         },
         {
           prop: 'isTop',
-          label: '置顶',
+          label: t('pages.system.notice.colTop'),
           width: 90,
           formatter: (row: any) =>
             row.isTop === 1
-              ? h(ElTag, { type: 'danger' }, () => '置顶')
-              : h(ElTag, { type: 'info' }, () => '普通')
+              ? h(ElTag, { type: 'danger' }, () => t('pages.system.notice.colTop'))
+              : h(ElTag, { type: 'info' }, () => t('pages.system.notice.tagNormal'))
         },
         {
           prop: 'allVisible',
-          label: '可见范围',
+          label: t('pages.system.notice.colScope'),
           width: 100,
           formatter: (row: any) =>
             row.allVisible === 0
-              ? h(ElTag, { type: 'warning' }, () => '指定范围')
-              : h(ElTag, { type: 'success' }, () => '全部可见')
+              ? h(ElTag, { type: 'warning' }, () => t('pages.system.notice.scopeCustom'))
+              : h(ElTag, { type: 'success' }, () => t('pages.system.notice.scopeAll'))
         },
-        { prop: 'viewUv', label: '阅读人数', width: 90 },
-        { prop: 'viewPv', label: '阅读次数', width: 90 },
+        { prop: 'viewUv', label: t('pages.system.notice.colViewUv'), width: 90 },
+        { prop: 'viewPv', label: t('pages.system.notice.colViewPv'), width: 90 },
         {
           prop: 'releaseTime',
-          label: '发布时间',
+          label: t('pages.system.notice.colReleaseTime'),
           minWidth: 170,
           formatter: (row: any) => formatTableTime(row.releaseTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.notice.colOperation'),
           width: 180,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -119,7 +122,7 @@
                 ? h(
                     ElButton,
                     { size: 'small', link: true, type: 'primary', onClick: () => showRead(row) },
-                    () => '阅读记录'
+                    () => t('pages.system.notice.readRecord')
                   )
                 : null,
               hasPerm('sys:notice:manage')
@@ -155,13 +158,17 @@
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除公告"${row.title}"吗？`, '删除公告', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.notice.deleteConfirm', { name: row.title }),
+      t('pages.system.notice.deleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveNotice(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.notice.deleteSuccess'))
       refreshData()
     })
   }
@@ -169,7 +176,7 @@
   const handleDialogSubmit = async (form: Record<string, any>): Promise<void> => {
     await fetchSaveNotice(form)
     dialogVisible.value = false
-    ElMessage.success('保存成功')
+    ElMessage.success(t('pages.system.notice.saveSuccess'))
     refreshData()
   }
 </script>

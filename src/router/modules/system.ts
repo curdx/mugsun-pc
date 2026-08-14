@@ -37,7 +37,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Dept',
       component: '/system/dept',
       meta: {
-        title: '部门管理',
+        title: 'menus.system.dept',
         icon: 'ri:organization-chart',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -48,7 +48,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Post',
       component: '/system/post',
       meta: {
-        title: '岗位管理',
+        title: 'menus.system.post',
         icon: 'ri:contacts-book-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -59,7 +59,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'SysParam',
       component: '/system/param',
       meta: {
-        title: '参数管理',
+        title: 'menus.system.param',
         icon: 'ri:settings-3-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -70,7 +70,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'CryptoDemo',
       component: '/system/crypto',
       meta: {
-        title: '接口加解密',
+        title: 'menus.system.crypto',
         icon: 'ri:shield-keyhole-line',
         keepAlive: true,
         // 接口加密能力在线自检工具：仅开发环境显示，生产构建隐藏菜单
@@ -83,7 +83,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'MailTemplate',
       component: '/system/mail-template',
       meta: {
-        title: '邮件模板',
+        title: 'menus.system.mailTemplate',
         icon: 'ri:mail-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -94,7 +94,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Dict',
       component: '/system/dict',
       meta: {
-        title: '字典管理',
+        title: 'menus.system.dict',
         icon: 'ri:book-2-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -105,7 +105,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'DictBiz',
       component: '/system/dict-biz',
       meta: {
-        title: '业务字典',
+        title: 'menus.system.dictBiz',
         icon: 'ri:book-marked-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -116,7 +116,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Notice',
       component: '/system/notice',
       meta: {
-        title: '通知公告',
+        title: 'menus.system.notice',
         icon: 'ri:notification-2-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -127,7 +127,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'MyNotice',
       component: '/system/my-notice',
       meta: {
-        title: '我的通知',
+        title: 'menus.system.myNotice',
         icon: 'ri:mail-open-line',
         keepAlive: true
       }
@@ -137,7 +137,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Attach',
       component: '/system/attach',
       meta: {
-        title: '附件管理',
+        title: 'menus.system.attach',
         icon: 'ri:folder-2-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -148,7 +148,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Oss',
       component: '/system/oss',
       meta: {
-        title: '存储配置',
+        title: 'menus.system.oss',
         icon: 'ri:cloud-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -159,7 +159,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Sms',
       component: '/system/sms',
       meta: {
-        title: '短信配置',
+        title: 'menus.system.sms',
         icon: 'ri:message-2-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -170,7 +170,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Gen',
       component: '/system/gen',
       meta: {
-        title: '代码生成',
+        title: 'menus.system.gen',
         icon: 'ri:code-box-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -181,7 +181,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'OnlineForm',
       component: '/system/online-form',
       meta: {
-        title: '在线表单',
+        title: 'menus.system.onlineForm',
         icon: 'ri:table-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -192,7 +192,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'GenModeling',
       component: '/system/gen-modeling',
       meta: {
-        title: '动态建表',
+        title: 'menus.system.genModeling',
         icon: 'ri:database-2-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -203,7 +203,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'FormDesigner',
       component: '/system/form-designer',
       meta: {
-        title: '表单设计',
+        title: 'menus.system.formDesigner',
         icon: 'ri:file-edit-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -214,7 +214,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'FlowDef',
       component: '/system/flow-def',
       meta: {
-        title: '流程定义',
+        title: 'menus.system.flowDef',
         icon: 'ri:git-branch-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -225,7 +225,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'FlowTodo',
       component: '/system/flow-todo',
       meta: {
-        title: '待办工作台',
+        title: 'menus.system.flowTodo',
         icon: 'ri:task-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -236,7 +236,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'FlowCenter',
       component: '/system/flow-center',
       meta: {
-        title: '审批中心',
+        title: 'menus.system.flowCenter',
         icon: 'ri:inbox-archive-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -247,7 +247,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'FlowGraph',
       component: '/system/flow-graph',
       meta: {
-        title: '流程设计',
+        title: 'menus.system.flowGraph',
         icon: 'ri:node-tree',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -258,7 +258,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Job',
       component: '/system/job',
       meta: {
-        title: '定时任务',
+        title: 'menus.system.job',
         icon: 'ri:timer-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -269,7 +269,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Report',
       component: '/system/report',
       meta: {
-        title: '报表管理',
+        title: 'menus.system.report',
         icon: 'ri:bar-chart-2-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -280,7 +280,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'LoginLog',
       component: '/system/login-log',
       meta: {
-        title: '登录日志',
+        title: 'menus.system.loginLog',
         icon: 'ri:shield-keyhole-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -291,7 +291,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Online',
       component: '/system/online',
       meta: {
-        title: '在线会话',
+        title: 'menus.system.online',
         icon: 'ri:computer-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -302,7 +302,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Client',
       component: '/system/client',
       meta: {
-        title: '登录客户端',
+        title: 'menus.system.client',
         icon: 'ri:device-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -313,7 +313,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Region',
       component: '/system/region',
       meta: {
-        title: '行政区划',
+        title: 'menus.system.region',
         icon: 'ri:map-pin-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -324,7 +324,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'OperLog',
       component: '/system/log',
       meta: {
-        title: '操作日志',
+        title: 'menus.system.log',
         icon: 'ri:file-list-3-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -335,7 +335,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'ApiLog',
       component: '/system/api-log',
       meta: {
-        title: '访问日志',
+        title: 'menus.system.apiLog',
         icon: 'ri:global-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -346,7 +346,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'ErrorLog',
       component: '/system/error-log',
       meta: {
-        title: '错误日志',
+        title: 'menus.system.errorLog',
         icon: 'ri:error-warning-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -357,7 +357,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'ServerMonitor',
       component: '/system/monitor',
       meta: {
-        title: '服务监控',
+        title: 'menus.system.monitor',
         icon: 'ri:line-chart-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -368,7 +368,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'DataAudit',
       component: '/system/data-audit',
       meta: {
-        title: '变更记录',
+        title: 'menus.system.dataAudit',
         icon: 'ri:history-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -379,7 +379,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'HelpDoc',
       component: '/system/help-doc',
       meta: {
-        title: '帮助文档',
+        title: 'menus.system.helpDoc',
         icon: 'ri:question-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -390,7 +390,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'ChangeLog',
       component: '/system/changelog',
       meta: {
-        title: '更新日志',
+        title: 'menus.system.changelog',
         icon: 'ri:git-branch-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -401,7 +401,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Feedback',
       component: '/system/feedback',
       meta: {
-        title: '意见反馈',
+        title: 'menus.system.feedback',
         icon: 'ri:feedback-line',
         keepAlive: true,
         roles: ['R_SUPER', 'R_ADMIN']
@@ -412,7 +412,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Message',
       component: '/system/message',
       meta: {
-        title: '我的消息',
+        title: 'menus.system.message',
         icon: 'ri:notification-2-line',
         keepAlive: true
       }
@@ -422,7 +422,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'MessageSend',
       component: '/system/message-send',
       meta: {
-        title: '发送站内信',
+        title: 'menus.system.messageSend',
         icon: 'ri:send-plane-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -433,7 +433,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'MessageTemplate',
       component: '/system/message-template',
       meta: {
-        title: '消息模板',
+        title: 'menus.system.messageTemplate',
         icon: 'ri:mail-settings-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -444,7 +444,7 @@ export const systemRoutes: AppRouteRecord = {
       name: 'Cache',
       component: '/system/cache',
       meta: {
-        title: '缓存管理',
+        title: 'menus.system.cache',
         icon: 'ri:database-2-line',
         keepAlive: true,
         roles: ['R_SUPER']

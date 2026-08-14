@@ -2,34 +2,48 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增参数' : '编辑参数'"
+    :title="type === 'add' ? $t('pages.system.param.addParam') : $t('pages.system.param.editParam')"
     width="500px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-      <ElFormItem label="参数名称" prop="paramName">
-        <ElInput v-model="formData.paramName" placeholder="请输入参数名称" />
+      <ElFormItem :label="$t('pages.system.param.fields.paramName')" prop="paramName">
+        <ElInput
+          v-model="formData.paramName"
+          :placeholder="$t('pages.system.param.placeholder.paramName')"
+        />
       </ElFormItem>
-      <ElFormItem label="参数键" prop="paramKey">
-        <ElInput v-model="formData.paramKey" placeholder="请输入参数键" />
+      <ElFormItem :label="$t('pages.system.param.fields.paramKey')" prop="paramKey">
+        <ElInput
+          v-model="formData.paramKey"
+          :placeholder="$t('pages.system.param.placeholder.paramKey')"
+        />
       </ElFormItem>
-      <ElFormItem label="参数值" prop="paramValue">
-        <ElInput v-model="formData.paramValue" placeholder="请输入参数值" />
+      <ElFormItem :label="$t('pages.system.param.fields.paramValue')" prop="paramValue">
+        <ElInput
+          v-model="formData.paramValue"
+          :placeholder="$t('pages.system.param.placeholder.paramValue')"
+        />
       </ElFormItem>
-      <ElFormItem label="备注" prop="remark">
-        <ElInput v-model="formData.remark" type="textarea" placeholder="请输入备注" />
+      <ElFormItem :label="$t('pages.system.param.fields.remark')" prop="remark">
+        <ElInput
+          v-model="formData.remark"
+          type="textarea"
+          :placeholder="$t('pages.system.param.placeholder.remark')"
+        />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="handleSubmit">{{ $t('table.form.submit') }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -46,6 +60,8 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
+  const { t } = useI18n()
+
   const dialogVisible = computed({
     get: () => props.visible,
     set: (value) => emit('update:visible', value)
@@ -61,10 +77,14 @@
     remark: ''
   })
 
-  const rules: FormRules = {
-    paramName: [{ required: true, message: '请输入参数名称', trigger: 'blur' }],
-    paramKey: [{ required: true, message: '请输入参数键', trigger: 'blur' }]
-  }
+  const rules = computed<FormRules>(() => ({
+    paramName: [
+      { required: true, message: t('pages.system.param.placeholder.paramName'), trigger: 'blur' }
+    ],
+    paramKey: [
+      { required: true, message: t('pages.system.param.placeholder.paramKey'), trigger: 'blur' }
+    ]
+  }))
 
   watch(
     () => [props.visible, props.paramData],

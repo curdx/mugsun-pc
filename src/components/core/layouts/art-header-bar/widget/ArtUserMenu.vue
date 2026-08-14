@@ -39,7 +39,7 @@
           </li>
           <li class="btn-item" @click="openFeedback()">
             <ArtSvgIcon icon="ri:feedback-line" />
-            <span>意见反馈</span>
+            <span>{{ $t('components.userMenu.feedback') }}</span>
           </li>
           <div class="w-full h-px my-2 bg-g-300/80"></div>
           <div class="log-out c-p" @click="loginOut">

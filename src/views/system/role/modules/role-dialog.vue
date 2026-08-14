@@ -2,27 +2,37 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增角色' : '编辑角色'"
+    :title="type === 'add' ? $t('pages.system.role.addRole') : $t('pages.system.role.editRole')"
     width="500px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-      <ElFormItem label="角色名称" prop="roleName">
-        <ElInput v-model="formData.roleName" placeholder="请输入角色名称" />
+      <ElFormItem :label="$t('pages.system.role.fields.roleName')" prop="roleName">
+        <ElInput
+          v-model="formData.roleName"
+          :placeholder="$t('pages.system.role.placeholder.roleName')"
+        />
       </ElFormItem>
-      <ElFormItem label="角色编码" prop="roleCode">
-        <ElInput v-model="formData.roleCode" placeholder="请输入角色编码" />
+      <ElFormItem :label="$t('pages.system.role.fields.roleCode')" prop="roleCode">
+        <ElInput
+          v-model="formData.roleCode"
+          :placeholder="$t('pages.system.role.placeholder.roleCode')"
+        />
       </ElFormItem>
-      <ElFormItem label="数据范围" prop="dataScope">
+      <ElFormItem :label="$t('pages.system.role.fields.dataScope')" prop="dataScope">
         <ElSelect v-model="formData.dataScope" style="width: 100%">
-          <ElOption label="全部数据" :value="1" />
-          <ElOption label="本部门数据" :value="2" />
-          <ElOption label="本部门及子部门" :value="3" />
-          <ElOption label="仅本人数据" :value="4" />
-          <ElOption label="自定义部门" :value="5" />
+          <ElOption :label="$t('pages.system.role.scope.all')" :value="1" />
+          <ElOption :label="$t('pages.system.role.scope.dept')" :value="2" />
+          <ElOption :label="$t('pages.system.role.scope.deptAndChildren')" :value="3" />
+          <ElOption :label="$t('pages.system.role.scope.self')" :value="4" />
+          <ElOption :label="$t('pages.system.role.scope.custom')" :value="5" />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem v-if="formData.dataScope === 5" label="可见部门" prop="deptIds">
+      <ElFormItem
+        v-if="formData.dataScope === 5"
+        :label="$t('pages.system.role.fields.deptIds')"
+        prop="deptIds"
+      >
         <ElTreeSelect
           v-model="formData.deptIds"
           :data="deptTree"
@@ -32,24 +42,27 @@
           node-key="id"
           :props="{ label: 'deptName', children: 'children' }"
           :render-after-expand="false"
-          placeholder="请选择可见部门"
+          :placeholder="$t('pages.system.role.placeholder.deptIds')"
           style="width: 100%"
         />
       </ElFormItem>
-      <ElFormItem label="排序" prop="sort">
+      <ElFormItem :label="$t('pages.system.role.fields.sort')" prop="sort">
         <ElInputNumber v-model="formData.sort" :min="0" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">{{
+          $t('table.form.submit')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchDeptTree } from '@/api/system-manage'
   import { fetchRoleDeptIds } from '@/api/role'
@@ -70,6 +83,8 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
+  const { t } = useI18n()
+
   const dialogVisible = computed({
     get: () => props.visible,
     set: (value) => emit('update:visible', value)
@@ -87,10 +102,14 @@
     sort: 0
   })
 
-  const rules: FormRules = {
-    roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-    roleCode: [{ required: true, message: '请输入角色编码', trigger: 'blur' }]
-  }
+  const rules = computed<FormRules>(() => ({
+    roleName: [
+      { required: true, message: t('pages.system.role.placeholder.roleName'), trigger: 'blur' }
+    ],
+    roleCode: [
+      { required: true, message: t('pages.system.role.placeholder.roleCode'), trigger: 'blur' }
+    ]
+  }))
 
   const loadDeptTree = async () => {
     if (!deptTree.value.length) {

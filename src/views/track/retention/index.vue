@@ -7,33 +7,38 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="days">
-        <ElRadioButton :value="7">近 7 天</ElRadioButton>
-        <ElRadioButton :value="14">近 14 天</ElRadioButton>
-        <ElRadioButton :value="30">近 30 天</ElRadioButton>
+        <ElRadioButton :value="7">{{ $t('pages.track.shared.last7Days') }}</ElRadioButton>
+        <ElRadioButton :value="14">{{ $t('pages.track.shared.last14Days') }}</ElRadioButton>
+        <ElRadioButton :value="30">{{ $t('pages.track.shared.last30Days') }}</ElRadioButton>
       </ElRadioGroup>
-      <ElButton type="primary" :loading="loading" :disabled="!appKey" @click="search"
-        >查询</ElButton
-      >
-      <span class="track-retention-hint">新客留存：按首次活跃日分组，UTC 日切</span>
+      <ElButton type="primary" :loading="loading" :disabled="!appKey" @click="search">{{
+        $t('pages.track.shared.search')
+      }}</ElButton>
+      <span class="track-retention-hint">{{ $t('pages.track.retention.hint') }}</span>
     </div>
 
     <!-- 留存网格：自定义 table（矩阵结构，首列 sticky，横向可滚动） -->
     <div class="art-card track-retention-card" v-loading="loading">
-      <p class="track-retention-card-title">新客留存网格</p>
-      <ElEmpty v-if="!searched" description="选择应用与统计天数后点击查询" />
-      <ElEmpty v-else-if="rows.length === 0 && !loading" description="窗口内无新客数据" />
+      <p class="track-retention-card-title">{{ $t('pages.track.retention.gridTitle') }}</p>
+      <ElEmpty v-if="!searched" :description="$t('pages.track.retention.emptyPrompt')" />
+      <ElEmpty
+        v-else-if="rows.length === 0 && !loading"
+        :description="$t('pages.track.retention.emptyNoData')"
+      />
       <template v-else>
         <div class="track-retention-scroll">
           <table class="track-retention-grid">
             <thead>
               <tr>
-                <th class="track-retention-cohort-col">新客日期</th>
+                <th class="track-retention-cohort-col">{{
+                  $t('pages.track.retention.cohortDate')
+                }}</th>
                 <th v-for="o in offsets" :key="o">D+{{ o }}</th>
               </tr>
             </thead>
@@ -42,7 +47,9 @@
                 <td class="track-retention-cohort-col">
                   <div class="track-retention-cohort">
                     <span class="track-retention-cohort-date">{{ r.cohortDate }}</span>
-                    <span class="track-retention-cohort-size">新客 {{ r.cohortSize }} 人</span>
+                    <span class="track-retention-cohort-size">{{
+                      $t('pages.track.retention.cohortSize', { size: r.cohortSize })
+                    }}</span>
                   </div>
                 </td>
                 <td
@@ -68,7 +75,9 @@
             class="track-retention-legend-swatch"
             :style="{ background: swatchBg(x) }"
           ></span>
-          <span class="track-retention-legend-text">留存率越高色越深</span>
+          <span class="track-retention-legend-text">{{
+            $t('pages.track.retention.legendText')
+          }}</span>
         </div>
       </template>
     </div>
@@ -77,6 +86,7 @@
 
 <script setup lang="ts">
   import { fetchTrackRetention } from '@/api/track'
+  import { useI18n } from 'vue-i18n'
   import { useTrackApp } from '@/views/track/shared/useTrackApp'
   import {
     ElButton,
@@ -89,6 +99,8 @@
   } from 'element-plus'
 
   defineOptions({ name: 'TrackRetention' })
+
+  const { t } = useI18n()
 
   /** 色阶上限：保留率 0–100% 映射主题色透明度 0–45%（0% 全透明） */
   const COLOR_MIX_MAX = 45
@@ -143,7 +155,12 @@
   }
 
   const cellTip = (row: RetentionRow, offset: number): string =>
-    `D+${offset} 留存 ${retainedCount(row, offset)}/${row.cohortSize} = ${cellPct(row, offset).toFixed(1)}%`
+    t('pages.track.retention.cellTip', {
+      offset,
+      retained: retainedCount(row, offset),
+      total: row.cohortSize,
+      pct: cellPct(row, offset).toFixed(1)
+    })
 
   // ===== 图例（5 档渐变样本） =====
   const legendStops = [9, 18, 27, 36, 45]

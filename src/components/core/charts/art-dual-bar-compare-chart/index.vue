@@ -6,6 +6,7 @@
 <script setup lang="ts">
   import { useChartOps, useChartComponent } from '@/hooks/core/useChart'
   import type { EChartsOption, BarSeriesOption } from '@/plugins/echarts'
+  import { $t } from '@/locales'
   import type { BidirectionalBarChartProps } from '@/types/component/chart'
 
   defineOptions({ name: 'ArtDualBarCompareChart' })
@@ -21,8 +22,8 @@
     positiveData: () => [],
     negativeData: () => [],
     xAxisData: () => [],
-    positiveName: '正向数据',
-    negativeName: '负向数据',
+    positiveName: $t('components.dualBarCompareChart.positiveName'),
+    negativeName: $t('components.dualBarCompareChart.negativeName'),
     barWidth: 16,
     yAxisMin: -100,
     yAxisMax: 100,

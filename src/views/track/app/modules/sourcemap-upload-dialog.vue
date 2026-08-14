@@ -2,23 +2,23 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    title="上传符号表"
+    :title="$t('pages.track.app.uploadSourcemap')"
     width="520px"
     align-center
     @closed="resetState"
   >
     <ElForm label-width="96px">
-      <ElFormItem label="所属应用">
+      <ElFormItem :label="$t('pages.track.app.belongApp')">
         <span>{{ appKey || '-' }}</span>
       </ElFormItem>
       <ElFormItem label="Release" required>
         <ElInput
           v-model="release"
-          placeholder="与错误事件 release 对齐，如 1.0.0"
+          :placeholder="$t('pages.track.app.releasePlaceholder')"
           maxlength="128"
         />
       </ElFormItem>
-      <ElFormItem label="符号表文件" required>
+      <ElFormItem :label="$t('pages.track.app.fileLabel')" required>
         <ElUpload
           ref="uploadRef"
           :auto-upload="false"
@@ -28,18 +28,18 @@
           :on-remove="handleFileRemove"
           :on-exceed="handleFileExceed"
         >
-          <ElButton>选择 .map 文件</ElButton>
+          <ElButton>{{ $t('pages.track.app.pickFile') }}</ElButton>
           <template #tip>
-            <div class="el-upload__tip">仅 .map 文件，≤ 20MB；同 Release 同名文件重传即覆盖</div>
+            <div class="el-upload__tip">{{ $t('pages.track.app.uploadTip') }}</div>
           </template>
         </ElUpload>
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
         <ElButton type="primary" :loading="uploading" :disabled="!file" @click="handleUpload">
-          上传
+          {{ $t('pages.track.app.upload') }}
         </ElButton>
       </div>
     </template>
@@ -48,6 +48,7 @@
 
 <script setup lang="ts">
   import { ElMessage } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
   import type { UploadFile, UploadInstance, UploadRawFile } from 'element-plus'
 
   interface Props {
@@ -68,6 +69,8 @@
     set: (value) => emit('update:visible', value)
   })
 
+  const { t } = useI18n()
+
   const MAX_BYTES = 20 * 1024 * 1024
 
   const uploadRef = ref<UploadInstance>()
@@ -86,11 +89,11 @@
   /** 前端预检（后缀/大小），服务端校验链仍是最终裁定 */
   const checkFile = (raw: File): boolean => {
     if (!raw.name.endsWith('.map')) {
-      ElMessage.warning('仅支持 .map 文件')
+      ElMessage.warning(t('pages.track.app.onlyMap'))
       return false
     }
     if (raw.size > MAX_BYTES) {
-      ElMessage.warning('文件超过 20MB 上限')
+      ElMessage.warning(t('pages.track.app.fileTooLarge'))
       return false
     }
     return true
@@ -122,7 +125,7 @@
   const handleUpload = async (): Promise<void> => {
     if (!file.value || uploading.value) return
     if (!release.value.trim()) {
-      ElMessage.warning('请输入 Release')
+      ElMessage.warning(t('pages.track.app.releaseRequired'))
       return
     }
     uploading.value = true

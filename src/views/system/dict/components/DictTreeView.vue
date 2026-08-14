@@ -11,17 +11,25 @@
     />
     <ElCard class="art-table-card">
       <div class="dict-toolbar">
-        <ElButton v-perm="permPrefix + ':save'" @click="showDialog('add')" v-ripple
-          >新增字典</ElButton
-        >
+        <ElButton v-perm="permPrefix + ':save'" @click="showDialog('add')" v-ripple>{{
+          $t('pages.system.dict.addDict')
+        }}</ElButton>
       </div>
 
       <ElTable v-loading="loading" :data="treeData" row-key="id" default-expand-all border>
-        <ElTableColumn prop="dictValue" label="字典名称" min-width="200" />
-        <ElTableColumn prop="code" label="字典编码" min-width="140" />
-        <ElTableColumn prop="dictKey" label="字典键值" min-width="120" />
-        <ElTableColumn prop="sort" label="排序" width="80" />
-        <ElTableColumn label="标签" width="120">
+        <ElTableColumn
+          prop="dictValue"
+          :label="$t('pages.system.dict.fields.dictValue')"
+          min-width="200"
+        />
+        <ElTableColumn prop="code" :label="$t('pages.system.dict.fields.code')" min-width="140" />
+        <ElTableColumn
+          prop="dictKey"
+          :label="$t('pages.system.dict.fields.dictKey')"
+          min-width="120"
+        />
+        <ElTableColumn prop="sort" :label="$t('pages.system.dict.fields.sort')" width="80" />
+        <ElTableColumn :label="$t('pages.system.dict.fields.tag')" width="120">
           <template #default="{ row }">
             <ElTag v-if="row.color" :color="row.color" effect="dark" disable-transitions>
               {{ row.dictValue }}
@@ -29,40 +37,47 @@
             <span v-else>—</span>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
-        <ElTableColumn label="操作" width="240">
+        <ElTableColumn
+          prop="remark"
+          :label="$t('pages.system.dict.fields.remark')"
+          min-width="140"
+          show-overflow-tooltip
+        />
+        <ElTableColumn :label="$t('pages.system.dict.fields.operation')" width="240">
           <template #default="{ row }">
             <ElButton
               v-perm="permPrefix + ':save'"
               link
               type="primary"
               @click="showDialog('add', row)"
-              >新增下级</ElButton
+              >{{ $t('pages.system.dict.addChild') }}</ElButton
             >
             <ElButton
               v-perm="permPrefix + ':save'"
               link
               type="primary"
               @click="showDialog('edit', row)"
-              >编辑</ElButton
+              >{{ $t('pages.system.dict.edit') }}</ElButton
             >
-            <ElButton v-perm="permPrefix + ':remove'" link type="danger" @click="deleteRow(row)"
-              >删除</ElButton
-            >
+            <ElButton v-perm="permPrefix + ':remove'" link type="danger" @click="deleteRow(row)">{{
+              $t('pages.system.dict.delete')
+            }}</ElButton>
           </template>
         </ElTableColumn>
       </ElTable>
 
       <ElDialog
         v-model="dialogVisible"
-        :title="dialogType === 'add' ? '新增字典' : '编辑字典'"
+        :title="
+          dialogType === 'add' ? $t('pages.system.dict.addDict') : $t('pages.system.dict.editDict')
+        "
         width="500px"
         align-center
       >
         <ElForm ref="formRef" :model="formData" :rules="rules" label-width="90px">
-          <ElFormItem label="上级字典" prop="parentId">
+          <ElFormItem :label="$t('pages.system.dict.fields.parent')" prop="parentId">
             <ElSelect v-model="formData.parentId" style="width: 100%">
-              <ElOption label="顶级（字典类型）" :value="0" />
+              <ElOption :label="$t('pages.system.dict.topDict')" :value="0" />
               <ElOption
                 v-for="opt in topOptions"
                 :key="opt.value"
@@ -71,32 +86,44 @@
               />
             </ElSelect>
           </ElFormItem>
-          <ElFormItem label="字典编码" prop="code">
-            <ElInput v-model="formData.code" placeholder="如 sex" />
+          <ElFormItem :label="$t('pages.system.dict.fields.code')" prop="code">
+            <ElInput
+              v-model="formData.code"
+              :placeholder="$t('pages.system.dict.placeholder.codeExample')"
+            />
           </ElFormItem>
-          <ElFormItem label="字典名称" prop="dictValue">
-            <ElInput v-model="formData.dictValue" placeholder="如 男" />
+          <ElFormItem :label="$t('pages.system.dict.fields.dictValue')" prop="dictValue">
+            <ElInput
+              v-model="formData.dictValue"
+              :placeholder="$t('pages.system.dict.placeholder.valueExample')"
+            />
           </ElFormItem>
-          <ElFormItem label="字典键值" prop="dictKey">
-            <ElInput v-model="formData.dictKey" placeholder="如 1" />
+          <ElFormItem :label="$t('pages.system.dict.fields.dictKey')" prop="dictKey">
+            <ElInput
+              v-model="formData.dictKey"
+              :placeholder="$t('pages.system.dict.placeholder.keyExample')"
+            />
           </ElFormItem>
-          <ElFormItem label="排序" prop="sort">
+          <ElFormItem :label="$t('pages.system.dict.fields.sort')" prop="sort">
             <ElInputNumber v-model="formData.sort" :min="0" />
           </ElFormItem>
-          <ElFormItem label="标签颜色" prop="color">
+          <ElFormItem :label="$t('pages.system.dict.fields.color')" prop="color">
             <ElColorPicker
               v-model="formData.color"
               :predefine="['#409eff', '#67c23a', '#e6a23c', '#f56c6c', '#909399']"
             />
           </ElFormItem>
-          <ElFormItem label="备注" prop="remark">
-            <ElInput v-model="formData.remark" placeholder="请输入备注" />
+          <ElFormItem :label="$t('pages.system.dict.fields.remark')" prop="remark">
+            <ElInput
+              v-model="formData.remark"
+              :placeholder="$t('pages.system.dict.placeholder.remark')"
+            />
           </ElFormItem>
         </ElForm>
         <template #footer>
           <div class="dialog-footer">
-            <ElButton @click="dialogVisible = false">取消</ElButton>
-            <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+            <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+            <ElButton type="primary" @click="handleSubmit">{{ $t('table.form.submit') }}</ElButton>
           </div>
         </template>
       </ElDialog>
@@ -105,6 +132,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessageBox, ElMessage } from 'element-plus'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
@@ -120,6 +148,8 @@
 
   const props = withDefaults(defineProps<Props>(), { permPrefix: 'sys:dict' })
 
+  const { t } = useI18n()
+
   const dictStore = useDictStore()
 
   // ===== 查询栏 =====
@@ -130,15 +160,15 @@
   const searchItems = [
     {
       key: 'dictValue',
-      label: '字典名称',
+      label: t('pages.system.dict.fields.dictValue'),
       type: 'input',
-      props: { placeholder: '请输入字典名称', clearable: true }
+      props: { placeholder: t('pages.system.dict.placeholder.dictValue'), clearable: true }
     },
     {
       key: 'code',
-      label: '字典编码',
+      label: t('pages.system.dict.fields.code'),
       type: 'input',
-      props: { placeholder: '请输入字典编码', clearable: true }
+      props: { placeholder: t('pages.system.dict.placeholder.code'), clearable: true }
     }
   ]
   // 当前生效的查询条件（保存/删除后重载保持过滤态，与用户页 refreshData 口径一致）
@@ -164,9 +194,11 @@
 
   const formData = reactive<Record<string, any>>(defaultForm())
 
-  const rules: FormRules = {
-    dictValue: [{ required: true, message: '请输入字典名称', trigger: 'blur' }]
-  }
+  const rules = computed<FormRules>(() => ({
+    dictValue: [
+      { required: true, message: t('pages.system.dict.placeholder.dictValue'), trigger: 'blur' }
+    ]
+  }))
 
   const loadData = async (): Promise<void> => {
     loading.value = true
@@ -219,7 +251,7 @@
       if (!valid) return
       await props.saveApi({ ...formData })
       dialogVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.dict.saveSuccess'))
       // 字典维护变更后重载运行时缓存，业务页即时生效
       if (formData.code) dictStore.reload(formData.code)
       loadTopOptions()
@@ -228,13 +260,17 @@
   }
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除字典"${row.dictValue}"吗？`, '删除字典', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.dict.deleteConfirm', { name: row.dictValue }),
+      t('pages.system.dict.deleteDict'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await props.removeApi(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.dict.deleteSuccess'))
       // 删除后重载运行时缓存，业务页即时生效
       if (row.code) dictStore.reload(row.code)
       loadTopOptions()

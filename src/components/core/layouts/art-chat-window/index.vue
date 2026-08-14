@@ -10,7 +10,9 @@
               class="h-2 w-2 rounded-full"
               :class="isOnline ? 'bg-success/100' : 'bg-danger/100'"
             ></div>
-            <span class="text-xs text-g-600">{{ isOnline ? '在线' : '离线' }}</span>
+            <span class="text-xs text-g-600">{{
+              isOnline ? $t('components.chatWindow.online') : $t('components.chatWindow.offline')
+            }}</span>
           </div>
         </div>
         <div>
@@ -63,7 +65,7 @@
             v-model="messageText"
             type="textarea"
             :rows="3"
-            placeholder="输入消息"
+            :placeholder="$t('components.chatWindow.inputPlaceholder')"
             resize="none"
             @keyup.enter.prevent="sendMessage"
           >
@@ -71,7 +73,9 @@
               <div class="flex gap-2 py-2">
                 <ElButton :icon="Paperclip" circle plain />
                 <ElButton :icon="Picture" circle plain />
-                <ElButton type="primary" @click="sendMessage" v-ripple>发送</ElButton>
+                <ElButton type="primary" @click="sendMessage" v-ripple>{{
+                  $t('components.chatWindow.send')
+                }}</ElButton>
               </div>
             </template>
           </ElInput>
@@ -80,7 +84,9 @@
               <ArtSvgIcon icon="ri:image-line" class="mr-5 c-p text-g-600 text-lg" />
               <ArtSvgIcon icon="ri:emotion-happy-line" class="mr-5 c-p text-g-600 text-lg" />
             </div>
-            <ElButton type="primary" @click="sendMessage" v-ripple class="min-w-20">发送</ElButton>
+            <ElButton type="primary" @click="sendMessage" v-ripple class="min-w-20">{{
+              $t('components.chatWindow.send')
+            }}</ElButton>
           </div>
         </div>
       </div>

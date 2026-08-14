@@ -2,36 +2,57 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增模板' : '编辑模板'"
+    :title="
+      type === 'add'
+        ? $t('pages.system.mailTemplate.addBtn')
+        : $t('pages.system.mailTemplate.editTitle')
+    "
     width="560px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-      <ElFormItem label="模板编码" prop="code">
-        <ElInput v-model="formData.code" :disabled="type === 'edit'" placeholder="如 login_2fa" />
+      <ElFormItem :label="$t('pages.system.mailTemplate.colCode')" prop="code">
+        <ElInput
+          v-model="formData.code"
+          :disabled="type === 'edit'"
+          :placeholder="$t('pages.system.mailTemplate.codePlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="模板名称" prop="name">
-        <ElInput v-model="formData.name" placeholder="请输入模板名称" />
+      <ElFormItem :label="$t('pages.system.mailTemplate.colName')" prop="name">
+        <ElInput
+          v-model="formData.name"
+          :placeholder="$t('pages.system.mailTemplate.namePlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="邮件主题" prop="subject">
-        <ElInput v-model="formData.subject" placeholder="请输入邮件主题" />
+      <ElFormItem :label="$t('pages.system.mailTemplate.colSubject')" prop="subject">
+        <ElInput
+          v-model="formData.subject"
+          :placeholder="$t('pages.system.mailTemplate.subjectPlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="邮件内容" prop="content">
+      <ElFormItem :label="$t('pages.system.mailTemplate.contentLabel')" prop="content">
         <ElInput
           v-model="formData.content"
           type="textarea"
           :rows="4"
-          placeholder="支持 ${key} 占位，如 您的验证码是 ${code}"
+          :placeholder="
+            $t('pages.system.mailTemplate.contentPlaceholder', {
+              key: '{key}',
+              code: '{code}'
+            })
+          "
         />
       </ElFormItem>
-      <ElFormItem label="状态">
+      <ElFormItem :label="$t('pages.system.mailTemplate.colStatus')">
         <ElSwitch v-model="formData.status" :active-value="1" :inactive-value="0" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="handleSubmit">{{
+          $t('pages.system.mailTemplate.submitBtn')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -39,6 +60,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   interface Props {
     visible: boolean
@@ -53,6 +75,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -71,10 +95,24 @@
   })
 
   const rules: FormRules = {
-    code: [{ required: true, message: '请输入模板编码', trigger: 'blur' }],
-    name: [{ required: true, message: '请输入模板名称', trigger: 'blur' }],
-    subject: [{ required: true, message: '请输入邮件主题', trigger: 'blur' }],
-    content: [{ required: true, message: '请输入邮件内容', trigger: 'blur' }]
+    code: [{ required: true, message: t('pages.system.mailTemplate.ruleCode'), trigger: 'blur' }],
+    name: [
+      {
+        required: true,
+        message: t('pages.system.mailTemplate.namePlaceholder'),
+        trigger: 'blur'
+      }
+    ],
+    subject: [
+      {
+        required: true,
+        message: t('pages.system.mailTemplate.subjectPlaceholder'),
+        trigger: 'blur'
+      }
+    ],
+    content: [
+      { required: true, message: t('pages.system.mailTemplate.ruleContent'), trigger: 'blur' }
+    ]
   }
 
   watch(

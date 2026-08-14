@@ -7,29 +7,29 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="days">
-        <ElRadioButton :value="1">今天</ElRadioButton>
-        <ElRadioButton :value="7">近 7 天</ElRadioButton>
-        <ElRadioButton :value="30">近 30 天</ElRadioButton>
+        <ElRadioButton :value="1">{{ $t('pages.track.shared.today') }}</ElRadioButton>
+        <ElRadioButton :value="7">{{ $t('pages.track.shared.last7Days') }}</ElRadioButton>
+        <ElRadioButton :value="30">{{ $t('pages.track.shared.last30Days') }}</ElRadioButton>
       </ElRadioGroup>
       <ElSelect v-model="windowHours" class="track-window-select">
-        <ElOption :value="1" label="1 小时转化窗口" />
-        <ElOption :value="24" label="24 小时转化窗口" />
-        <ElOption :value="168" label="7 天转化窗口" />
+        <ElOption :value="1" :label="$t('pages.track.funnel.window1h')" />
+        <ElOption :value="24" :label="$t('pages.track.funnel.window24h')" />
+        <ElOption :value="168" :label="$t('pages.track.funnel.window7d')" />
       </ElSelect>
-      <ElButton type="primary" :loading="loading" :disabled="!appKey" @click="search"
-        >查询</ElButton
-      >
+      <ElButton type="primary" :loading="loading" :disabled="!appKey" @click="search">{{
+        $t('pages.track.shared.search')
+      }}</ElButton>
     </div>
 
     <!-- 步骤构建器：2–5 步，可上移/下移/删除 -->
     <div class="art-card track-funnel-builder">
-      <p class="track-funnel-card-title">漏斗步骤</p>
+      <p class="track-funnel-card-title">{{ $t('pages.track.funnel.stepsTitle') }}</p>
       <div class="track-funnel-steps">
         <div v-for="(s, i) in steps" :key="i" class="track-funnel-step">
           <span class="track-funnel-step-index">Step {{ i + 1 }}</span>
@@ -37,19 +37,25 @@
             v-model="s.eventName"
             filterable
             :loading="eventsLoading"
-            placeholder="选择事件"
+            :placeholder="$t('pages.track.funnel.selectEvent')"
             class="track-funnel-step-select"
           >
             <ElOption v-for="name in eventOptions" :key="name" :label="name" :value="name" />
           </ElSelect>
           <div class="track-funnel-step-actions">
-            <ElButton link size="small" title="上移" :disabled="i === 0" @click="moveStep(i, -1)">
+            <ElButton
+              link
+              size="small"
+              :title="$t('pages.track.funnel.moveUp')"
+              :disabled="i === 0"
+              @click="moveStep(i, -1)"
+            >
               <ArtSvgIcon icon="ri:arrow-up-line" />
             </ElButton>
             <ElButton
               link
               size="small"
-              title="下移"
+              :title="$t('pages.track.funnel.moveDown')"
               :disabled="i === steps.length - 1"
               @click="moveStep(i, 1)"
             >
@@ -59,7 +65,7 @@
               link
               size="small"
               type="danger"
-              title="删除"
+              :title="$t('pages.track.shared.del')"
               :disabled="steps.length <= STEP_MIN"
               @click="removeStep(i)"
             >
@@ -69,37 +75,44 @@
         </div>
       </div>
       <ElButton class="track-funnel-add" :disabled="steps.length >= STEP_MAX" @click="addStep">
-        <ArtSvgIcon icon="ri:add-line" class="track-funnel-add-icon" />添加步骤
+        <ArtSvgIcon icon="ri:add-line" class="track-funnel-add-icon" />{{
+          $t('pages.track.funnel.addStep')
+        }}
       </ElButton>
     </div>
 
     <!-- 结果区：未查询/全 0 空态；有数据时左右布局（lg 以下堆叠） -->
     <div class="track-funnel-result" v-loading="loading">
-      <ElEmpty v-if="!searched" description="配置步骤后点击查询" />
-      <ElEmpty v-else-if="allZero" description="窗口内无转化数据" />
+      <ElEmpty v-if="!searched" :description="$t('pages.track.funnel.emptyPrompt')" />
+      <ElEmpty v-else-if="allZero" :description="$t('pages.track.funnel.emptyNoData')" />
       <!-- v-show 而非 v-if：图表容器常驻 DOM，避免 ECharts 实例绑到已销毁节点 -->
       <ElRow v-show="searched && !allZero" :gutter="16">
         <ElCol :xs="24" :lg="12">
           <div class="art-card track-funnel-chart-card">
-            <p class="track-funnel-card-title">转化漏斗</p>
+            <p class="track-funnel-card-title">{{ $t('pages.track.funnel.funnelChart') }}</p>
             <div ref="chartRef" class="track-funnel-chart"></div>
           </div>
         </ElCol>
         <ElCol :xs="24" :lg="12">
           <div class="art-card track-funnel-table-card">
-            <p class="track-funnel-card-title">步骤明细</p>
+            <p class="track-funnel-card-title">{{ $t('pages.track.funnel.stepDetail') }}</p>
             <ElTable :data="tableRows" size="default">
-              <ElTableColumn label="步骤" width="80">
+              <ElTableColumn :label="$t('pages.track.funnel.stepCol')" width="80">
                 <template #default="{ $index }">Step {{ $index + 1 }}</template>
               </ElTableColumn>
               <ElTableColumn
                 prop="eventName"
-                label="事件名"
+                :label="$t('pages.track.shared.eventName')"
                 min-width="160"
                 show-overflow-tooltip
               />
-              <ElTableColumn prop="count" label="人数" width="90" align="right" />
-              <ElTableColumn label="相对上一步转化率" width="160">
+              <ElTableColumn
+                prop="count"
+                :label="$t('pages.track.funnel.peopleCol')"
+                width="90"
+                align="right"
+              />
+              <ElTableColumn :label="$t('pages.track.funnel.stepRateCol')" width="160">
                 <template #default="{ row }">
                   <span v-if="row.stepRate === null">—</span>
                   <div v-else class="track-funnel-rate">
@@ -113,7 +126,7 @@
                   </div>
                 </template>
               </ElTableColumn>
-              <ElTableColumn label="总转化率" width="140">
+              <ElTableColumn :label="$t('pages.track.funnel.totalRateCol')" width="140">
                 <template #default="{ row }">
                   <div class="track-funnel-rate">
                     <span>{{ row.totalRate.toFixed(1) }}%</span>
@@ -136,6 +149,7 @@
 
 <script setup lang="ts">
   import { fetchTrackEventDefPage, fetchTrackFunnel } from '@/api/track'
+  import { useI18n } from 'vue-i18n'
   import { useTrackApp } from '@/views/track/shared/useTrackApp'
   import { useChart } from '@/hooks/core/useChart'
   import type { EChartsOption } from '@/plugins/echarts'
@@ -155,6 +169,8 @@
   } from 'element-plus'
 
   defineOptions({ name: 'TrackFunnel' })
+
+  const { t } = useI18n()
 
   /** 步数硬限（与后端一致：2–5 步） */
   const STEP_MIN = 2
@@ -272,7 +288,7 @@
         label: {
           show: true,
           position: 'outer',
-          formatter: '{b}：{c} 人',
+          formatter: t('pages.track.funnel.funnelLabel', { b: '{b}', c: '{c}' }),
           color: isDark.value ? '#fff' : '#333',
           fontSize: 12
         },
@@ -300,11 +316,11 @@
     if (!appKey.value) return
     const names = steps.value.map((s) => s.eventName)
     if (names.some((n) => !n)) {
-      ElMessage.warning('步骤事件名不能为空')
+      ElMessage.warning(t('pages.track.funnel.stepNameRequired'))
       return
     }
     if (new Set(names).size !== names.length) {
-      ElMessage.warning('步骤事件名不能重复')
+      ElMessage.warning(t('pages.track.funnel.stepNameDup'))
       return
     }
     loading.value = true

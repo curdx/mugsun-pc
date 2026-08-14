@@ -41,6 +41,8 @@
 </template>
 
 <script setup lang="ts">
+  import { $t } from '@/locales'
+
   defineOptions({ name: 'ArtDragVerify' })
 
   // 事件定义
@@ -85,7 +87,7 @@
     value: false,
     width: '100%',
     height: 40,
-    text: '按住滑块拖动',
+    text: $t('components.dragVerify.text'),
     successText: 'success',
     background: '#eee',
     progressBarBg: '#1385FF',

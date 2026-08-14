@@ -9,17 +9,20 @@
   import { onMounted, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { ElMessage } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
   import { fetchSocialLogin, fetchSocialBind } from '@/api/auth'
   import { useUserStore } from '@/store/modules/user'
 
   defineOptions({ name: 'SocialCallback' })
+
+  const { t } = useI18n()
 
   const route = useRoute()
   const router = useRouter()
   const userStore = useUserStore()
 
   const icon = ref<'info' | 'success' | 'error'>('info')
-  const title = ref('正在处理第三方登录…')
+  const title = ref(t('pages.auth.socialCallback.processing'))
   const subTitle = ref('')
 
   onMounted(async () => {
@@ -28,8 +31,8 @@
     const state = route.query.state as string
     if (!source || !code || !state) {
       icon.value = 'error'
-      title.value = '回调参数缺失'
-      subTitle.value = '即将自动跳转…'
+      title.value = t('pages.auth.socialCallback.missingParams')
+      subTitle.value = t('pages.auth.socialCallback.redirecting')
       setTimeout(() => router.push(userStore.isLogin ? '/system/user-center' : '/auth/login'), 1500)
       return
     }
@@ -38,8 +41,8 @@
         // 已登录 → 绑定第三方账号
         await fetchSocialBind({ source, code, state })
         icon.value = 'success'
-        title.value = '绑定成功'
-        ElMessage.success('第三方账号绑定成功')
+        title.value = t('pages.auth.socialCallback.bindSuccess')
+        ElMessage.success(t('pages.auth.socialCallback.bindSuccessMessage'))
         setTimeout(() => router.push('/system/user-center'), 800)
       } else {
         // 未登录 → 第三方登录（管理端未绑定会被后端拒绝）
@@ -47,14 +50,14 @@
         userStore.setToken(resp.token, resp.refreshToken)
         userStore.setLoginStatus(true)
         icon.value = 'success'
-        title.value = '登录成功'
-        ElMessage.success('第三方登录成功')
+        title.value = t('login.success.title')
+        ElMessage.success(t('pages.auth.socialCallback.loginSuccessMessage'))
         setTimeout(() => router.push('/'), 600)
       }
     } catch (e: any) {
       icon.value = 'error'
-      title.value = '第三方登录失败'
-      subTitle.value = e?.message || '请重试'
+      title.value = t('pages.auth.socialCallback.failed')
+      subTitle.value = e?.message || t('pages.auth.socialCallback.retry')
       setTimeout(() => router.push(userStore.isLogin ? '/system/user-center' : '/auth/login'), 1500)
     }
   })

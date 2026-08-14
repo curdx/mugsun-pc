@@ -2,22 +2,25 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增用户' : '编辑用户'"
+    :title="type === 'add' ? $t('pages.system.user.addUser') : $t('pages.system.user.editUser')"
     width="560px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-      <ElFormItem label="用户名" prop="username">
+      <ElFormItem :label="$t('pages.system.user.fields.username')" prop="username">
         <ElInput
           v-model="formData.username"
           :disabled="type === 'edit'"
-          placeholder="请输入用户名"
+          :placeholder="$t('pages.system.user.placeholder.username')"
         />
       </ElFormItem>
-      <ElFormItem label="昵称" prop="nickname">
-        <ElInput v-model="formData.nickname" placeholder="请输入昵称" />
+      <ElFormItem :label="$t('pages.system.user.fields.nickname')" prop="nickname">
+        <ElInput
+          v-model="formData.nickname"
+          :placeholder="$t('pages.system.user.placeholder.nickname')"
+        />
       </ElFormItem>
-      <ElFormItem label="部门" prop="deptId">
+      <ElFormItem :label="$t('pages.system.user.fields.dept')" prop="deptId">
         <ElTreeSelect
           v-model="formData.deptId"
           :data="deptTree"
@@ -25,58 +28,79 @@
           check-strictly
           filterable
           clearable
-          placeholder="请选择部门"
+          :placeholder="$t('pages.system.user.placeholder.dept')"
           style="width: 100%"
         />
       </ElFormItem>
-      <ElFormItem label="岗位" prop="postId">
-        <ElSelect v-model="formData.postId" clearable placeholder="请选择岗位" style="width: 100%">
+      <ElFormItem :label="$t('pages.system.user.fields.post')" prop="postId">
+        <ElSelect
+          v-model="formData.postId"
+          clearable
+          :placeholder="$t('pages.system.user.placeholder.post')"
+          style="width: 100%"
+        >
           <ElOption v-for="p in postOptions" :key="p.value" :label="p.label" :value="p.value" />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="角色" prop="roleIds">
+      <ElFormItem :label="$t('pages.system.user.fields.role')" prop="roleIds">
         <ElSelect
           v-model="formData.roleIds"
           multiple
           filterable
           clearable
-          placeholder="请选择角色（决定菜单与权限）"
+          :placeholder="$t('pages.system.user.placeholder.role')"
           style="width: 100%"
         >
           <ElOption v-for="r in roleOptions" :key="r.value" :label="r.label" :value="r.value" />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="邮箱" prop="email">
-        <ElInput v-model="formData.email" placeholder="请输入邮箱（接收通知）" />
+      <ElFormItem :label="$t('pages.system.user.fields.email')" prop="email">
+        <ElInput
+          v-model="formData.email"
+          :placeholder="$t('pages.system.user.placeholder.email')"
+        />
       </ElFormItem>
-      <ElFormItem label="手机号" prop="phone">
-        <ElInput v-model="formData.phone" placeholder="请输入手机号（展示脱敏）" />
+      <ElFormItem :label="$t('pages.system.user.fields.phone')" prop="phone">
+        <ElInput
+          v-model="formData.phone"
+          :placeholder="$t('pages.system.user.placeholder.phoneForm')"
+        />
       </ElFormItem>
-      <ElFormItem label="身份证" prop="idCard">
-        <ElInput v-model="formData.idCard" placeholder="请输入身份证号（加密存储）" />
+      <ElFormItem :label="$t('pages.system.user.fields.idCard')" prop="idCard">
+        <ElInput
+          v-model="formData.idCard"
+          :placeholder="$t('pages.system.user.placeholder.idCard')"
+        />
       </ElFormItem>
-      <ElFormItem v-if="type === 'add'" label="密码" prop="password">
+      <ElFormItem
+        v-if="type === 'add'"
+        :label="$t('pages.system.user.fields.password')"
+        prop="password"
+      >
         <ElInput
           v-model="formData.password"
           type="password"
-          placeholder="留空则为初始密码"
+          :placeholder="$t('pages.system.user.placeholder.password')"
           show-password
         />
       </ElFormItem>
-      <ElFormItem label="状态">
+      <ElFormItem :label="$t('pages.system.user.fields.status')">
         <ElSwitch v-model="formData.status" :active-value="1" :inactive-value="0" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">{{
+          $t('table.form.submit')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import { fetchUserDetail } from '@/api/user'
   import { fetchDeptTree, fetchPostSelect } from '@/api/system-manage'
@@ -97,6 +121,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -124,14 +150,22 @@
 
   const formData = reactive<Record<string, any>>(emptyForm())
 
-  const rules: FormRules = {
-    username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-    email: [{ type: 'email', message: '邮箱格式不正确', trigger: 'blur' }],
-    phone: [{ pattern: /^1\d{10}$/, message: '手机号格式不正确', trigger: 'blur' }],
+  const rules = computed<FormRules>(() => ({
+    username: [
+      { required: true, message: t('pages.system.user.placeholder.username'), trigger: 'blur' }
+    ],
+    email: [{ type: 'email', message: t('pages.system.user.rules.emailFormat'), trigger: 'blur' }],
+    phone: [
+      { pattern: /^1\d{10}$/, message: t('pages.system.user.rules.phoneFormat'), trigger: 'blur' }
+    ],
     idCard: [
-      { pattern: /(^\d{15}$)|(^\d{17}[\dXx]$)/, message: '身份证号格式不正确', trigger: 'blur' }
+      {
+        pattern: /(^\d{15}$)|(^\d{17}[\dXx]$)/,
+        message: t('pages.system.user.rules.idCardFormat'),
+        trigger: 'blur'
+      }
     ]
-  }
+  }))
 
   watch(
     () => [props.visible, props.userData],

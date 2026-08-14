@@ -3,13 +3,13 @@
   <div class="region-page art-full-height">
     <ElCard class="art-table-card">
       <div class="region-toolbar">
-        <ElButton v-perm="'sys:region:save'" type="primary" @click="showDialog(null)"
-          >新增省级</ElButton
-        >
-        <ElButton @click="doExport">导出</ElButton>
-        <ElButton v-perm="'sys:region:import'" :loading="importing" @click="triggerImport"
-          >导入</ElButton
-        >
+        <ElButton v-perm="'sys:region:save'" type="primary" @click="showDialog(null)">{{
+          $t('pages.system.region.addProvince')
+        }}</ElButton>
+        <ElButton @click="doExport">{{ $t('pages.system.region.export') }}</ElButton>
+        <ElButton v-perm="'sys:region:import'" :loading="importing" @click="triggerImport">{{
+          $t('pages.system.region.import')
+        }}</ElButton>
         <input ref="fileInput" type="file" accept=".xlsx" style="display: none" @change="onFile" />
       </div>
 
@@ -23,12 +23,16 @@
         :load="loadChildren"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
-        <ElTableColumn prop="name" label="名称" min-width="220" />
-        <ElTableColumn prop="code" label="区划编码" min-width="140" />
-        <ElTableColumn label="层级" width="100">
+        <ElTableColumn prop="name" :label="$t('pages.system.region.fields.name')" min-width="220" />
+        <ElTableColumn prop="code" :label="$t('pages.system.region.fields.code')" min-width="140" />
+        <ElTableColumn :label="$t('pages.system.region.fields.level')" width="100">
           <template #default="{ row }">{{ levelText(row.level) }}</template>
         </ElTableColumn>
-        <ElTableColumn label="操作" width="200" fixed="right">
+        <ElTableColumn
+          :label="$t('pages.system.region.fields.operation')"
+          width="200"
+          fixed="right"
+        >
           <template #default="{ row }">
             <ElButton
               v-if="row.level < 3"
@@ -37,31 +41,36 @@
               type="primary"
               @click="showDialog(row)"
             >
-              新增下级
+              {{ $t('pages.system.region.addChild') }}
             </ElButton>
-            <ElButton v-perm="'sys:region:remove'" link type="danger" @click="remove(row)"
-              >删除</ElButton
-            >
+            <ElButton v-perm="'sys:region:remove'" link type="danger" @click="remove(row)">{{
+              $t('pages.system.region.delete')
+            }}</ElButton>
           </template>
         </ElTableColumn>
       </ElTable>
     </ElCard>
 
-    <ElDialog v-model="dialogVisible" title="新增区划" width="460px" align-center>
+    <ElDialog
+      v-model="dialogVisible"
+      :title="$t('pages.system.region.addRegion')"
+      width="460px"
+      align-center
+    >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="90px">
-        <ElFormItem label="上级">
+        <ElFormItem :label="$t('pages.system.region.fields.parent')">
           <ElInput :model-value="parentName" disabled />
         </ElFormItem>
-        <ElFormItem label="名称" prop="name">
-          <ElInput v-model="form.name" placeholder="请输入名称" />
+        <ElFormItem :label="$t('pages.system.region.fields.name')" prop="name">
+          <ElInput v-model="form.name" :placeholder="$t('pages.system.region.placeholder.name')" />
         </ElFormItem>
-        <ElFormItem label="区划编码" prop="code">
-          <ElInput v-model="form.code" placeholder="请输入编码" />
+        <ElFormItem :label="$t('pages.system.region.fields.code')" prop="code">
+          <ElInput v-model="form.code" :placeholder="$t('pages.system.region.placeholder.code')" />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="submit">{{ $t('table.form.submit') }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -69,6 +78,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import {
     fetchRegionLazyTree,
@@ -81,24 +91,31 @@
 
   defineOptions({ name: 'Region' })
 
+  const { t } = useI18n()
+
   const tableData = ref<any[]>([])
   const tableKey = ref(0)
   const loading = ref(false)
   const importing = ref(false)
   const dialogVisible = ref(false)
-  const parentName = ref('顶级')
+  const parentName = ref(t('pages.system.region.topLevel'))
   const formRef = ref<FormInstance>()
   const fileInput = ref<HTMLInputElement>()
   const parentRow = ref<any>(null)
 
   const form = reactive<Record<string, any>>({ name: '', code: '', parentCode: '0', level: 1 })
 
-  const rules: FormRules = {
-    name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-    code: [{ required: true, message: '请输入编码', trigger: 'blur' }]
-  }
+  const rules = computed<FormRules>(() => ({
+    name: [{ required: true, message: t('pages.system.region.placeholder.name'), trigger: 'blur' }],
+    code: [{ required: true, message: t('pages.system.region.placeholder.code'), trigger: 'blur' }]
+  }))
 
-  const levelText = (l: number): string => ({ 1: '省', 2: '市', 3: '区县' })[l] || String(l)
+  const levelText = (l: number): string =>
+    ({
+      1: t('pages.system.region.levels.province'),
+      2: t('pages.system.region.levels.city'),
+      3: t('pages.system.region.levels.district')
+    })[l] || String(l)
 
   const mapNodes = (list: any[]): any[] => list.map((r) => ({ ...r, hasChildren: !r.leaf }))
 
@@ -125,7 +142,7 @@
 
   const showDialog = (row: any): void => {
     parentRow.value = row
-    parentName.value = row ? row.name : '顶级'
+    parentName.value = row ? row.name : t('pages.system.region.topLevel')
     Object.assign(form, {
       name: '',
       code: '',
@@ -141,26 +158,30 @@
       if (!valid) return
       await fetchSaveRegion({ ...form })
       dialogVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.region.saveSuccess'))
       loadRoot()
     })
   }
 
   const remove = (row: any): void => {
-    ElMessageBox.confirm(`确定删除"${row.name}"吗？`, '删除区划', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.region.deleteConfirm', { name: row.name }),
+      t('pages.system.region.deleteRegion'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveRegion(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.region.deleteSuccess'))
       loadRoot()
     })
   }
 
   const doExport = async (): Promise<void> => {
     await exportRegion()
-    ElMessage.success('已导出')
+    ElMessage.success(t('pages.system.region.exportSuccess'))
   }
 
   const triggerImport = (): void => fileInput.value?.click()
@@ -172,7 +193,7 @@
     importing.value = true
     try {
       const count = await importRegion(file)
-      ElMessage.success(`导入完成 ${count} 条`)
+      ElMessage.success(t('pages.system.region.importSuccess', { count }))
       loadRoot()
     } finally {
       importing.value = false

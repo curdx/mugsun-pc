@@ -5,14 +5,14 @@
       <!-- 卡片体为定高裁剪（全局 overflow:hidden），内容须自备内部滚动，防矮视口裁切 -->
       <div class="oauth-body-scroll">
         <div class="oauth-toolbar">
-          <ElButton v-perm="'sys:oauth:manage'" type="primary" @click="showCreate"
-            >新建客户端</ElButton
-          >
+          <ElButton v-perm="'sys:oauth:manage'" type="primary" @click="showCreate">{{
+            $t('pages.system.oauthClient.create')
+          }}</ElButton>
         </div>
 
         <ElTable :data="tableData" border v-loading="loading">
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="name" label="名称" min-width="100" />
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+          <ElTableColumn prop="name" :label="$t('pages.system.oauthClient.name')" min-width="100" />
           <ElTableColumn prop="clientId" label="ClientId" min-width="160" show-overflow-tooltip />
           <ElTableColumn
             prop="clientSecret"
@@ -20,7 +20,7 @@
             min-width="130"
             show-overflow-tooltip
           />
-          <ElTableColumn label="授权类型" min-width="180">
+          <ElTableColumn :label="$t('pages.system.oauthClient.grantTypes')" min-width="180">
             <template #default="{ row }">
               <ElTag
                 v-for="g in (row.grantTypes || '').split(',').filter(Boolean)"
@@ -32,29 +32,46 @@
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="scopes" label="授权范围" min-width="85" show-overflow-tooltip />
-          <ElTableColumn label="有效期(秒)" width="100" prop="accessTokenValidity" />
-          <ElTableColumn label="状态" width="80">
+          <ElTableColumn
+            prop="scopes"
+            :label="$t('pages.system.oauthClient.scopes')"
+            min-width="85"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            :label="$t('pages.system.oauthClient.validity')"
+            width="100"
+            prop="accessTokenValidity"
+          />
+          <ElTableColumn :label="$t('pages.system.oauthClient.status')" width="80">
             <template #default="{ row }">
               <ElTag :type="row.status === 1 ? 'success' : 'info'">
-                {{ row.status === 1 ? '启用' : '停用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.oauthClient.enabled')
+                    : $t('pages.system.oauthClient.disabled')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="230" fixed="right">
+          <ElTableColumn :label="$t('pages.system.oauthClient.actions')" width="230" fixed="right">
             <template #default="{ row }">
-              <ElButton v-perm="'sys:oauth:manage'" link type="primary" @click="showEdit(row)"
-                >编辑</ElButton
-              >
-              <ElButton v-perm="'sys:oauth:manage'" link type="warning" @click="resetSecret(row)"
-                >重置密钥</ElButton
-              >
+              <ElButton v-perm="'sys:oauth:manage'" link type="primary" @click="showEdit(row)">{{
+                $t('pages.system.oauthClient.edit')
+              }}</ElButton>
+              <ElButton v-perm="'sys:oauth:manage'" link type="warning" @click="resetSecret(row)">{{
+                $t('pages.system.oauthClient.resetSecret')
+              }}</ElButton>
               <ElButton v-perm="'sys:oauth:manage'" link type="info" @click="toggle(row)">
-                {{ row.status === 1 ? '停用' : '启用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.oauthClient.disabled')
+                    : $t('pages.system.oauthClient.enabled')
+                }}
               </ElButton>
-              <ElButton v-perm="'sys:oauth:manage'" link type="danger" @click="remove(row)"
-                >删除</ElButton
-              >
+              <ElButton v-perm="'sys:oauth:manage'" link type="danger" @click="remove(row)">{{
+                $t('pages.system.oauthClient.delete')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -74,57 +91,82 @@
     <!-- 新建/编辑 -->
     <ElDialog
       v-model="dialogVisible"
-      :title="form.id ? '编辑客户端' : '新建客户端'"
+      :title="
+        form.id ? $t('pages.system.oauthClient.editTitle') : $t('pages.system.oauthClient.create')
+      "
       width="560px"
       align-center
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="90px">
-        <ElFormItem label="名称" prop="name">
-          <ElInput v-model="form.name" placeholder="请输入名称" />
+        <ElFormItem :label="$t('pages.system.oauthClient.name')" prop="name">
+          <ElInput
+            v-model="form.name"
+            :placeholder="$t('pages.system.oauthClient.namePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="授权类型" prop="grantTypes">
+        <ElFormItem :label="$t('pages.system.oauthClient.grantTypes')" prop="grantTypes">
           <ElCheckboxGroup v-model="grantList">
-            <ElCheckbox value="client_credentials">客户端凭证</ElCheckbox>
-            <ElCheckbox value="authorization_code">授权码</ElCheckbox>
+            <ElCheckbox value="client_credentials">{{
+              $t('pages.system.oauthClient.grantClientCredentials')
+            }}</ElCheckbox>
+            <ElCheckbox value="authorization_code">{{
+              $t('pages.system.oauthClient.grantAuthorizationCode')
+            }}</ElCheckbox>
           </ElCheckboxGroup>
         </ElFormItem>
-        <ElFormItem label="授权范围">
+        <ElFormItem :label="$t('pages.system.oauthClient.scopes')">
           <ElSelect
             v-model="scopeList"
             multiple
             filterable
             allow-create
-            placeholder="选择或输入 scope"
+            :placeholder="$t('pages.system.oauthClient.scopePlaceholder')"
           >
             <ElOption v-for="s in scopeOptions" :key="s" :label="s" :value="s" />
           </ElSelect>
         </ElFormItem>
-        <ElFormItem label="回调地址">
-          <ElInput v-model="form.redirectUri" placeholder="授权码模式回调地址（可选）" />
+        <ElFormItem :label="$t('pages.system.oauthClient.redirectUri')">
+          <ElInput
+            v-model="form.redirectUri"
+            :placeholder="$t('pages.system.oauthClient.redirectUriPlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="有效期">
+        <ElFormItem :label="$t('pages.system.oauthClient.validityLabel')">
           <ElInputNumber v-model="form.accessTokenValidity" :min="60" :step="60" />
-          <span class="oauth-hint">秒</span>
+          <span class="oauth-hint">{{ $t('pages.system.oauthClient.secondUnit') }}</span>
         </ElFormItem>
-        <ElFormItem label="备注">
-          <ElInput v-model="form.remark" type="textarea" placeholder="备注" />
+        <ElFormItem :label="$t('pages.system.oauthClient.remarkPlaceholder')">
+          <ElInput
+            v-model="form.remark"
+            type="textarea"
+            :placeholder="$t('pages.system.oauthClient.remarkPlaceholder')"
+          />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="submit">保存</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submit">{{
+          $t('pages.system.oauthClient.save')
+        }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 密钥结果（仅此一次） -->
-    <ElDialog v-model="resultVisible" title="客户端密钥" width="600px" align-center>
-      <ElAlert type="warning" :closable="false" title="ClientSecret 仅显示一次，请立即妥善保存" />
+    <ElDialog
+      v-model="resultVisible"
+      :title="$t('pages.system.oauthClient.secretTitle')"
+      width="600px"
+      align-center
+    >
+      <ElAlert type="warning" :closable="false" :title="$t('pages.system.oauthClient.secretTip')" />
       <ElDescriptions :column="1" border class="oauth-result">
         <ElDescriptionsItem label="ClientId">{{ generated.clientId }}</ElDescriptionsItem>
         <ElDescriptionsItem label="ClientSecret">{{ generated.clientSecret }}</ElDescriptionsItem>
       </ElDescriptions>
       <template #footer>
-        <ElButton type="primary" @click="resultVisible = false">我已保存</ElButton>
+        <ElButton type="primary" @click="resultVisible = false">{{
+          $t('pages.system.oauthClient.saved')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -132,6 +174,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import {
@@ -144,6 +187,8 @@
   } from '@/api/oauth'
 
   defineOptions({ name: 'OauthClient' })
+
+  const { t } = useI18n()
 
   const scopeOptions = ['user:read', 'user:write']
   const tableData = ref<any[]>([])
@@ -170,18 +215,26 @@
   const scopeList = ref<string[]>([])
 
   const rules: FormRules = {
-    name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
+    name: [
+      { required: true, message: t('pages.system.oauthClient.namePlaceholder'), trigger: 'blur' }
+    ],
     grantTypes: [
       {
         validator: (_r, _v, cb) =>
-          grantList.value.length ? cb() : cb(new Error('请选择授权类型')),
+          grantList.value.length
+            ? cb()
+            : cb(new Error(t('pages.system.oauthClient.grantRequired'))),
         trigger: 'change'
       }
     ]
   }
 
   const grantLabel = (g: string): string =>
-    g === 'client_credentials' ? '客户端凭证' : g === 'authorization_code' ? '授权码' : g
+    g === 'client_credentials'
+      ? t('pages.system.oauthClient.grantClientCredentials')
+      : g === 'authorization_code'
+        ? t('pages.system.oauthClient.grantAuthorizationCode')
+        : g
 
   const loadData = async (): Promise<void> => {
     loading.value = true
@@ -252,7 +305,7 @@
           generated.value = saved
           resultVisible.value = true
         } else {
-          ElMessage.success('保存成功')
+          ElMessage.success(t('pages.system.oauthClient.msgSaved'))
         }
         loadData()
       } finally {
@@ -262,11 +315,15 @@
   }
 
   const resetSecret = (row: any): void => {
-    ElMessageBox.confirm(`确定重置客户端"${row.name}"的密钥吗？旧密钥将立即失效。`, '重置密钥', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.oauthClient.confirmReset', { name: row.name }),
+      t('pages.system.oauthClient.resetSecret'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       generated.value = (await fetchResetOauthSecret(row.id)) || {}
       resultVisible.value = true
       loadData()
@@ -277,34 +334,38 @@
     // 停用会使该客户端令牌立即失效，需二次确认；启用无风险直接执行
     if (row.status === 1) {
       ElMessageBox.confirm(
-        `确定停用客户端"${row.name}"吗？停用后其访问令牌将立即失效。`,
-        '停用客户端',
+        t('pages.system.oauthClient.confirmDisable', { name: row.name }),
+        t('pages.system.oauthClient.disableTitle'),
         {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
+          confirmButtonText: t('common.confirm'),
+          cancelButtonText: t('common.cancel'),
           type: 'warning'
         }
       ).then(async () => {
         await fetchDisableOauthClient(row.id)
-        ElMessage.success('已停用')
+        ElMessage.success(t('pages.system.oauthClient.msgDisabled'))
         loadData()
       })
     } else {
       fetchEnableOauthClient(row.id).then(() => {
-        ElMessage.success('已启用')
+        ElMessage.success(t('pages.system.oauthClient.msgEnabled'))
         loadData()
       })
     }
   }
 
   const remove = (row: any): void => {
-    ElMessageBox.confirm(`确定删除客户端"${row.name}"吗？`, '删除客户端', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.oauthClient.confirmDelete', { name: row.name }),
+      t('pages.system.oauthClient.deleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveOauthClient(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.oauthClient.msgDeleted'))
       loadData()
     })
   }

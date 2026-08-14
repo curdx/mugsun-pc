@@ -7,60 +7,93 @@
         <ElAlert
           type="info"
           :closable="false"
-          title="填入客户端凭证换取访问令牌，再用令牌调用开放接口。scope 不足时接口返回 403，调用日志可查。"
+          :title="$t('pages.system.oauthDebug.alertTip')"
           style="margin-bottom: 16px"
         />
 
         <ElForm :model="form" label-width="110px" style="max-width: 640px">
-          <ElDivider content-position="left">1. 换取令牌</ElDivider>
-          <ElFormItem label="授权类型">
+          <ElDivider content-position="left">{{ $t('pages.system.oauthDebug.step1') }}</ElDivider>
+          <ElFormItem :label="$t('pages.system.oauthDebug.grantType')">
             <ElRadioGroup v-model="form.grantType">
-              <ElRadio value="client_credentials">客户端凭证</ElRadio>
-              <ElRadio value="authorization_code">授权码</ElRadio>
+              <ElRadio value="client_credentials">{{
+                $t('pages.system.oauthDebug.grantClientCredentials')
+              }}</ElRadio>
+              <ElRadio value="authorization_code">{{
+                $t('pages.system.oauthDebug.grantAuthorizationCode')
+              }}</ElRadio>
             </ElRadioGroup>
           </ElFormItem>
           <ElFormItem label="ClientId">
             <ElInput v-model="form.clientId" placeholder="mc_xxxx" />
           </ElFormItem>
           <ElFormItem label="ClientSecret">
-            <ElInput v-model="form.clientSecret" placeholder="客户端密钥" />
+            <ElInput
+              v-model="form.clientSecret"
+              :placeholder="$t('pages.system.oauthDebug.secretPlaceholder')"
+            />
           </ElFormItem>
           <ElFormItem label="scope">
-            <ElInput v-model="form.scope" placeholder="如 user:read（留空为全部授权范围）" />
+            <ElInput
+              v-model="form.scope"
+              :placeholder="$t('pages.system.oauthDebug.scopePlaceholder')"
+            />
           </ElFormItem>
-          <ElFormItem v-if="form.grantType === 'authorization_code'" label="授权码">
-            <ElInput v-model="form.code" placeholder="点击右侧按钮跳转同意页授权后自动回填">
+          <ElFormItem
+            v-if="form.grantType === 'authorization_code'"
+            :label="$t('pages.system.oauthDebug.codeLabel')"
+          >
+            <ElInput
+              v-model="form.code"
+              :placeholder="$t('pages.system.oauthDebug.codePlaceholder')"
+            >
               <template #append>
-                <ElButton @click="doAuthorize" :loading="authorizing">浏览器授权</ElButton>
+                <ElButton @click="doAuthorize" :loading="authorizing">{{
+                  $t('pages.system.oauthDebug.browserAuth')
+                }}</ElButton>
               </template>
             </ElInput>
           </ElFormItem>
           <ElFormItem>
-            <ElButton type="primary" @click="doToken" :loading="tokenLoading">获取令牌</ElButton>
-            <span v-if="token" class="oauth-token-tip">令牌已获取，可调用下方接口</span>
+            <ElButton type="primary" @click="doToken" :loading="tokenLoading">{{
+              $t('pages.system.oauthDebug.getToken')
+            }}</ElButton>
+            <span v-if="token" class="oauth-token-tip">{{
+              $t('pages.system.oauthDebug.tokenTip')
+            }}</span>
           </ElFormItem>
-          <ElFormItem v-if="tokenResult" label="令牌响应">
+          <ElFormItem v-if="tokenResult" :label="$t('pages.system.oauthDebug.tokenResult')">
             <pre class="oauth-out">{{ tokenResult }}</pre>
           </ElFormItem>
 
-          <ElDivider content-position="left">2. 调用开放接口</ElDivider>
-          <ElFormItem label="接口">
+          <ElDivider content-position="left">{{ $t('pages.system.oauthDebug.step2') }}</ElDivider>
+          <ElFormItem :label="$t('pages.system.oauthDebug.apiLabel')">
             <ElSelect v-model="apiPath" style="width: 100%">
-              <ElOption label="GET /open/ping（无 scope）" value="GET /open/ping" />
-              <ElOption label="GET /open/user/list（需 user:read）" value="GET /open/user/list" />
-              <ElOption label="GET /open/user/count（需 user:read）" value="GET /open/user/count" />
-              <ElOption label="POST /open/echo（需 user:write）" value="POST /open/echo" />
+              <ElOption :label="$t('pages.system.oauthDebug.apiPing')" value="GET /open/ping" />
+              <ElOption
+                :label="$t('pages.system.oauthDebug.apiUserList')"
+                value="GET /open/user/list"
+              />
+              <ElOption
+                :label="$t('pages.system.oauthDebug.apiUserCount')"
+                value="GET /open/user/count"
+              />
+              <ElOption :label="$t('pages.system.oauthDebug.apiEcho')" value="POST /open/echo" />
             </ElSelect>
           </ElFormItem>
           <ElFormItem>
-            <ElButton type="primary" @click="callApi" :loading="apiLoading" :disabled="!token"
-              >调用接口</ElButton
-            >
+            <ElButton type="primary" @click="callApi" :loading="apiLoading" :disabled="!token">{{
+              $t('pages.system.oauthDebug.callApi')
+            }}</ElButton>
           </ElFormItem>
-          <ElFormItem v-if="apiResult" label="接口响应">
+          <ElFormItem v-if="apiResult" :label="$t('pages.system.oauthDebug.apiResult')">
             <div style="width: 100%">
               <ElTag :type="apiStatus === 200 ? 'success' : 'danger'" style="margin-bottom: 8px">
-                HTTP {{ apiStatus }} · {{ apiStatus === 200 ? '放行' : '拒绝' }}
+                HTTP {{ apiStatus }} ·
+                {{
+                  apiStatus === 200
+                    ? $t('pages.system.oauthDebug.passed')
+                    : $t('pages.system.oauthDebug.rejected')
+                }}
               </ElTag>
               <pre class="oauth-out">{{ apiResult }}</pre>
             </div>
@@ -73,10 +106,13 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { useRoute } from 'vue-router'
   import { ElMessage } from 'element-plus'
 
   defineOptions({ name: 'OauthDebug' })
+
+  const { t } = useI18n()
 
   const route = useRoute()
 
@@ -108,14 +144,14 @@
     if (code) {
       form.grantType = 'authorization_code'
       form.code = code
-      ElMessage.success('已从授权回调获取授权码')
+      ElMessage.success(t('pages.system.oauthDebug.msgCodeFromCallback'))
     }
   })
 
   /** 跳转标准授权端点 → 同意页 → 回跳本页（浏览器授权码流） */
   const doAuthorize = (): void => {
     if (!form.clientId) {
-      ElMessage.warning('请先填写 ClientId')
+      ElMessage.warning(t('pages.system.oauthDebug.msgClientIdRequired'))
       return
     }
     authorizing.value = true
@@ -152,15 +188,17 @@
       tokenResult.value = pretty(data)
       if (resp.status === 200 && data?.access_token) {
         token.value = data.access_token
-        ElMessage.success('令牌获取成功')
+        ElMessage.success(t('pages.system.oauthDebug.msgTokenSuccess'))
       } else {
         token.value = ''
-        ElMessage.error(data?.error_description || data?.error || '获取令牌失败')
+        ElMessage.error(
+          data?.error_description || data?.error || t('pages.system.oauthDebug.msgTokenFailed')
+        )
       }
     } catch {
       // 原生 fetch 不走全局 http 拦截，网络错误需就地提示（防静默失败）
       token.value = ''
-      ElMessage.error('换取令牌请求失败（网络错误）')
+      ElMessage.error(t('pages.system.oauthDebug.msgTokenNetworkError'))
     } finally {
       tokenLoading.value = false
     }
@@ -182,7 +220,7 @@
       apiResult.value = pretty(data)
     } catch {
       // 原生 fetch 不走全局 http 拦截，网络错误需就地提示（防静默失败）
-      ElMessage.error('接口调用请求失败（网络错误）')
+      ElMessage.error(t('pages.system.oauthDebug.msgApiNetworkError'))
     } finally {
       apiLoading.value = false
     }

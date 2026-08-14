@@ -17,13 +17,17 @@
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
+
   defineProps<{ nodes: Array<{ nodeCode: string; nodeName: string; status: string }> }>()
 
+  const { t } = useI18n()
+
   const STATUS: Record<string, { text: string; icon: string }> = {
-    passed: { text: '已通过', icon: 'ri:check-line' },
-    current: { text: '待处理', icon: 'ri:time-line' },
-    rejected: { text: '已退回', icon: 'ri:close-line' },
-    pending: { text: '未开始', icon: 'ri:more-line' }
+    passed: { text: t('pages.system.flowCenter.approved'), icon: 'ri:check-line' },
+    current: { text: t('pages.system.flowCenter.progressCurrent'), icon: 'ri:time-line' },
+    rejected: { text: t('pages.system.flowCenter.returned'), icon: 'ri:close-line' },
+    pending: { text: t('pages.system.flowCenter.progressPending'), icon: 'ri:more-line' }
   }
   const statusText = (s: string): string => STATUS[s]?.text ?? s
   const statusIcon = (s: string): string => STATUS[s]?.icon ?? 'ri:circle-line'

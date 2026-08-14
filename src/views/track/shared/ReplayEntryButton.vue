@@ -1,7 +1,9 @@
 <!-- 回放入口按钮（错误详情等行内嵌用）：先探测 /replay/detail，该会话确有回放块才渲染；
      探测静默失败（无回放/无权限/接口异常一律不渲染按钮，不打扰主流程） -->
 <template>
-  <ElButton v-if="available" link type="primary" size="small" @click="onOpen">回放</ElButton>
+  <ElButton v-if="available" link type="primary" size="small" @click="onOpen">{{
+    $t('pages.track.shared.replay')
+  }}</ElButton>
 </template>
 
 <script setup lang="ts">

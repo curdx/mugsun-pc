@@ -1,32 +1,40 @@
 <!-- 事件定义编辑弹窗（对接后端 /system/track/event-def/submit；仅显示名/描述/负责人/状态可改） -->
 <template>
-  <ElDialog v-model="dialogVisible" title="编辑事件定义" width="520px" align-center>
+  <ElDialog
+    v-model="dialogVisible"
+    :title="$t('pages.track.app.editDefTitle')"
+    width="520px"
+    align-center
+  >
     <ElForm ref="formRef" :model="formData" label-width="96px">
-      <ElFormItem label="事件名">
+      <ElFormItem :label="$t('pages.track.shared.eventName')">
         <ElInput :model-value="formData.eventName" disabled />
       </ElFormItem>
-      <ElFormItem label="显示名" prop="displayName">
-        <ElInput v-model="formData.displayName" placeholder="请输入显示名" />
+      <ElFormItem :label="$t('pages.track.app.displayName')" prop="displayName">
+        <ElInput
+          v-model="formData.displayName"
+          :placeholder="$t('pages.track.app.displayNamePlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="描述" prop="description">
+      <ElFormItem :label="$t('pages.track.app.description')" prop="description">
         <ElInput
           v-model="formData.description"
           type="textarea"
           :rows="3"
-          placeholder="请输入描述"
+          :placeholder="$t('pages.track.app.descriptionPlaceholder')"
         />
       </ElFormItem>
-      <ElFormItem label="负责人" prop="owner">
-        <ElInput v-model="formData.owner" placeholder="请输入负责人" />
+      <ElFormItem :label="$t('pages.track.app.owner')" prop="owner">
+        <ElInput v-model="formData.owner" :placeholder="$t('pages.track.app.ownerPlaceholder')" />
       </ElFormItem>
-      <ElFormItem label="启用" prop="status">
+      <ElFormItem :label="$t('pages.track.shared.enabled')" prop="status">
         <ElSwitch v-model="formData.status" :active-value="1" :inactive-value="0" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="handleSubmit">{{ $t('table.form.submit') }}</ElButton>
       </div>
     </template>
   </ElDialog>

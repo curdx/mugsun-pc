@@ -3,40 +3,58 @@
   <div class="flow-graph-page art-full-height">
     <ElCard class="art-table-card">
       <div class="fg-toolbar">
-        <ElButton v-perm="'sys:flow:design-graph'" type="primary" @click="openDesigner"
-          >图形设计流程</ElButton
-        >
-        <ElButton :loading="loading" @click="loadDefs">刷新</ElButton>
+        <ElButton v-perm="'sys:flow:design-graph'" type="primary" @click="openDesigner">{{
+          $t('pages.system.flowGraph.designGraph')
+        }}</ElButton>
+        <ElButton :loading="loading" @click="loadDefs">{{
+          $t('pages.system.flowGraph.refresh')
+        }}</ElButton>
       </div>
 
       <!-- 表格自由增长：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
       <div class="fg-table-wrap">
         <ElTable :data="defs" border height="100%" :loading="loading">
-          <ElTableColumn type="index" label="序号" width="56" />
-          <ElTableColumn prop="flowCode" label="流程编码" min-width="130" />
-          <ElTableColumn prop="flowName" label="流程名称" min-width="140" />
-          <ElTableColumn label="分类" width="100">
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="56" />
+          <ElTableColumn
+            prop="flowCode"
+            :label="$t('pages.system.flowGraph.flowCode')"
+            min-width="130"
+          />
+          <ElTableColumn
+            prop="flowName"
+            :label="$t('pages.system.flowGraph.flowName')"
+            min-width="140"
+          />
+          <ElTableColumn :label="$t('pages.system.flowGraph.category')" width="100">
             <template #default="{ row }">{{ row.category || '-' }}</template>
           </ElTableColumn>
-          <ElTableColumn prop="version" label="版本" width="70" />
-          <ElTableColumn label="发布" width="90">
+          <ElTableColumn prop="version" :label="$t('pages.system.flowGraph.version')" width="70" />
+          <ElTableColumn :label="$t('pages.system.flowGraph.publish')" width="90">
             <template #default="{ row }">
               <ElTag :type="publishTag(row.isPublish)" size="small">{{
                 publishText(row.isPublish)
               }}</ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="状态" width="90">
+          <ElTableColumn :label="$t('pages.system.flowGraph.status')" width="90">
             <template #default="{ row }">
               <ElTag :type="String(row.activityStatus) === '1' ? 'success' : 'info'" size="small">
-                {{ String(row.activityStatus) === '1' ? '启用' : '停用' }}
+                {{
+                  String(row.activityStatus) === '1'
+                    ? $t('pages.system.flowGraph.enabled')
+                    : $t('pages.system.flowGraph.disabled')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="createTime" label="创建时间" min-width="170">
+          <ElTableColumn
+            prop="createTime"
+            :label="$t('pages.system.flowGraph.createTime')"
+            min-width="170"
+          >
             <template #default="{ row }">{{ formatTableTime(row.createTime) }}</template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="230" fixed="right">
+          <ElTableColumn :label="$t('pages.system.flowGraph.actions')" width="230" fixed="right">
             <template #default="{ row }">
               <ElButton
                 v-if="String(row.activityStatus) === '1'"
@@ -44,7 +62,7 @@
                 link
                 type="warning"
                 @click="act('suspend', row)"
-                >停用</ElButton
+                >{{ $t('pages.system.flowGraph.disabled') }}</ElButton
               >
               <ElButton
                 v-else
@@ -52,17 +70,21 @@
                 link
                 type="success"
                 @click="act('active', row)"
-                >启用</ElButton
+                >{{ $t('pages.system.flowGraph.enabled') }}</ElButton
               >
-              <ElButton v-perm="'sys:flow:definition'" link type="primary" @click="act('copy', row)"
-                >复制新版本</ElButton
+              <ElButton
+                v-perm="'sys:flow:definition'"
+                link
+                type="primary"
+                @click="act('copy', row)"
+                >{{ $t('pages.system.flowGraph.copyNewVersion') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:flow:definition'"
                 link
                 type="danger"
                 @click="act('remove', row)"
-                >删除</ElButton
+                >{{ $t('pages.system.flowGraph.delete') }}</ElButton
               >
             </template>
           </ElTableColumn>
@@ -71,33 +93,51 @@
     </ElCard>
 
     <!-- 图形设计器 -->
-    <ElDialog v-model="designerVisible" title="图形流程设计器" fullscreen>
+    <ElDialog
+      v-model="designerVisible"
+      :title="$t('pages.system.flowGraph.designerTitle')"
+      fullscreen
+    >
       <ElForm :model="design" inline label-width="80px" class="fg-form">
-        <ElFormItem label="流程编码" required>
-          <ElInput v-model="design.flowCode" placeholder="英文标识" style="width: 180px" />
+        <ElFormItem :label="$t('pages.system.flowGraph.flowCode')" required>
+          <ElInput
+            v-model="design.flowCode"
+            :placeholder="$t('pages.system.flowGraph.flowCodePlaceholder')"
+            style="width: 180px"
+          />
         </ElFormItem>
-        <ElFormItem label="流程名称" required>
-          <ElInput v-model="design.flowName" placeholder="如 采购分支审批" style="width: 200px" />
+        <ElFormItem :label="$t('pages.system.flowGraph.flowName')" required>
+          <ElInput
+            v-model="design.flowName"
+            :placeholder="$t('pages.system.flowGraph.flowNamePlaceholder')"
+            style="width: 200px"
+          />
         </ElFormItem>
-        <ElFormItem label="分类">
-          <ElInput v-model="design.category" placeholder="可选" style="width: 140px" />
+        <ElFormItem :label="$t('pages.system.flowGraph.category')">
+          <ElInput
+            v-model="design.category"
+            :placeholder="$t('pages.system.flowGraph.categoryPlaceholder')"
+            style="width: 140px"
+          />
         </ElFormItem>
       </ElForm>
 
       <div class="fg-canvas">
-        <div class="fg-terminal fg-terminal--start">开始</div>
+        <div class="fg-terminal fg-terminal--start">{{
+          $t('pages.system.flowGraph.startNode')
+        }}</div>
         <GraphChain :nodes="design.nodes" />
-        <div class="fg-terminal fg-terminal--end">结束</div>
+        <div class="fg-terminal fg-terminal--end">{{ $t('pages.system.flowGraph.endNode') }}</div>
       </div>
 
       <template #footer>
-        <ElButton @click="designerVisible = false">取消</ElButton>
+        <ElButton @click="designerVisible = false">{{ $t('common.cancel') }}</ElButton>
         <ElButton
           v-perm="'sys:flow:design-graph'"
           type="primary"
           :loading="submitting"
           @click="submitDesign"
-          >部署流程</ElButton
+          >{{ $t('pages.system.flowGraph.deploy') }}</ElButton
         >
       </template>
     </ElDialog>
@@ -106,6 +146,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, provide, onMounted } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import GraphChain from './GraphChain.vue'
   import { newNode, toTree, validateTree, type GNode } from './graph-model'
@@ -123,6 +164,8 @@
   import { formatTableTime } from '@/utils/date'
 
   defineOptions({ name: 'FlowGraph' })
+
+  const { t } = useI18n()
 
   // 候选人「指定用户」远程搜索：成千账号场景不下全量（默认 50 条 + 关键字防抖查询）
   const { userOptions, userSearching, searchUsers, syncSelected, ensureUsers } =
@@ -202,11 +245,11 @@
 
   const submitDesign = async (): Promise<void> => {
     if (!design.flowCode || !design.flowName) {
-      ElMessage.warning('请填写流程编码与名称')
+      ElMessage.warning(t('pages.system.flowGraph.msgCodeNameRequired'))
       return
     }
     if (!design.nodes.length) {
-      ElMessage.warning('至少设计一个节点')
+      ElMessage.warning(t('pages.system.flowGraph.msgNodeRequired'))
       return
     }
     const err = validateTree(design.nodes)
@@ -222,7 +265,7 @@
         category: design.category || null,
         root: toTree(design.nodes)
       })
-      ElMessage.success('流程已部署')
+      ElMessage.success(t('pages.system.flowGraph.msgDeployed'))
       designerVisible.value = false
       loadDefs()
     } finally {
@@ -234,22 +277,22 @@
     {
       suspend: {
         api: fetchFlowDefSuspend,
-        ok: '已停用',
-        confirm: '确认停用该流程定义？停用后不可再发起新实例'
+        ok: t('pages.system.flowGraph.msgSuspended'),
+        confirm: t('pages.system.flowGraph.confirmSuspend')
       },
-      active: { api: fetchFlowDefActive, ok: '已启用' },
-      copy: { api: fetchFlowDefCopy, ok: '已复制新版本' },
+      active: { api: fetchFlowDefActive, ok: t('pages.system.flowGraph.msgEnabled') },
+      copy: { api: fetchFlowDefCopy, ok: t('pages.system.flowGraph.msgCopied') },
       remove: {
         api: (id) => fetchFlowDefRemove([id]),
-        ok: '已删除',
-        confirm: '确认删除该流程定义？'
+        ok: t('pages.system.flowGraph.msgDeleted'),
+        confirm: t('pages.system.flowGraph.confirmDelete')
       }
     }
 
   const act = async (key: string, row: any): Promise<void> => {
     const a = ACTIONS[key]
     if (a.confirm) {
-      await ElMessageBox.confirm(a.confirm, '提示', { type: 'warning' })
+      await ElMessageBox.confirm(a.confirm, t('common.tips'), { type: 'warning' })
     }
     await a.api(row.id)
     ElMessage.success(a.ok)
@@ -257,7 +300,11 @@
   }
 
   const publishText = (s: any): string =>
-    ({ '0': '未发布', '1': '已发布', '9': '已失效' })[String(s)] || '未知'
+    ({
+      '0': t('pages.system.flowGraph.publish0'),
+      '1': t('pages.system.flowGraph.publish1'),
+      '9': t('pages.system.flowGraph.publish9')
+    })[String(s)] || t('pages.system.flowGraph.publishUnknown')
   const publishTag = (s: any): 'success' | 'info' | 'warning' =>
     String(s) === '1' ? 'success' : String(s) === '9' ? 'warning' : 'info'
 </script>

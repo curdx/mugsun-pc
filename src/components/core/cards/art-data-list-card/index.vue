@@ -22,7 +22,7 @@
       v-if="showMoreButton"
       v-ripple
       @click="handleMore"
-      >查看更多</ElButton
+      >{{ $t('components.dataListCard.viewMore') }}</ElButton
     >
   </div>
 </template>

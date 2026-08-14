@@ -1,5 +1,6 @@
 import { ref, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { $t } from '@/locales'
 import { useTable } from './useTable'
 import type { DialogType } from '@/types'
 import type { ColumnOption } from '@/types/component'
@@ -63,7 +64,7 @@ export function useCrud<TApiFn extends (params: any) => Promise<any>>(
     apiParams = { pageNum: 1, pageSize: 20 },
     paginationKey = { current: 'pageNum', size: 'pageSize' },
     idKey = 'id',
-    label = '数据',
+    label = $t('hooks.crud.defaultLabel'),
     rowName,
     responseAdapter = smartAdapter
   } = options
@@ -91,14 +92,18 @@ export function useCrud<TApiFn extends (params: any) => Promise<any>>(
 
   /** 删除（确认 → removeApi → 删后页码自动回退） */
   const handleDelete = (row: Record<string, any>): void => {
-    ElMessageBox.confirm(`确定删除${label}"${nameOf(row)}"吗？`, `删除${label}`, {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      $t('hooks.crud.deleteConfirmMessage', { label, name: nameOf(row) }),
+      $t('hooks.crud.deleteConfirmTitle', { label }),
+      {
+        confirmButtonText: $t('common.confirm'),
+        cancelButtonText: $t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       if (!removeApi) return
       await removeApi(row[idKey])
-      ElMessage.success('删除成功')
+      ElMessage.success($t('common.deleteSuccess'))
       await table.refreshRemove()
     })
   }
@@ -108,7 +113,7 @@ export function useCrud<TApiFn extends (params: any) => Promise<any>>(
     if (saveApi) await saveApi(form)
     dialogVisible.value = false
     if (!saveApi) return
-    ElMessage.success('保存成功')
+    ElMessage.success($t('common.saveSuccess'))
     await (dialogType.value === 'add' ? table.refreshCreate() : table.refreshUpdate())
   }
 

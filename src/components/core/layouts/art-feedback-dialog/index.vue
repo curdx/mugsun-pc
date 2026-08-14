@@ -1,21 +1,24 @@
 <!-- 全局意见反馈弹窗：任意页面经顶栏用户菜单触发，支持附件上传 -->
 <template>
-  <ElDialog v-model="visible" title="意见反馈" width="520px">
+  <ElDialog v-model="visible" :title="$t('components.feedbackDialog.title')" width="520px">
     <ElForm :model="form" label-width="80px">
-      <ElFormItem label="反馈内容" required>
+      <ElFormItem :label="$t('components.feedbackDialog.contentLabel')" required>
         <ElInput
           v-model="form.content"
           type="textarea"
           :rows="5"
           maxlength="500"
           show-word-limit
-          placeholder="请描述你的问题或建议"
+          :placeholder="$t('components.feedbackDialog.contentPlaceholder')"
         />
       </ElFormItem>
-      <ElFormItem label="联系方式">
-        <ElInput v-model="form.contact" placeholder="邮箱/手机（选填，便于回复）" />
+      <ElFormItem :label="$t('components.feedbackDialog.contactLabel')">
+        <ElInput
+          v-model="form.contact"
+          :placeholder="$t('components.feedbackDialog.contactPlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="附件">
+      <ElFormItem :label="$t('components.feedbackDialog.attachLabel')">
         <ElUpload
           ref="uploadRef"
           :auto-upload="false"
@@ -25,16 +28,20 @@
           :on-remove="handleRemove"
           :on-exceed="handleExceed"
         >
-          <ElButton :loading="uploading">选择图片</ElButton>
+          <ElButton :loading="uploading">{{
+            $t('components.feedbackDialog.selectImage')
+          }}</ElButton>
           <template #tip>
-            <span class="upload-tip">支持上传截图（JPG/PNG 等图片，≤5MB，可选）</span>
+            <span class="upload-tip">{{ $t('components.feedbackDialog.uploadTip') }}</span>
           </template>
         </ElUpload>
       </ElFormItem>
     </ElForm>
     <template #footer>
-      <ElButton @click="visible = false">取消</ElButton>
-      <ElButton type="primary" :loading="submitting" @click="submit">提交</ElButton>
+      <ElButton @click="visible = false">{{ $t('common.cancel') }}</ElButton>
+      <ElButton type="primary" :loading="submitting" @click="submit">{{
+        $t('components.feedbackDialog.submit')
+      }}</ElButton>
     </template>
   </ElDialog>
 </template>
@@ -42,10 +49,13 @@
 <script setup lang="ts">
   import { reactive } from 'vue'
   import { ElMessage, type UploadFile, type UploadInstance } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
   import { mittBus } from '@/utils/sys'
   import { uploadFeedbackFile, submitFeedback } from '@/api/feedback'
 
   defineOptions({ name: 'ArtFeedbackDialog' })
+
+  const { t } = useI18n()
 
   const visible = ref(false)
   const uploading = ref(false)
@@ -73,13 +83,13 @@
     if (!uploadFile.raw) return
     // 类型与大小校验：仅图片、≤5MB
     if (!uploadFile.raw.type.startsWith('image/')) {
-      ElMessage.warning('仅支持上传图片附件')
+      ElMessage.warning(t('components.feedbackDialog.imageOnlyWarning'))
       uploadRef.value?.clearFiles()
       handleRemove()
       return
     }
     if (uploadFile.raw.size > 5 * 1024 * 1024) {
-      ElMessage.warning('附件大小不能超过 5MB')
+      ElMessage.warning(t('components.feedbackDialog.sizeExceededWarning'))
       uploadRef.value?.clearFiles()
       handleRemove()
       return
@@ -91,7 +101,7 @@
       form.attachName = attach?.name
       form.attachUrl = attach?.url
     } catch {
-      ElMessage.error('附件上传失败')
+      ElMessage.error(t('components.feedbackDialog.uploadFailed'))
     } finally {
       uploading.value = false
     }
@@ -104,15 +114,16 @@
   }
 
   const handleExceed = () => {
-    ElMessage.warning('仅支持上传一个附件')
+    ElMessage.warning(t('components.feedbackDialog.singleAttachmentWarning'))
   }
 
   const submit = async () => {
-    if (!form.content?.trim()) return ElMessage.warning('请填写反馈内容')
+    if (!form.content?.trim())
+      return ElMessage.warning(t('components.feedbackDialog.contentRequired'))
     submitting.value = true
     try {
       await submitFeedback({ ...form })
-      ElMessage.success('感谢你的反馈！')
+      ElMessage.success(t('components.feedbackDialog.thanksMessage'))
       visible.value = false
     } finally {
       submitting.value = false

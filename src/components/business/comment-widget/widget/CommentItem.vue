@@ -17,7 +17,7 @@
           class="ml-5 text-xs text-g-700 c-p select-none hover:text-theme"
           @click="toggleReply(comment.id)"
         >
-          回复
+          {{ $t('components.comment.reply') }}
         </div>
       </div>
     </div>
@@ -36,12 +36,16 @@
 
     <ElForm v-if="showReplyForm === comment.id" @submit.prevent="handleSubmit" class="mt-4">
       <ElFormItem prop="author">
-        <ElInput v-model="replyAuthor" placeholder="你的名称" clearable />
+        <ElInput
+          v-model="replyAuthor"
+          :placeholder="$t('components.comment.authorPlaceholder')"
+          clearable
+        />
       </ElFormItem>
       <ElFormItem prop="content">
         <ElInput
           v-model="replyContent"
-          placeholder="你的回复..."
+          :placeholder="$t('components.comment.replyPlaceholder')"
           type="textarea"
           :rows="3"
           clearable
@@ -49,8 +53,10 @@
       </ElFormItem>
       <ElFormItem>
         <div class="flex justify-end gap-2 w-full">
-          <ElButton @click="toggleReply(comment.id)">取消</ElButton>
-          <ElButton type="primary" @click="handleSubmit">发布</ElButton>
+          <ElButton @click="toggleReply(comment.id)">{{ $t('common.cancel') }}</ElButton>
+          <ElButton type="primary" @click="handleSubmit">
+            {{ $t('components.comment.publish') }}
+          </ElButton>
         </div>
       </ElFormItem>
     </ElForm>

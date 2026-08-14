@@ -12,10 +12,18 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton v-perm="'sys:user:add'" @click="showDialog('add')" v-ripple>新增用户</ElButton>
-          <ElButton :loading="exporting" @click="handleExport" v-ripple>导出</ElButton>
-          <ElButton v-perm="'sys:user:add'" @click="importVisible = true" v-ripple>导入</ElButton>
-          <ElButton @click="handleResetColumns" v-ripple>恢复默认列</ElButton>
+          <ElButton v-perm="'sys:user:add'" @click="showDialog('add')" v-ripple>{{
+            $t('pages.system.user.addUser')
+          }}</ElButton>
+          <ElButton :loading="exporting" @click="handleExport" v-ripple>{{
+            $t('pages.system.user.export')
+          }}</ElButton>
+          <ElButton v-perm="'sys:user:add'" @click="importVisible = true" v-ripple>{{
+            $t('pages.system.user.import')
+          }}</ElButton>
+          <ElButton @click="handleResetColumns" v-ripple>{{
+            $t('pages.system.user.resetColumns')
+          }}</ElButton>
         </template>
       </ArtTableHeader>
 
@@ -48,6 +56,7 @@
 
 <script setup lang="ts">
   import { h, ref, nextTick } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtButtonTable from '@/components/core/forms/art-button-table/index.vue'
   import ArtDictTag from '@/components/core/base/art-dict-tag/index.vue'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
@@ -66,6 +75,8 @@
 
   defineOptions({ name: 'User' })
 
+  const { t } = useI18n()
+
   // ===== 查询栏 =====
   const searchForm = ref({
     username: '',
@@ -78,45 +89,45 @@
   const searchItems = computed(() => [
     {
       key: 'username',
-      label: '用户名',
+      label: t('pages.system.user.fields.username'),
       type: 'input',
-      props: { placeholder: '请输入用户名', clearable: true }
+      props: { placeholder: t('pages.system.user.placeholder.username'), clearable: true }
     },
     {
       key: 'nickname',
-      label: '昵称',
+      label: t('pages.system.user.fields.nickname'),
       type: 'input',
-      props: { placeholder: '请输入昵称', clearable: true }
+      props: { placeholder: t('pages.system.user.placeholder.nickname'), clearable: true }
     },
     {
       key: 'phone',
-      label: '手机号',
+      label: t('pages.system.user.fields.phone'),
       type: 'input',
-      props: { placeholder: '请输入手机号', clearable: true }
+      props: { placeholder: t('pages.system.user.placeholder.phone'), clearable: true }
     },
     {
       key: 'status',
-      label: '状态',
+      label: t('pages.system.user.fields.status'),
       type: 'select',
       props: {
-        placeholder: '请选择状态',
+        placeholder: t('pages.system.user.placeholder.status'),
         clearable: true,
         options: [
-          { label: '启用', value: 1 },
-          { label: '停用', value: 0 }
+          { label: t('pages.system.user.status.enabled'), value: 1 },
+          { label: t('pages.system.user.status.disabled'), value: 0 }
         ]
       }
     },
     {
       key: 'deptId',
-      label: '部门',
+      label: t('pages.system.user.fields.dept'),
       type: 'treeselect',
       props: {
         data: deptTreeData.value,
         props: { value: 'id', label: 'deptName', children: 'children' },
         checkStrictly: true,
         clearable: true,
-        placeholder: '请选择部门'
+        placeholder: t('pages.system.user.placeholder.dept')
       }
     }
   ])
@@ -135,13 +146,17 @@
   }
 
   const resetPwd = (row: any): void => {
-    ElMessageBox.confirm(`确定重置用户"${row.username}"的密码为初始密码吗？`, '重置密码', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.user.resetPwdConfirm', { name: row.username }),
+      t('pages.system.user.resetPassword'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await resetUserPassword([row.id])
-      ElMessage.success('密码已重置为初始密码')
+      ElMessage.success(t('pages.system.user.resetPwdSuccess'))
     })
   }
 
@@ -161,24 +176,39 @@
 
   // 表格列工厂（与列持久化共用同一份出厂默认）
   const columnsFactory = (): ColumnOption[] => [
-    { type: 'index', width: 60, label: '序号' },
-    { prop: 'username', label: '用户名', minWidth: 120 },
-    { prop: 'nickname', label: '昵称', minWidth: 120 },
-    { prop: 'deptName', label: '部门', minWidth: 120, showOverflowTooltip: true },
-    { prop: 'postName', label: '岗位', minWidth: 110, showOverflowTooltip: true },
-    { prop: 'roleNames', label: '角色', minWidth: 140, showOverflowTooltip: true },
-    { prop: 'phone', label: '手机号', minWidth: 130 },
+    { type: 'index', width: 60, label: t('table.column.index') },
+    { prop: 'username', label: t('pages.system.user.fields.username'), minWidth: 120 },
+    { prop: 'nickname', label: t('pages.system.user.fields.nickname'), minWidth: 120 },
+    {
+      prop: 'deptName',
+      label: t('pages.system.user.fields.dept'),
+      minWidth: 120,
+      showOverflowTooltip: true
+    },
+    {
+      prop: 'postName',
+      label: t('pages.system.user.fields.post'),
+      minWidth: 110,
+      showOverflowTooltip: true
+    },
+    {
+      prop: 'roleNames',
+      label: t('pages.system.user.fields.role'),
+      minWidth: 140,
+      showOverflowTooltip: true
+    },
+    { prop: 'phone', label: t('pages.system.user.fields.phone'), minWidth: 130 },
     {
       prop: 'status',
-      label: '状态',
+      label: t('pages.system.user.fields.status'),
       width: 100,
       // 字典运行时驱动：改用 ArtDictTag，不再硬编码 h(ElSwitch)/手写 options（状态切换归编辑弹窗）
       formatter: (row: any) => h(ArtDictTag, { code: DICT_CODE.USER_STATUS, value: row.status })
     },
-    { prop: 'createTime', label: '创建时间', minWidth: 180 },
+    { prop: 'createTime', label: t('pages.system.user.fields.createTime'), minWidth: 180 },
     {
       prop: 'operation',
-      label: '操作',
+      label: t('pages.system.user.fields.operation'),
       width: 220,
       fixed: 'right',
       // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -200,14 +230,14 @@
                   style: 'margin-left:8px',
                   onClick: () => showUserRole(row)
                 },
-                () => '授权'
+                () => t('pages.system.user.grant')
               )
             : null,
           hasPerm('sys:user:reset')
             ? h(
                 ElButton,
                 { link: true, type: 'warning', size: 'small', onClick: () => resetPwd(row) },
-                () => '重置密码'
+                () => t('pages.system.user.resetPassword')
               )
             : null
         ])
@@ -260,7 +290,7 @@
   // 恢复默认列
   const handleResetColumns = async (): Promise<void> => {
     await resetToDefault()
-    ElMessage.success('已恢复默认列')
+    ElMessage.success(t('pages.system.user.columnsRestored'))
   }
 
   // ===== 查询栏联动 =====
@@ -295,13 +325,13 @@
   }
 
   const deleteUser = (row: any): void => {
-    ElMessageBox.confirm('确定要删除该用户吗？', '删除用户', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    ElMessageBox.confirm(t('pages.system.user.deleteConfirm'), t('pages.system.user.deleteUser'), {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
       type: 'warning'
     }).then(async () => {
       await removeUser([row.id])
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.user.deleteSuccess'))
       refreshData()
     })
   }
@@ -311,7 +341,7 @@
     try {
       await saveUser(form)
       dialogVisible.value = false
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.user.saveSuccess'))
       refreshData()
     } finally {
       dialogSaving.value = false

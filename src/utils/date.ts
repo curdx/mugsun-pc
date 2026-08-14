@@ -6,6 +6,8 @@
  * @author Mugsun
  */
 
+import { $t } from '@/locales'
+
 const pad = (n: number): string => String(n).padStart(2, '0')
 
 /** 表格时间列统一格式化：ISO 串/epoch 毫秒 → 'YYYY-MM-DD HH:mm:ss'；空/非法 → '-' */
@@ -27,8 +29,21 @@ export function formatSecondsDuration(v?: number | null): string {
   if (v === undefined || v === null || Number.isNaN(Number(v)) || Number(v) <= 0) return '-'
   const s = Number(v)
   const days = s / 86400
-  if (days >= 1) return `${Number.isInteger(days) ? days : days.toFixed(1)} 天`
+  if (days >= 1) {
+    return $t(
+      'utils.date.day',
+      { value: Number.isInteger(days) ? days : days.toFixed(1) },
+      { plural: days }
+    )
+  }
   const hours = s / 3600
-  if (hours >= 1) return `${Number.isInteger(hours) ? hours : hours.toFixed(1)} 小时`
-  return `${Math.max(1, Math.round(s / 60))} 分钟`
+  if (hours >= 1) {
+    return $t(
+      'utils.date.hour',
+      { value: Number.isInteger(hours) ? hours : hours.toFixed(1) },
+      { plural: hours }
+    )
+  }
+  const minutes = Math.max(1, Math.round(s / 60))
+  return $t('utils.date.minute', { value: minutes }, { plural: minutes })
 }

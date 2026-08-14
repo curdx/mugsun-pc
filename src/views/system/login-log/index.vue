@@ -37,8 +37,11 @@
   import { DICT_CODE } from '@/utils/constants'
   import { hasPerm } from '@/utils/permission'
   import { formatTableTime } from '@/utils/date'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'LoginLog' })
+
+  const { t } = useI18n()
 
   // ===== 查询栏 =====
   const searchForm = ref({
@@ -49,26 +52,26 @@
   const searchItems = computed(() => [
     {
       key: 'username',
-      label: '账号',
+      label: t('pages.system.loginLog.username'),
       type: 'input',
-      props: { placeholder: '请输入账号', clearable: true }
+      props: { placeholder: t('pages.system.loginLog.usernamePlaceholder'), clearable: true }
     },
     {
       key: 'ip',
       label: 'IP',
       type: 'input',
-      props: { placeholder: '请输入IP', clearable: true }
+      props: { placeholder: t('pages.system.loginLog.ipPlaceholder'), clearable: true }
     },
     {
       key: 'status',
-      label: '状态',
+      label: t('pages.system.loginLog.status'),
       type: 'select',
       props: {
-        placeholder: '请选择状态',
+        placeholder: t('pages.system.loginLog.statusPlaceholder'),
         clearable: true,
         options: [
-          { label: '成功', value: 1 },
-          { label: '失败', value: 0 }
+          { label: t('pages.system.loginLog.statusSuccess'), value: 1 },
+          { label: t('pages.system.loginLog.statusFail'), value: 0 }
         ]
       }
     }
@@ -93,37 +96,52 @@
       // 后端分页参数为 pageNum/pageSize
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
-        { prop: 'username', label: '账号', minWidth: 120 },
+        { type: 'index', width: 60, label: t('table.column.index') },
+        { prop: 'username', label: t('pages.system.loginLog.username'), minWidth: 120 },
         { prop: 'ip', label: 'IP', minWidth: 130 },
         {
           prop: 'loginLocation',
-          label: '归属地',
+          label: t('pages.system.loginLog.location'),
           minWidth: 130,
           showOverflowTooltip: true,
           // ip2region 关闭/内网/未命中时为空，统一占位
           formatter: (row: any) => row.loginLocation || '-'
         },
-        { prop: 'browser', label: '浏览器', minWidth: 110, showOverflowTooltip: true },
-        { prop: 'os', label: '操作系统', minWidth: 130, showOverflowTooltip: true },
+        {
+          prop: 'browser',
+          label: t('pages.system.loginLog.browser'),
+          minWidth: 110,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'os',
+          label: t('pages.system.loginLog.os'),
+          minWidth: 130,
+          showOverflowTooltip: true
+        },
         {
           prop: 'status',
-          label: '结果',
+          label: t('pages.system.loginLog.result'),
           width: 90,
           // 字典运行时驱动（login_result：1 成功 / 0 失败）
           formatter: (row: any) =>
             h(ArtStatusTag, { code: DICT_CODE.LOGIN_RESULT, value: row.status })
         },
-        { prop: 'msg', label: '说明', minWidth: 160, showOverflowTooltip: true },
+        {
+          prop: 'msg',
+          label: t('pages.system.loginLog.msg'),
+          minWidth: 160,
+          showOverflowTooltip: true
+        },
         {
           prop: 'loginTime',
-          label: '登录时间',
+          label: t('pages.system.loginLog.loginTime'),
           minWidth: 170,
           formatter: (row: any) => formatTableTime(row.loginTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.loginLog.colOperation'),
           width: 90,
           fixed: 'right',
           // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控；
@@ -133,7 +151,7 @@
               ? h(
                   ElButton,
                   { link: true, type: 'warning', size: 'small', onClick: () => unlock(row) },
-                  () => '解锁'
+                  () => t('pages.system.loginLog.unlock')
                 )
               : null
         }
@@ -152,13 +170,17 @@
 
   /** 解锁账号：清除该日志行 租户+账号 维度的登录失败锁定 */
   const unlock = (row: any): void => {
-    ElMessageBox.confirm(`确定解锁账号"${row.username}"的登录锁定吗？`, '解锁账号', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.loginLog.unlockConfirm', { username: row.username }),
+      t('pages.system.loginLog.unlockTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await unlockLoginAccount(row.id)
-      ElMessage.success('解锁成功')
+      ElMessage.success(t('pages.system.loginLog.unlockSuccess'))
       // 解锁后刷新行级锁定标记（按钮随之隐藏）
       refreshData()
     })

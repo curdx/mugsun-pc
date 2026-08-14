@@ -16,13 +16,14 @@
  */
 
 import { defineAsyncComponent } from 'vue'
+import { $t } from '@/locales'
 
 /**
  * 全局组件配置列表
  */
 export const globalComponentsConfig: GlobalComponentConfig[] = [
   {
-    name: '设置面板',
+    name: $t('config.component.settingsPanel'),
     key: 'settings-panel',
     component: defineAsyncComponent(
       () => import('@/components/core/layouts/art-settings-panel/index.vue')
@@ -30,7 +31,7 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
     enabled: true
   },
   {
-    name: '全局搜索',
+    name: $t('config.component.globalSearch'),
     key: 'global-search',
     component: defineAsyncComponent(
       () => import('@/components/core/layouts/art-global-search/index.vue')
@@ -38,7 +39,7 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
     enabled: true
   },
   {
-    name: '水印效果',
+    name: $t('config.component.watermark'),
     key: 'watermark',
     component: defineAsyncComponent(
       () => import('@/components/core/others/art-watermark/index.vue')
@@ -46,7 +47,7 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
     enabled: true
   },
   {
-    name: '帮助抽屉',
+    name: $t('config.component.helpDrawer'),
     key: 'help-drawer',
     component: defineAsyncComponent(
       () => import('@/components/core/layouts/art-help-drawer/index.vue')
@@ -54,7 +55,7 @@ export const globalComponentsConfig: GlobalComponentConfig[] = [
     enabled: true
   },
   {
-    name: '意见反馈',
+    name: $t('config.component.feedbackDialog'),
     key: 'feedback-dialog',
     component: defineAsyncComponent(
       () => import('@/components/core/layouts/art-feedback-dialog/index.vue')

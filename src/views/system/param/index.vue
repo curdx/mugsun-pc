@@ -11,7 +11,9 @@
     />
     <ElCard class="art-table-card">
       <div class="param-toolbar">
-        <ElButton v-perm="'sys:param:save'" @click="showDialog('add')" v-ripple>新增参数</ElButton>
+        <ElButton v-perm="'sys:param:save'" @click="showDialog('add')" v-ripple>{{
+          $t('pages.system.param.addParam')
+        }}</ElButton>
       </div>
 
       <ArtTable
@@ -36,6 +38,7 @@
 
 <script setup lang="ts">
   import { h, ref } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
   import { useCrud } from '@/hooks/core/useCrud'
   import { fetchParamList, fetchSaveParam, fetchRemoveParam } from '@/api/system-manage'
@@ -46,6 +49,8 @@
 
   defineOptions({ name: 'SysParam' })
 
+  const { t } = useI18n()
+
   // ===== 查询栏 =====
   const searchForm = ref({
     paramName: '',
@@ -54,27 +59,37 @@
   const searchItems = computed(() => [
     {
       key: 'paramName',
-      label: '参数名称',
+      label: t('pages.system.param.fields.paramName'),
       type: 'input',
-      props: { placeholder: '请输入参数名称', clearable: true }
+      props: { placeholder: t('pages.system.param.placeholder.paramName'), clearable: true }
     },
     {
       key: 'paramKey',
-      label: '参数键',
+      label: t('pages.system.param.fields.paramKey'),
       type: 'input',
-      props: { placeholder: '请输入参数键', clearable: true }
+      props: { placeholder: t('pages.system.param.placeholder.paramKey'), clearable: true }
     }
   ])
 
   const columnsFactory = (): ColumnOption[] => [
-    { type: 'index', width: 60, label: '序号' },
-    { prop: 'paramName', label: '参数名称', minWidth: 160 },
-    { prop: 'paramKey', label: '参数键', minWidth: 180 },
-    { prop: 'paramValue', label: '参数值', minWidth: 160, showOverflowTooltip: true },
-    { prop: 'remark', label: '备注', minWidth: 160, showOverflowTooltip: true },
+    { type: 'index', width: 60, label: t('table.column.index') },
+    { prop: 'paramName', label: t('pages.system.param.fields.paramName'), minWidth: 160 },
+    { prop: 'paramKey', label: t('pages.system.param.fields.paramKey'), minWidth: 180 },
+    {
+      prop: 'paramValue',
+      label: t('pages.system.param.fields.paramValue'),
+      minWidth: 160,
+      showOverflowTooltip: true
+    },
+    {
+      prop: 'remark',
+      label: t('pages.system.param.fields.remark'),
+      minWidth: 160,
+      showOverflowTooltip: true
+    },
     {
       prop: 'operation',
-      label: '操作',
+      label: t('pages.system.param.fields.operation'),
       width: 160,
       fixed: 'right',
       // 操作列由 h() 渲染（指令够不到），用 hasPerm() 函数按真实权限码门控
@@ -89,14 +104,14 @@
                   size: 'small',
                   onClick: () => showDialog('edit', row)
                 },
-                () => '编辑'
+                () => t('pages.system.param.edit')
               )
             : null,
           hasPerm('sys:param:remove')
             ? h(
                 ElButton,
                 { link: true, type: 'danger', size: 'small', onClick: () => handleDelete(row) },
-                () => '删除'
+                () => t('pages.system.param.delete')
               )
             : null
         ])
@@ -125,7 +140,7 @@
     saveApi: fetchSaveParam,
     removeApi: fetchRemoveParam,
     columnsFactory,
-    label: '参数',
+    label: t('pages.system.param.label'),
     rowName: (row) => row.paramName
   })
 

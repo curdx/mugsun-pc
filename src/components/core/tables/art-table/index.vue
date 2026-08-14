@@ -85,6 +85,7 @@
   import { useCommon } from '@/hooks/core/useCommon'
   import { useTableHeight } from '@/hooks/core/useTableHeight'
   import { useResizeObserver, useWindowSize } from '@vueuse/core'
+  import { $t } from '@/locales'
 
   defineOptions({ name: 'ArtTable' })
 
@@ -149,7 +150,7 @@
     border: undefined,
     size: undefined,
     emptyHeight: '100%',
-    emptyText: '暂无数据',
+    emptyText: $t('components.artTable.emptyText'),
     showTableHeader: true
   })
   const instance = getCurrentInstance()

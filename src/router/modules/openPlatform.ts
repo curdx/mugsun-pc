@@ -8,7 +8,7 @@ export const openPlatformRoutes: AppRouteRecord = {
   name: 'OpenPlatform',
   component: '/index/index',
   meta: {
-    title: '开放平台',
+    title: 'menus.openPlatform.title',
     icon: 'ri:apps-2-line',
     roles: ['R_SUPER']
   },
@@ -18,7 +18,7 @@ export const openPlatformRoutes: AppRouteRecord = {
       name: 'ApiKey',
       component: '/system/api-key',
       meta: {
-        title: 'API密钥',
+        title: 'menus.openPlatform.apiKey',
         icon: 'ri:key-2-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -29,7 +29,7 @@ export const openPlatformRoutes: AppRouteRecord = {
       name: 'OauthClient',
       component: '/system/oauth-client',
       meta: {
-        title: '客户端管理',
+        title: 'menus.openPlatform.oauthClient',
         icon: 'ri:apps-2-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -40,7 +40,7 @@ export const openPlatformRoutes: AppRouteRecord = {
       name: 'OauthDebug',
       component: '/system/oauth-debug',
       meta: {
-        title: '接口调试',
+        title: 'menus.openPlatform.oauthDebug',
         icon: 'ri:terminal-box-line',
         keepAlive: true,
         roles: ['R_SUPER']
@@ -51,7 +51,7 @@ export const openPlatformRoutes: AppRouteRecord = {
       name: 'OauthLog',
       component: '/system/oauth-log',
       meta: {
-        title: '调用日志',
+        title: 'menus.openPlatform.oauthLog',
         icon: 'ri:file-list-3-line',
         keepAlive: true,
         roles: ['R_SUPER']

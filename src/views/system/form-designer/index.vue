@@ -3,33 +3,60 @@
   <div class="form-page art-full-height">
     <ElCard class="art-table-card">
       <div class="form-toolbar">
-        <ElButton v-perm="'sys:form:save'" type="primary" @click="showCreate">新建表单</ElButton>
+        <ElButton v-perm="'sys:form:save'" type="primary" @click="showCreate">{{
+          $t('pages.system.formDesigner.createForm')
+        }}</ElButton>
       </div>
 
       <!-- 表格自由增长（一页 50 条）：包一层 flex:1 定高壳内部滚动，防矮视口裁切 -->
       <div class="form-table-wrap">
         <ElTable :data="tableData" border height="100%" v-loading="loading">
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="name" label="表单名称" min-width="150" />
-          <ElTableColumn prop="formKey" label="表单标识" min-width="150" />
-          <ElTableColumn label="状态" width="90">
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+          <ElTableColumn
+            prop="name"
+            :label="$t('pages.system.formDesigner.formName')"
+            min-width="150"
+          />
+          <ElTableColumn
+            prop="formKey"
+            :label="$t('pages.system.formDesigner.formKey')"
+            min-width="150"
+          />
+          <ElTableColumn :label="$t('pages.system.formDesigner.status')" width="90">
             <template #default="{ row }">
               <ElTag :type="row.status === 1 ? 'success' : 'info'">
-                {{ row.status === 1 ? '启用' : '停用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.formDesigner.enable')
+                    : $t('pages.system.formDesigner.disable')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="remark" label="备注" min-width="140" show-overflow-tooltip />
-          <ElTableColumn label="操作" width="280" fixed="right">
+          <ElTableColumn
+            prop="remark"
+            :label="$t('pages.system.formDesigner.remark')"
+            min-width="140"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            :label="$t('pages.system.formDesigner.colOperation')"
+            width="280"
+            fixed="right"
+          >
             <template #default="{ row }">
-              <ElButton v-perm="'sys:form:save'" link type="primary" @click="openDesigner(row)"
-                >设计</ElButton
-              >
-              <ElButton link type="success" @click="openFill(row)">填报</ElButton>
-              <ElButton link type="warning" @click="openRecords(row)">记录</ElButton>
-              <ElButton v-perm="'sys:form:remove'" link type="danger" @click="remove(row)"
-                >删除</ElButton
-              >
+              <ElButton v-perm="'sys:form:save'" link type="primary" @click="openDesigner(row)">{{
+                $t('pages.system.formDesigner.design')
+              }}</ElButton>
+              <ElButton link type="success" @click="openFill(row)">{{
+                $t('pages.system.formDesigner.fill')
+              }}</ElButton>
+              <ElButton link type="warning" @click="openRecords(row)">{{
+                $t('pages.system.formDesigner.records')
+              }}</ElButton>
+              <ElButton v-perm="'sys:form:remove'" link type="danger" @click="remove(row)">{{
+                $t('pages.system.formDesigner.remove')
+              }}</ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
@@ -37,48 +64,67 @@
     </ElCard>
 
     <!-- 新建表单 -->
-    <ElDialog v-model="createVisible" title="新建表单" width="500px" align-center>
+    <ElDialog
+      v-model="createVisible"
+      :title="$t('pages.system.formDesigner.createForm')"
+      width="500px"
+      align-center
+    >
       <ElForm ref="createRef" :model="createForm" :rules="createRules" label-width="90px">
-        <ElFormItem label="表单名称" prop="name">
-          <ElInput v-model="createForm.name" placeholder="请输入表单名称" />
+        <ElFormItem :label="$t('pages.system.formDesigner.formName')" prop="name">
+          <ElInput
+            v-model="createForm.name"
+            :placeholder="$t('pages.system.formDesigner.formNamePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="表单标识" prop="formKey">
-          <ElInput v-model="createForm.formKey" placeholder="唯一英文标识，如 leave_apply" />
+        <ElFormItem :label="$t('pages.system.formDesigner.formKey')" prop="formKey">
+          <ElInput
+            v-model="createForm.formKey"
+            :placeholder="$t('pages.system.formDesigner.formKeyPlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="备注">
-          <ElInput v-model="createForm.remark" type="textarea" placeholder="备注" />
+        <ElFormItem :label="$t('pages.system.formDesigner.remark')">
+          <ElInput
+            v-model="createForm.remark"
+            type="textarea"
+            :placeholder="$t('pages.system.formDesigner.remark')"
+          />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="createVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="creating" @click="submitCreate">创建并设计</ElButton>
+        <ElButton @click="createVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="creating" @click="submitCreate">{{
+          $t('pages.system.formDesigner.createAndDesign')
+        }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 设计器 -->
     <ElDialog
       v-model="designerVisible"
-      :title="`设计表单 - ${current?.name || ''}`"
+      :title="$t('pages.system.formDesigner.designerTitle', { name: current?.name || '' })"
       fullscreen
       :destroy-on-close="true"
     >
       <FcDesigner v-if="designerVisible" ref="designerRef" height="calc(100vh - 140px)" />
       <template #footer>
-        <ElButton @click="designerVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="designSaving" @click="saveDesign">保存设计</ElButton>
+        <ElButton @click="designerVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="designSaving" @click="saveDesign">{{
+          $t('pages.system.formDesigner.saveDesign')
+        }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 填报（运行时渲染） -->
     <ElDialog
       v-model="fillVisible"
-      :title="`填报 - ${current?.name || ''}`"
+      :title="$t('pages.system.formDesigner.fillTitle', { name: current?.name || '' })"
       width="640px"
       align-center
       class="form-fill-dialog"
       :destroy-on-close="true"
     >
-      <div v-if="fillEmpty" class="form-empty">该表单尚未设计，请先设计表单。</div>
+      <div v-if="fillEmpty" class="form-empty">{{ $t('pages.system.formDesigner.fillEmpty') }}</div>
       <FormCreate
         v-else-if="fillVisible"
         v-model:api="fApi"
@@ -91,19 +137,27 @@
     <!-- 填报记录 -->
     <ElDialog
       v-model="recordsVisible"
-      :title="`填报记录 - ${current?.name || ''}`"
+      :title="$t('pages.system.formDesigner.recordsTitle', { name: current?.name || '' })"
       width="720px"
       align-center
     >
       <ElTable :data="records" border max-height="420">
-        <ElTableColumn type="index" label="序号" width="60" />
-        <ElTableColumn label="填报数据" min-width="360">
+        <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+        <ElTableColumn :label="$t('pages.system.formDesigner.recordData')" min-width="360">
           <template #default="{ row }">
             <pre class="form-data-cell">{{ prettyData(row.formData) }}</pre>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="submitter" label="提交人" width="170" />
-        <ElTableColumn prop="createTime" label="时间" min-width="170" />
+        <ElTableColumn
+          prop="submitter"
+          :label="$t('pages.system.formDesigner.submitter')"
+          width="170"
+        />
+        <ElTableColumn
+          prop="createTime"
+          :label="$t('pages.system.formDesigner.time')"
+          min-width="170"
+        />
       </ElTable>
     </ElDialog>
   </div>
@@ -122,8 +176,11 @@
     fetchSubmitFormData,
     fetchFormData
   } from '@/api/form'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'FormDesigner' })
+
+  const { t } = useI18n()
 
   const tableData = ref<any[]>([])
   const loading = ref(false)
@@ -134,12 +191,18 @@
   const createRef = ref<FormInstance>()
   const createForm = reactive<Record<string, any>>({ name: '', formKey: '', remark: '' })
   const createRules: FormRules = {
-    name: [{ required: true, message: '请输入表单名称', trigger: 'blur' }],
+    name: [
+      {
+        required: true,
+        message: t('pages.system.formDesigner.formNamePlaceholder'),
+        trigger: 'blur'
+      }
+    ],
     formKey: [
-      { required: true, message: '请输入表单标识', trigger: 'blur' },
+      { required: true, message: t('pages.system.formDesigner.formKeyRequired'), trigger: 'blur' },
       {
         pattern: /^[a-zA-Z][a-zA-Z0-9_]*$/,
-        message: '以字母开头，仅字母数字下划线',
+        message: t('pages.system.formDesigner.formKeyPattern'),
         trigger: 'blur'
       }
     ]
@@ -186,7 +249,7 @@
       creating.value = true
       try {
         await fetchSubmitForm({ ...createForm, status: 1 })
-        ElMessage.success('创建成功')
+        ElMessage.success(t('pages.system.formDesigner.createSuccess'))
         createVisible.value = false
         await loadData()
         // 直接进入设计
@@ -231,7 +294,7 @@
         status: current.value.status ?? 1,
         remark: current.value.remark
       })
-      ElMessage.success('设计已保存')
+      ElMessage.success(t('pages.system.formDesigner.designSaved'))
       designerVisible.value = false
       loadData()
     } finally {
@@ -250,14 +313,14 @@
     fillEmpty.value = false
     fillRule.value = formCreate.parseJson(detail.formSchema)
     const opt = detail.formOption ? JSON.parse(detail.formOption) : {}
-    opt.submitBtn = opt.submitBtn ?? { show: true, innerText: '提交' }
+    opt.submitBtn = opt.submitBtn ?? { show: true, innerText: t('table.form.submit') }
     fillOption.value = opt
     fillVisible.value = true
   }
 
   const onFillSubmit = async (formData: Record<string, any>): Promise<void> => {
     await fetchSubmitFormData(current.value.formKey, formData)
-    ElMessage.success('提交成功')
+    ElMessage.success(t('pages.system.formDesigner.submitSuccess'))
     fillVisible.value = false
   }
 
@@ -277,13 +340,17 @@
   }
 
   const remove = (row: any): void => {
-    ElMessageBox.confirm(`确定删除表单"${row.name}"吗？`, '删除表单', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.formDesigner.removeConfirm', { name: row.name }),
+      t('pages.system.formDesigner.removeTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveForm(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.formDesigner.removeSuccess'))
       loadData()
     })
   }

@@ -14,25 +14,27 @@
             :placeholder="typeLabel(node.type)"
             class="g-name"
           />
-          <ElButton link type="danger" size="small" @click="removeNode(idx)">删除</ElButton>
+          <ElButton link type="danger" size="small" @click="removeNode(idx)">{{
+            $t('pages.system.flowGraph.delete')
+          }}</ElButton>
         </div>
 
         <!-- 审批节点 -->
         <div v-if="node.type === 'approval'" class="g-node-bd">
           <div v-for="(c, ci) in node.candidates" :key="ci" class="g-cand">
             <ElSelect v-model="c.type" size="small" class="g-cand-type" @change="c.value = ''">
-              <ElOption label="角色" value="role" />
-              <ElOption label="部门" value="dept" />
-              <ElOption label="指定用户" value="user" />
-              <ElOption label="发起人本人" value="initiator" />
-              <ElOption label="部门负责人" value="deptLeader" />
+              <ElOption :label="$t('pages.system.flowGraph.role')" value="role" />
+              <ElOption :label="$t('pages.system.flowGraph.dept')" value="dept" />
+              <ElOption :label="$t('pages.system.flowGraph.specifiedUser')" value="user" />
+              <ElOption :label="$t('pages.system.flowGraph.initiator')" value="initiator" />
+              <ElOption :label="$t('pages.system.flowGraph.deptLeader')" value="deptLeader" />
             </ElSelect>
             <ElSelect
               v-if="c.type === 'role'"
               v-model="c.value"
               size="small"
               class="g-cand-val"
-              placeholder="角色"
+              :placeholder="$t('pages.system.flowGraph.role')"
             >
               <ElOption v-for="r in reg.roles" :key="r.value" :label="r.label" :value="r.value" />
             </ElSelect>
@@ -41,7 +43,7 @@
               v-model="c.value"
               size="small"
               class="g-cand-val"
-              placeholder="部门"
+              :placeholder="$t('pages.system.flowGraph.dept')"
             >
               <ElOption v-for="d in reg.depts" :key="d.value" :label="d.label" :value="d.value" />
             </ElSelect>
@@ -54,7 +56,7 @@
               :remote-method="reg.searchUsers"
               :loading="reg.userSearching"
               class="g-cand-val"
-              placeholder="输入用户名/昵称搜索"
+              :placeholder="$t('pages.system.flowGraph.userSearchPlaceholder')"
               @change="reg.syncSelected"
             >
               <ElOption v-for="u in reg.users" :key="u.value" :label="u.label" :value="u.value" />
@@ -74,12 +76,12 @@
               type="primary"
               size="small"
               @click="node.candidates.push({ type: 'role', value: '' })"
-              >+候选人</ElButton
+              >{{ $t('pages.system.flowGraph.addCandidate') }}</ElButton
             >
             <ElSelect v-model="node.nodeRatio" size="small" class="g-ratio">
-              <ElOption label="或签(任一通过)" value="0" />
-              <ElOption label="会签(全部通过)" value="100" />
-              <ElOption label="票签(过半通过)" value="50" />
+              <ElOption :label="$t('pages.system.flowGraph.ratioAny')" value="0" />
+              <ElOption :label="$t('pages.system.flowGraph.ratioAll')" value="100" />
+              <ElOption :label="$t('pages.system.flowGraph.ratioMajority')" value="50" />
             </ElSelect>
           </div>
         </div>
@@ -88,7 +90,12 @@
         <div v-else class="g-branches">
           <div v-for="(b, bi) in node.branches" :key="b.id" class="g-branch">
             <div class="g-branch-hd">
-              <ElInput v-model="b.name" size="small" placeholder="分支名" class="g-bname" />
+              <ElInput
+                v-model="b.name"
+                size="small"
+                :placeholder="$t('pages.system.flowGraph.branchNamePlaceholder')"
+                class="g-bname"
+              />
               <ElButton
                 v-if="node.branches.length > 1"
                 link
@@ -99,14 +106,26 @@
               >
             </div>
             <div v-if="node.type === 'condition'" class="g-rules">
-              <ElCheckbox v-model="b.isDefault" size="small">否则（默认分支）</ElCheckbox>
+              <ElCheckbox v-model="b.isDefault" size="small">{{
+                $t('pages.system.flowGraph.elseDefault')
+              }}</ElCheckbox>
               <template v-if="!b.isDefault">
                 <div v-for="(r, ri) in b.conditions" :key="ri" class="g-rule">
-                  <ElInput v-model="r.field" size="small" placeholder="变量" class="g-rf" />
+                  <ElInput
+                    v-model="r.field"
+                    size="small"
+                    :placeholder="$t('pages.system.flowGraph.variable')"
+                    class="g-rf"
+                  />
                   <ElSelect v-model="r.op" size="small" class="g-ro">
                     <ElOption v-for="o in OPS" :key="o.value" :label="o.label" :value="o.value" />
                   </ElSelect>
-                  <ElInput v-model="r.value" size="small" placeholder="值" class="g-rv" />
+                  <ElInput
+                    v-model="r.value"
+                    size="small"
+                    :placeholder="$t('pages.system.flowGraph.valuePlaceholder')"
+                    class="g-rv"
+                  />
                   <ElButton link type="danger" size="small" @click="b.conditions.splice(ri, 1)"
                     >×</ElButton
                   >
@@ -116,11 +135,15 @@
                     link
                     size="small"
                     @click="b.conditions.push({ field: '', op: 'eq', value: '' })"
-                    >+条件</ElButton
+                    >{{ $t('pages.system.flowGraph.addConditionBtn') }}</ElButton
                   >
                   <ElRadioGroup v-if="b.conditions.length > 1" v-model="b.logic" size="small">
-                    <ElRadioButton value="AND">且</ElRadioButton>
-                    <ElRadioButton value="OR">或</ElRadioButton>
+                    <ElRadioButton value="AND">{{
+                      $t('pages.system.flowGraph.logicAnd')
+                    }}</ElRadioButton>
+                    <ElRadioButton value="OR">{{
+                      $t('pages.system.flowGraph.logicOr')
+                    }}</ElRadioButton>
                   </ElRadioGroup>
                 </div>
               </template>
@@ -128,9 +151,9 @@
             <GraphChain :nodes="b.children" />
           </div>
           <div class="g-add-branch">
-            <ElButton link type="primary" size="small" @click="node.branches.push(newBranch())"
-              >+ 分支</ElButton
-            >
+            <ElButton link type="primary" size="small" @click="node.branches.push(newBranch())">{{
+              $t('pages.system.flowGraph.addBranch')
+            }}</ElButton>
           </div>
         </div>
       </div>
@@ -143,10 +166,13 @@
 
 <script setup lang="ts">
   import { inject } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import GraphAdd from './GraphAdd.vue'
   import { newNode, newBranch, type GNode } from './graph-model'
 
   defineOptions({ name: 'GraphChain' })
+
+  const { t } = useI18n()
 
   const props = defineProps<{ nodes: GNode[] }>()
 
@@ -168,18 +194,22 @@
   })
 
   const OPS = [
-    { label: '等于', value: 'eq' },
-    { label: '不等于', value: 'ne' },
-    { label: '大于', value: 'gt' },
-    { label: '大于等于', value: 'ge' },
-    { label: '小于', value: 'lt' },
-    { label: '小于等于', value: 'le' },
-    { label: '包含', value: 'like' },
-    { label: '不包含', value: 'notLike' }
+    { label: t('pages.system.flowGraph.opEq'), value: 'eq' },
+    { label: t('pages.system.flowGraph.opNe'), value: 'ne' },
+    { label: t('pages.system.flowGraph.opGt'), value: 'gt' },
+    { label: t('pages.system.flowGraph.opGe'), value: 'ge' },
+    { label: t('pages.system.flowGraph.opLt'), value: 'lt' },
+    { label: t('pages.system.flowGraph.opLe'), value: 'le' },
+    { label: t('pages.system.flowGraph.opLike'), value: 'like' },
+    { label: t('pages.system.flowGraph.opNotLike'), value: 'notLike' }
   ]
 
-  const typeLabel = (t: string): string =>
-    ({ approval: '审批', condition: '条件分支', parallel: '并行分支' })[t] || t
+  const typeLabel = (type: string): string =>
+    ({
+      approval: t('pages.system.flowGraph.typeApproval'),
+      condition: t('pages.system.flowGraph.typeCondition'),
+      parallel: t('pages.system.flowGraph.typeParallel')
+    })[type] || type
 
   // 递归树编辑器：节点链是父级下传的共享响应式数组，就地增删是该场景既定模式（各层协同编辑同一棵树）
   const insertAt = (idx: number, type: string): void => {

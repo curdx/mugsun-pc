@@ -3,28 +3,63 @@
   <div class="online-page art-full-height">
     <ElCard class="art-table-card">
       <div class="online-toolbar">
-        <span class="online-title">在线会话</span>
+        <span class="online-title">{{ $t('pages.system.online.pageTitle') }}</span>
         <div>
-          <ElTag type="info" size="small" class="online-hint"
-            >会话持久化至 Redis，重启后仍在线</ElTag
-          >
-          <ElButton :loading="loading" @click="loadData">刷新</ElButton>
+          <ElTag type="info" size="small" class="online-hint">{{
+            $t('pages.system.online.redisHint')
+          }}</ElTag>
+          <ElButton :loading="loading" @click="loadData">{{
+            $t('pages.system.online.refreshBtn')
+          }}</ElButton>
         </div>
       </div>
 
       <div class="online-table-scroll">
         <ElTable :data="tableData" border v-loading="loading">
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="username" label="账号" min-width="150" show-overflow-tooltip />
-          <ElTableColumn prop="nickname" label="昵称" min-width="140" show-overflow-tooltip />
-          <ElTableColumn prop="deviceType" label="设备" width="100" />
-          <ElTableColumn prop="ip" label="登录 IP" min-width="130" show-overflow-tooltip />
-          <ElTableColumn prop="userAgent" label="浏览器 UA" min-width="220" show-overflow-tooltip />
-          <ElTableColumn prop="tokenMask" label="令牌" min-width="160" show-overflow-tooltip />
-          <ElTableColumn prop="loginTime" label="登录时间" min-width="180">
+          <ElTableColumn type="index" :label="$t('pages.system.online.colIndex')" width="60" />
+          <ElTableColumn
+            prop="username"
+            :label="$t('pages.system.online.colUsername')"
+            min-width="150"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="nickname"
+            :label="$t('pages.system.online.colNickname')"
+            min-width="140"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="deviceType"
+            :label="$t('pages.system.online.colDevice')"
+            width="100"
+          />
+          <ElTableColumn
+            prop="ip"
+            :label="$t('pages.system.online.colIp')"
+            min-width="130"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="userAgent"
+            :label="$t('pages.system.online.colUa')"
+            min-width="220"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="tokenMask"
+            :label="$t('pages.system.online.colToken')"
+            min-width="160"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            prop="loginTime"
+            :label="$t('pages.system.online.colLoginTime')"
+            min-width="180"
+          >
             <template #default="{ row }">{{ formatTableTime(row.loginTime) }}</template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="120" fixed="right">
+          <ElTableColumn :label="$t('pages.system.online.colOperation')" width="120" fixed="right">
             <template #default="{ row }">
               <ElButton
                 v-perm="'sys:session:kickout'"
@@ -32,14 +67,16 @@
                 type="danger"
                 size="small"
                 @click="kickout(row)"
-                >强制下线</ElButton
+                >{{ $t('pages.system.online.kickoutBtn') }}</ElButton
               >
             </template>
           </ElTableColumn>
         </ElTable>
       </div>
 
-      <div class="online-count">共 {{ tableData.length }} 个在线终端</div>
+      <div class="online-count">{{
+        $t('pages.system.online.totalText', { count: tableData.length })
+      }}</div>
     </ElCard>
   </div>
 </template>
@@ -49,8 +86,11 @@
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { fetchOnlineList, fetchKickoutOnline } from '@/api/system-manage'
   import { formatTableTime } from '@/utils/date'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Online' })
+
+  const { t } = useI18n()
 
   const tableData = ref<any[]>([])
   const loading = ref(false)
@@ -65,15 +105,17 @@
   }
 
   const kickout = (row: any): void => {
-    ElMessageBox.confirm(`确定将「${row.nickname}」的该终端强制下线吗？`, '强制下线', {
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.online.kickoutConfirm', { name: row.nickname }),
+      t('pages.system.online.kickoutBtn'),
+      { type: 'warning' }
+    ).then(async () => {
       await fetchKickoutOnline({
         loginId: row.loginId,
         deviceType: row.deviceType,
         tokenMask: row.tokenMask
       })
-      ElMessage.success('已强制下线')
+      ElMessage.success(t('pages.system.online.kickoutSuccess'))
       loadData()
     })
   }

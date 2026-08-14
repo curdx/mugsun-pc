@@ -2,14 +2,18 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增部门' : '编辑部门'"
+    :title="type === 'add' ? $t('pages.system.dept.addDept') : $t('pages.system.dept.editDept')"
     width="500px"
     align-center
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="80px">
-      <ElFormItem label="上级部门" prop="parentId">
-        <ElSelect v-model="formData.parentId" placeholder="请选择上级部门" style="width: 100%">
-          <ElOption label="顶级部门" :value="0" />
+      <ElFormItem :label="$t('pages.system.dept.fields.parent')" prop="parentId">
+        <ElSelect
+          v-model="formData.parentId"
+          :placeholder="$t('pages.system.dept.placeholder.parent')"
+          style="width: 100%"
+        >
+          <ElOption :label="$t('pages.system.dept.topDept')" :value="0" />
           <ElOption
             v-for="opt in deptOptions"
             :key="opt.value"
@@ -18,23 +22,29 @@
           />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="部门名称" prop="deptName">
-        <ElInput v-model="formData.deptName" placeholder="请输入部门名称" />
+      <ElFormItem :label="$t('pages.system.dept.fields.deptName')" prop="deptName">
+        <ElInput
+          v-model="formData.deptName"
+          :placeholder="$t('pages.system.dept.placeholder.deptName')"
+        />
       </ElFormItem>
-      <ElFormItem label="排序" prop="sort">
+      <ElFormItem :label="$t('pages.system.dept.fields.sort')" prop="sort">
         <ElInputNumber v-model="formData.sort" :min="0" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="saving" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="saving" @click="handleSubmit">{{
+          $t('table.form.submit')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
 
   interface Props {
@@ -54,6 +64,8 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
+  const { t } = useI18n()
+
   const dialogVisible = computed({
     get: () => props.visible,
     set: (value) => emit('update:visible', value)
@@ -68,9 +80,11 @@
     sort: 0
   })
 
-  const rules: FormRules = {
-    deptName: [{ required: true, message: '请输入部门名称', trigger: 'blur' }]
-  }
+  const rules = computed<FormRules>(() => ({
+    deptName: [
+      { required: true, message: t('pages.system.dept.placeholder.deptName'), trigger: 'blur' }
+    ]
+  }))
 
   watch(
     () => [props.visible, props.deptData],

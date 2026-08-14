@@ -53,6 +53,7 @@ import { echarts, type EChartsOption } from '@/plugins/echarts'
 import { storeToRefs } from 'pinia'
 import { useSettingStore } from '@/store/modules/setting'
 import { getCssVar } from '@/utils/ui'
+import { $t } from '@/locales'
 import type { BaseChartProps, ChartThemeConfig, UseChartOptions } from '@/types/component/chart'
 
 // 图表主题配置
@@ -468,7 +469,7 @@ export function useChart(options: UseChartOptions = {}) {
         background: transparent;
         z-index: 10;
       `
-      emptyStateDiv.innerHTML = `<span>暂无数据</span>`
+      emptyStateDiv.innerHTML = `<span>${$t('common.noData')}</span>`
 
       // 确保父容器有相对定位
       if (

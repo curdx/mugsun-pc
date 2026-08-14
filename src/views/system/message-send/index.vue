@@ -6,7 +6,7 @@
            须自备内部滚动（同 track-timeline 范式），防矮视口下发送按钮不可达 -->
       <div class="send-form-wrap">
         <ElForm :model="form" label-width="90px" style="max-width: 720px">
-          <ElFormItem label="收件人" required>
+          <ElFormItem :label="$t('pages.system.messageSend.recipientLabel')" required>
             <ElSelect
               v-model="form.recipientIds"
               multiple
@@ -14,7 +14,7 @@
               remote
               :remote-method="searchUsers"
               :loading="userSearching"
-              placeholder="输入用户名/昵称搜索（默认显示最近 50 个启用账号）"
+              :placeholder="$t('pages.system.messageSend.recipientPlaceholder')"
               style="width: 100%"
               @change="syncSelected"
             >
@@ -22,19 +22,19 @@
             </ElSelect>
           </ElFormItem>
 
-          <ElFormItem label="消息类型">
+          <ElFormItem :label="$t('pages.system.messageSend.typeLabel')">
             <ElSelect v-model="form.type" style="width: 200px">
-              <ElOption label="系统" value="system" />
-              <ElOption label="通知" value="notice" />
-              <ElOption label="待办" value="todo" />
+              <ElOption :label="$t('pages.system.messageSend.typeSystem')" value="system" />
+              <ElOption :label="$t('pages.system.messageSend.typeNotice')" value="notice" />
+              <ElOption :label="$t('pages.system.messageSend.typeTodo')" value="todo" />
             </ElSelect>
           </ElFormItem>
 
-          <ElFormItem label="消息模板">
+          <ElFormItem :label="$t('pages.system.messageSend.templateLabel')">
             <ElSelect
               v-model="form.templateId"
               clearable
-              placeholder="不选则直接填写标题内容"
+              :placeholder="$t('pages.system.messageSend.templatePlaceholder')"
               style="width: 100%"
               @change="onTemplateChange"
             >
@@ -48,19 +48,22 @@
           </ElFormItem>
 
           <template v-if="!form.templateId">
-            <ElFormItem label="标题" required>
-              <ElInput v-model="form.title" placeholder="请输入标题（支持 ${key} 占位）" />
+            <ElFormItem :label="$t('pages.system.messageSend.titleLabel')" required>
+              <ElInput
+                v-model="form.title"
+                :placeholder="$t('pages.system.messageSend.titlePlaceholder', { key: '{key}' })"
+              />
             </ElFormItem>
-            <ElFormItem label="内容">
+            <ElFormItem :label="$t('pages.system.messageSend.contentLabel')">
               <ElInput
                 v-model="form.content"
                 type="textarea"
                 :rows="4"
-                placeholder="请输入内容（支持 ${key} 占位）"
+                :placeholder="$t('pages.system.messageSend.contentPlaceholder', { key: '{key}' })"
               />
             </ElFormItem>
           </template>
-          <ElFormItem v-else label="模板预览">
+          <ElFormItem v-else :label="$t('pages.system.messageSend.templatePreviewLabel')">
             <div class="tpl-preview">
               <div
                 ><b>{{ tplPreview.title }}</b></div
@@ -69,23 +72,37 @@
             </div>
           </ElFormItem>
 
-          <ElFormItem label="占位变量">
+          <ElFormItem :label="$t('pages.system.messageSend.varsLabel')">
             <div class="var-list">
               <div v-for="(v, i) in form.vars" :key="i" class="var-row">
-                <ElInput v-model="v.key" placeholder="变量名，如 name" style="width: 180px" />
+                <ElInput
+                  v-model="v.key"
+                  :placeholder="$t('pages.system.messageSend.varKeyPlaceholder')"
+                  style="width: 180px"
+                />
                 <span class="var-eq">=</span>
-                <ElInput v-model="v.value" placeholder="变量值" style="width: 260px" />
-                <ElButton link type="danger" @click="form.vars.splice(i, 1)">删除</ElButton>
+                <ElInput
+                  v-model="v.value"
+                  :placeholder="$t('pages.system.messageSend.varValuePlaceholder')"
+                  style="width: 260px"
+                />
+                <ElButton link type="danger" @click="form.vars.splice(i, 1)">{{
+                  $t('pages.system.messageSend.varDeleteBtn')
+                }}</ElButton>
               </div>
               <ElButton link type="primary" @click="form.vars.push({ key: '', value: '' })">
-                + 添加变量
+                {{ $t('pages.system.messageSend.varAddBtn') }}
               </ElButton>
             </div>
           </ElFormItem>
 
           <ElFormItem>
-            <ElButton v-perm="'sys:message:manage'" type="primary" :loading="sending" @click="send"
-              >发送</ElButton
+            <ElButton
+              v-perm="'sys:message:manage'"
+              type="primary"
+              :loading="sending"
+              @click="send"
+              >{{ $t('pages.system.messageSend.sendBtn') }}</ElButton
             >
           </ElFormItem>
         </ElForm>
@@ -99,8 +116,11 @@
   import { ElMessage } from 'element-plus'
   import { fetchMsgTemplateList, fetchSendMessage } from '@/api/message'
   import { useUserSelectSearch } from '@/hooks'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'MessageSend' })
+
+  const { t } = useI18n()
 
   // 收件人远程搜索：成千账号场景不下全量（默认 50 条 + 关键字防抖查询）
   const { userOptions, userSearching, searchUsers, syncSelected } = useUserSelectSearch()
@@ -126,8 +146,10 @@
   }
 
   const send = async () => {
-    if (!form.recipientIds.length) return ElMessage.warning('请选择收件人')
-    if (!form.templateId && !form.title?.trim()) return ElMessage.warning('请填写标题')
+    if (!form.recipientIds.length)
+      return ElMessage.warning(t('pages.system.messageSend.recipientRequired'))
+    if (!form.templateId && !form.title?.trim())
+      return ElMessage.warning(t('pages.system.messageSend.titleRequired'))
     const params: Record<string, string> = {}
     form.vars.forEach((v: any) => {
       if (v.key?.trim()) params[v.key.trim()] = v.value ?? ''
@@ -142,7 +164,7 @@
         params,
         recipientIds: form.recipientIds
       })
-      ElMessage.success('发送成功')
+      ElMessage.success(t('pages.system.messageSend.sendSuccess'))
       Object.assign(form, {
         recipientIds: [],
         type: 'system',

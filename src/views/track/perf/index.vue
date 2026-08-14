@@ -6,25 +6,27 @@
       <ElSelect
         v-model="appKey"
         :loading="appsLoading"
-        placeholder="请选择应用"
+        :placeholder="$t('pages.track.shared.appPlaceholder')"
         class="track-app-select"
       >
         <ElOption v-for="o in appOptions" :key="o.value" :label="o.label" :value="o.value" />
       </ElSelect>
       <ElRadioGroup v-model="days">
-        <ElRadioButton :value="1">今天</ElRadioButton>
-        <ElRadioButton :value="7">近 7 天</ElRadioButton>
-        <ElRadioButton :value="30">近 30 天</ElRadioButton>
+        <ElRadioButton :value="1">{{ $t('pages.track.shared.today') }}</ElRadioButton>
+        <ElRadioButton :value="7">{{ $t('pages.track.shared.last7Days') }}</ElRadioButton>
+        <ElRadioButton :value="30">{{ $t('pages.track.shared.last30Days') }}</ElRadioButton>
       </ElRadioGroup>
       <ElInput
         v-model="routePath"
-        placeholder="路由模板筛选，回车生效"
+        :placeholder="$t('pages.track.perf.routeFilterPlaceholder')"
         clearable
         class="track-route-input"
         @keyup.enter="loadVitals"
         @clear="loadVitals"
       />
-      <ElButton :loading="loading" @click="loadVitals" v-ripple>查询</ElButton>
+      <ElButton :loading="loading" @click="loadVitals" v-ripple>{{
+        $t('pages.track.shared.search')
+      }}</ElButton>
     </div>
 
     <!-- 指标卡：P75 为主显示，good/needs-improvement/poor 三色 -->
@@ -36,12 +38,14 @@
             <ElTag :type="m.tagType" size="small" effect="light">{{ m.levelText }}</ElTag>
           </div>
           <div class="track-metric-value" :class="`is-${m.level}`">{{ m.p75Text }}</div>
-          <div class="track-metric-sub">{{ m.name }} · P75 · 样本 {{ m.count }}</div>
+          <div class="track-metric-sub"
+            >{{ m.name }} · P75 · {{ $t('pages.track.perf.sampleN', { count: m.count }) }}</div
+          >
         </div>
       </ElCol>
       <ElCol :xs="12" :sm="8" :lg="4">
         <div class="art-card track-metric-card track-metric-legend">
-          <div class="track-metric-sub">阈值（良好 / 差）</div>
+          <div class="track-metric-sub">{{ $t('pages.track.perf.thresholdLegend') }}</div>
           <div class="track-legend-line">LCP 2500/4000ms</div>
           <div class="track-legend-line">INP 200/500ms</div>
           <div class="track-legend-line">CLS 0.1/0.25</div>
@@ -54,17 +58,28 @@
     <!-- 分位明细 -->
     <ElCard class="art-table-card track-detail-card">
       <div class="track-detail-head">
-        <span class="track-card-title">分位明细</span>
+        <span class="track-card-title">{{ $t('pages.track.perf.quantileDetail') }}</span>
       </div>
       <ElTable :data="detailRows" v-loading="loading">
-        <ElTableColumn label="指标" width="200">
+        <ElTableColumn :label="$t('pages.track.perf.metric')" width="200">
           <template #default="{ row }">
             <span class="track-detail-metric">{{ row.label }}</span>
             <span class="track-detail-name">{{ row.name }}</span>
           </template>
         </ElTableColumn>
-        <ElTableColumn prop="count" label="样本数" width="110" align="right" header-align="right" />
-        <ElTableColumn label="均值" min-width="120" align="right" header-align="right">
+        <ElTableColumn
+          prop="count"
+          :label="$t('pages.track.perf.sampleCount')"
+          width="110"
+          align="right"
+          header-align="right"
+        />
+        <ElTableColumn
+          :label="$t('pages.track.perf.avg')"
+          min-width="120"
+          align="right"
+          header-align="right"
+        >
           <template #default="{ row }">{{ row.avgText }}</template>
         </ElTableColumn>
         <ElTableColumn label="P50" min-width="120" align="right" header-align="right">
@@ -80,7 +95,9 @@
             <span :class="`is-${row.p95Level}`">{{ row.p95Text }}</span>
           </template>
         </ElTableColumn>
-        <template #empty><ElEmpty description="暂无数据" :image-size="60" /></template>
+        <template #empty
+          ><ElEmpty :description="$t('pages.track.shared.noData')" :image-size="60"
+        /></template>
       </ElTable>
     </ElCard>
   </div>
@@ -88,6 +105,7 @@
 
 <script setup lang="ts">
   import { fetchTrackVitals } from '@/api/track'
+  import { useI18n } from 'vue-i18n'
   import { useTrackApp } from '@/views/track/shared/useTrackApp'
   import {
     ElButton,
@@ -101,16 +119,53 @@
 
   defineOptions({ name: 'TrackPerf' })
 
+  const { t } = useI18n()
+
   const { appOptions, appKey, days, appsLoading } = useTrackApp()
   const routePath = ref('')
 
   // CLS 直方图为千分制（/1000 还原原值），其余为毫秒；阈值为 good / poor 两档
   const METRICS = [
-    { key: 'lcp', label: 'LCP', name: '最大内容绘制', good: 2500, poor: 4000, cls: false },
-    { key: 'inp', label: 'INP', name: '交互到下一次绘制', good: 200, poor: 500, cls: false },
-    { key: 'cls', label: 'CLS', name: '累积布局偏移', good: 0.1, poor: 0.25, cls: true },
-    { key: 'fcp', label: 'FCP', name: '首次内容绘制', good: 1800, poor: 3000, cls: false },
-    { key: 'ttfb', label: 'TTFB', name: '首字节时间', good: 800, poor: 1800, cls: false }
+    {
+      key: 'lcp',
+      label: 'LCP',
+      name: t('pages.track.perf.metricLcpName'),
+      good: 2500,
+      poor: 4000,
+      cls: false
+    },
+    {
+      key: 'inp',
+      label: 'INP',
+      name: t('pages.track.perf.metricInpName'),
+      good: 200,
+      poor: 500,
+      cls: false
+    },
+    {
+      key: 'cls',
+      label: 'CLS',
+      name: t('pages.track.perf.metricClsName'),
+      good: 0.1,
+      poor: 0.25,
+      cls: true
+    },
+    {
+      key: 'fcp',
+      label: 'FCP',
+      name: t('pages.track.perf.metricFcpName'),
+      good: 1800,
+      poor: 3000,
+      cls: false
+    },
+    {
+      key: 'ttfb',
+      label: 'TTFB',
+      name: t('pages.track.perf.metricTtfbName'),
+      good: 800,
+      poor: 1800,
+      cls: false
+    }
   ] as const
 
   type MetricMeta = (typeof METRICS)[number]
@@ -131,7 +186,11 @@
   const fmtValue = (meta: MetricMeta, v: number): string =>
     meta.cls ? v.toFixed(3) : `${Math.round(v)}ms`
 
-  const LEVEL_TEXT: Record<Level, string> = { good: '良好', ni: '待改进', poor: '差' }
+  const LEVEL_TEXT: Record<Level, string> = {
+    good: t('pages.track.perf.levelGood'),
+    ni: t('pages.track.perf.levelNi'),
+    poor: t('pages.track.perf.levelPoor')
+  }
   const LEVEL_TAG: Record<Level, 'success' | 'warning' | 'danger'> = {
     good: 'success',
     ni: 'warning',

@@ -2,18 +2,25 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    :title="type === 'add' ? '新增公告' : '编辑公告'"
+    :title="type === 'add' ? $t('pages.system.notice.addBtn') : $t('pages.system.notice.editTitle')"
     width="820px"
     align-center
     class="notice-dialog"
     @open="onOpen"
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="90px">
-      <ElFormItem label="标题" prop="title">
-        <ElInput v-model="formData.title" placeholder="请输入标题" />
+      <ElFormItem :label="$t('pages.system.notice.colTitle')" prop="title">
+        <ElInput
+          v-model="formData.title"
+          :placeholder="$t('pages.system.notice.formTitlePlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="分类" prop="category">
-        <ElSelect v-model="formData.category" placeholder="请选择分类" style="width: 220px">
+      <ElFormItem :label="$t('pages.system.notice.colCategory')" prop="category">
+        <ElSelect
+          v-model="formData.category"
+          :placeholder="$t('pages.system.notice.formCategoryPlaceholder')"
+          style="width: 220px"
+        >
           <ElOption
             v-for="opt in CATEGORY_OPTIONS"
             :key="opt.value"
@@ -22,34 +29,42 @@
           />
         </ElSelect>
       </ElFormItem>
-      <ElFormItem label="置顶" prop="isTop">
+      <ElFormItem :label="$t('pages.system.notice.colTop')" prop="isTop">
         <ElSwitch v-model="formData.isTop" :active-value="1" :inactive-value="0" />
       </ElFormItem>
-      <ElFormItem label="可见范围" prop="allVisible">
+      <ElFormItem :label="$t('pages.system.notice.colScope')" prop="allVisible">
         <ElRadioGroup v-model="formData.allVisible">
-          <ElRadio :value="1">全部可见</ElRadio>
-          <ElRadio :value="0">指定范围</ElRadio>
+          <ElRadio :value="1">{{ $t('pages.system.notice.scopeAll') }}</ElRadio>
+          <ElRadio :value="0">{{ $t('pages.system.notice.scopeCustom') }}</ElRadio>
         </ElRadioGroup>
       </ElFormItem>
-      <ElFormItem v-if="formData.allVisible === 0" label="指定对象">
+      <ElFormItem
+        v-if="formData.allVisible === 0"
+        :label="$t('pages.system.notice.scopeTargetLabel')"
+      >
         <ElTransfer
           v-model="selectedKeys"
           :data="transferData"
           filterable
           :filter-method="onTransferFilter"
-          :titles="['可选（员工/部门）', '已选范围']"
+          :titles="[
+            $t('pages.system.notice.transferSourceTitle'),
+            $t('pages.system.notice.transferTargetTitle')
+          ]"
           :props="{ key: 'key', label: 'label' }"
           class="notice-transfer"
         />
       </ElFormItem>
-      <ElFormItem label="内容" prop="content">
+      <ElFormItem :label="$t('pages.system.notice.contentLabel')" prop="content">
         <ArtWangEditor v-model="formData.content" height="300px" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="handleSubmit">{{
+          $t('pages.system.notice.submitBtn')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -62,6 +77,7 @@
   import { fetchNoticeDetail } from '@/api/system-manage'
   import { fetchDeptSelect } from '@/api/system-manage'
   import { useUserSelectSearch } from '@/hooks'
+  import { useI18n } from 'vue-i18n'
 
   interface Props {
     visible: boolean
@@ -77,10 +93,12 @@
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
 
+  const { t } = useI18n()
+
   const CATEGORY_OPTIONS = [
-    { label: '通知', value: 'notice' },
-    { label: '公告', value: 'announcement' },
-    { label: '预警', value: 'warning' }
+    { label: t('pages.system.notice.categoryNotice'), value: 'notice' },
+    { label: t('pages.system.notice.categoryAnnouncement'), value: 'announcement' },
+    { label: t('pages.system.notice.categoryWarning'), value: 'warning' }
   ]
 
   const dialogVisible = computed({
@@ -107,8 +125,14 @@
   const selectedKeys = ref<string[]>([])
 
   const transferData = computed(() => [
-    ...deptOptions.value.map((d) => ({ key: `d:${d.value}`, label: `【部门】${d.label}` })),
-    ...userOptions.value.map((u) => ({ key: `u:${u.value}`, label: `【员工】${u.label}` }))
+    ...deptOptions.value.map((d) => ({
+      key: `d:${d.value}`,
+      label: t('pages.system.notice.transferDeptLabel', { name: d.label })
+    })),
+    ...userOptions.value.map((u) => ({
+      key: `u:${u.value}`,
+      label: t('pages.system.notice.transferUserLabel', { name: u.label })
+    }))
   ])
 
   /** 穿梭框过滤：部门本地过滤；关键字变化时防抖触发员工远程搜索（远程结果本身即匹配，直接放行） */
@@ -127,8 +151,20 @@
   })
 
   const rules: FormRules = {
-    title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-    category: [{ required: true, message: '请选择分类', trigger: 'change' }]
+    title: [
+      {
+        required: true,
+        message: t('pages.system.notice.formTitlePlaceholder'),
+        trigger: 'blur'
+      }
+    ],
+    category: [
+      {
+        required: true,
+        message: t('pages.system.notice.formCategoryPlaceholder'),
+        trigger: 'change'
+      }
+    ]
   }
 
   const loadTransferSource = async () => {
@@ -160,7 +196,7 @@
     await formRef.value.validate((valid) => {
       if (!valid) return
       if (formData.allVisible === 0 && selectedKeys.value.length === 0) {
-        ElMessage.warning('指定范围时请至少选择一个员工或部门')
+        ElMessage.warning(t('pages.system.notice.scopeRequired'))
         return
       }
       const scopeList =

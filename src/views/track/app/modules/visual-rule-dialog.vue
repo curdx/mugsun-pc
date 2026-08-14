@@ -3,32 +3,43 @@
 <template>
   <ElDialog
     v-model="dialogVisible"
-    title="编辑圈选规则"
+    :title="$t('pages.track.app.editRuleTitle')"
     width="520px"
     align-center
     class="track-visual-rule-dialog"
   >
     <ElForm ref="formRef" :model="formData" :rules="rules" label-width="96px">
-      <ElFormItem label="事件名" prop="eventName">
-        <ElInput v-model="formData.eventName" placeholder="字母开头，仅字母/数字/下划线" />
+      <ElFormItem :label="$t('pages.track.shared.eventName')" prop="eventName">
+        <ElInput
+          v-model="formData.eventName"
+          :placeholder="$t('pages.track.app.eventNamePlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="选择器">
+      <ElFormItem :label="$t('pages.track.app.selector')">
         <ElInput :model-value="formData.selector" disabled class="track-visual-selector" />
       </ElFormItem>
-      <ElFormItem label="路由路径" prop="routePath">
-        <ElInput v-model="formData.routePath" clearable placeholder="留空表示全站生效" />
+      <ElFormItem :label="$t('pages.track.app.routePathLabel')" prop="routePath">
+        <ElInput
+          v-model="formData.routePath"
+          clearable
+          :placeholder="$t('pages.track.app.routePathPlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="匹配文本" prop="matchText">
-        <ElInput v-model="formData.matchText" clearable placeholder="留空表示不限元素文本" />
+      <ElFormItem :label="$t('pages.track.app.matchText')" prop="matchText">
+        <ElInput
+          v-model="formData.matchText"
+          clearable
+          :placeholder="$t('pages.track.app.matchTextPlaceholder')"
+        />
       </ElFormItem>
-      <ElFormItem label="启用" prop="status">
+      <ElFormItem :label="$t('pages.track.shared.enabled')" prop="status">
         <ElSwitch v-model="formData.status" :active-value="1" :inactive-value="0" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="handleSubmit">提交</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="handleSubmit">{{ $t('table.form.submit') }}</ElButton>
       </div>
     </template>
   </ElDialog>
@@ -36,6 +47,7 @@
 
 <script setup lang="ts">
   import type { FormInstance, FormRules } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   interface Props {
     visible: boolean
@@ -55,6 +67,8 @@
     set: (value) => emit('update:visible', value)
   })
 
+  const { t } = useI18n()
+
   const formRef = ref<FormInstance>()
 
   const formData = reactive<Record<string, any>>({
@@ -71,10 +85,10 @@
 
   const rules: FormRules = {
     eventName: [
-      { required: true, message: '请输入事件名', trigger: 'blur' },
+      { required: true, message: t('pages.track.app.ruleEventNameRequired'), trigger: 'blur' },
       {
         pattern: EVENT_NAME_PATTERN,
-        message: '字母开头，仅字母/数字/下划线，最长 64 位',
+        message: t('pages.track.app.ruleEventNamePattern'),
         trigger: 'blur'
       }
     ]

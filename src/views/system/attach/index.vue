@@ -12,7 +12,9 @@
     <ElCard class="art-table-card">
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
-          <ElButton :loading="uploading" @click="triggerUpload" v-ripple>上传附件</ElButton>
+          <ElButton :loading="uploading" @click="triggerUpload" v-ripple>{{
+            $t('pages.system.attach.uploadBtn')
+          }}</ElButton>
           <input ref="uploadInput" type="file" style="display: none" @change="handleUpload" />
           <ElProgress
             v-if="uploading && directUploading"
@@ -51,8 +53,11 @@
   import request from '@/utils/http'
   import { formatTableTime } from '@/utils/date'
   import { ElButton, ElImage, ElMessageBox, ElMessage } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Attach' })
+
+  const { t } = useI18n()
 
   /** 支持缩略图预览的图片扩展名 */
   const IMAGE_EXTS = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg']
@@ -65,15 +70,15 @@
   const searchItems = computed(() => [
     {
       key: 'filename',
-      label: '文件名',
+      label: t('pages.system.attach.filenameLabel'),
       type: 'input',
-      props: { placeholder: '请输入文件名', clearable: true }
+      props: { placeholder: t('pages.system.attach.filenamePlaceholder'), clearable: true }
     },
     {
       key: 'ext',
-      label: '类型',
+      label: t('pages.system.attach.extLabel'),
       type: 'input',
-      props: { placeholder: '请输入扩展名，如 png', clearable: true }
+      props: { placeholder: t('pages.system.attach.extPlaceholder'), clearable: true }
     }
   ])
 
@@ -147,10 +152,10 @@
       // 后端分页参数为 pageNum/pageSize
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
+        { type: 'index', width: 60, label: t('pages.system.attach.colIndex') },
         {
           prop: 'preview',
-          label: '预览',
+          label: t('pages.system.attach.colPreview'),
           width: 80,
           // 图片附件缩略图（el-image 点击放大预览）；非图片/未加载完成显示占位
           formatter: (row: any) =>
@@ -164,24 +169,29 @@
                 })
               : h('span', { style: 'color:var(--el-text-color-secondary)' }, '—')
         },
-        { prop: 'name', label: '文件名', minWidth: 220, showOverflowTooltip: true },
-        { prop: 'ext', label: '类型', width: 90 },
+        {
+          prop: 'name',
+          label: t('pages.system.attach.filenameLabel'),
+          minWidth: 220,
+          showOverflowTooltip: true
+        },
+        { prop: 'ext', label: t('pages.system.attach.extLabel'), width: 90 },
         {
           prop: 'size',
-          label: '大小',
+          label: t('pages.system.attach.colSize'),
           width: 110,
           formatter: (row: any) => formatSize(row.size)
         },
-        { prop: 'platform', label: '存储平台', width: 130 },
+        { prop: 'platform', label: t('pages.system.attach.colPlatform'), width: 130 },
         {
           prop: 'createTime',
-          label: '上传时间',
+          label: t('pages.system.attach.colUploadTime'),
           minWidth: 170,
           formatter: (row: any) => formatTableTime(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.attach.colOperation'),
           width: 130,
           fixed: 'right',
           formatter: (row: any) =>
@@ -189,7 +199,7 @@
               h(
                 ElButton,
                 { link: true, type: 'primary', size: 'small', onClick: () => download(row) },
-                () => '下载'
+                () => t('pages.system.attach.downloadBtn')
               ),
               h(ArtButtonTable, { type: 'delete', onClick: () => deleteRow(row) })
             ])
@@ -266,14 +276,14 @@
           await putToCloud(sign.uploadUrl, sign.headers || {}, file)
         } catch {
           // 直传走裸 XHR、不经 http 拦截器，失败须自行提示，避免静默失败（finally 仍会复位状态）
-          ElMessage.error('直传失败，请重试')
+          ElMessage.error(t('pages.system.attach.directUploadFailed'))
           return
         }
         await fetchCreateAttach({ ticket: sign.ticket, size: file.size })
       } else {
         await fetchUploadFile(file)
       }
-      ElMessage.success('上传成功')
+      ElMessage.success(t('pages.system.attach.uploadSuccess'))
       refreshData()
     } finally {
       uploading.value = false
@@ -290,13 +300,17 @@
     })
 
   const deleteRow = (row: any): void => {
-    ElMessageBox.confirm(`确定删除附件"${row.name}"吗？`, '删除附件', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.attach.deleteConfirm', { name: row.name }),
+      t('pages.system.attach.deleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveAttach(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.attach.deleteSuccess'))
       refreshData()
     })
   }

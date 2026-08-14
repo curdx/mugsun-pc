@@ -1,17 +1,40 @@
 <!-- 通知阅读记录弹窗：谁读了 / 阅读次数 / 首末阅读时间 -->
 <template>
-  <ElDialog v-model="dialogVisible" title="阅读记录" width="680px" align-center @open="onOpen">
+  <ElDialog
+    v-model="dialogVisible"
+    :title="$t('pages.system.notice.readRecord')"
+    width="680px"
+    align-center
+    @open="onOpen"
+  >
     <div class="read-summary">
-      <ElTag type="primary" effect="light">阅读人数(UV)：{{ notice?.viewUv ?? 0 }}</ElTag>
-      <ElTag type="info" effect="light">阅读次数(PV)：{{ notice?.viewPv ?? 0 }}</ElTag>
+      <ElTag type="primary" effect="light"
+        >{{ $t('pages.system.notice.readUvTag') }}{{ notice?.viewUv ?? 0 }}</ElTag
+      >
+      <ElTag type="info" effect="light"
+        >{{ $t('pages.system.notice.readPvTag') }}{{ notice?.viewPv ?? 0 }}</ElTag
+      >
     </div>
     <ElTable :data="records" v-loading="loading" border height="360" style="margin-top: 12px">
-      <ElTableColumn type="index" label="序号" width="60" />
-      <ElTableColumn prop="nickname" label="阅读人" min-width="140" />
-      <ElTableColumn prop="deptName" label="部门" min-width="120" />
-      <ElTableColumn prop="readCount" label="次数" width="80" align="center" />
-      <ElTableColumn prop="firstTime" label="首次阅读" min-width="170" />
-      <ElTableColumn prop="lastTime" label="最近阅读" min-width="170" />
+      <ElTableColumn type="index" :label="$t('pages.system.notice.colIndex')" width="60" />
+      <ElTableColumn prop="nickname" :label="$t('pages.system.notice.colReader')" min-width="140" />
+      <ElTableColumn prop="deptName" :label="$t('pages.system.notice.colDept')" min-width="120" />
+      <ElTableColumn
+        prop="readCount"
+        :label="$t('pages.system.notice.colReadCount')"
+        width="80"
+        align="center"
+      />
+      <ElTableColumn
+        prop="firstTime"
+        :label="$t('pages.system.notice.colFirstTime')"
+        min-width="170"
+      />
+      <ElTableColumn
+        prop="lastTime"
+        :label="$t('pages.system.notice.colLastTime')"
+        min-width="170"
+      />
     </ElTable>
     <div class="read-pager">
       <ElPagination

@@ -4,7 +4,7 @@
       <ElFormItem prop="author" class="mt-5">
         <ElInput
           v-model="newComment.author"
-          placeholder="你的名称"
+          :placeholder="$t('components.comment.authorPlaceholder')"
           class="block w-full"
           clearable
         />
@@ -12,7 +12,7 @@
       <ElFormItem prop="content">
         <ElInput
           v-model="newComment.content"
-          placeholder="简单说两句..."
+          :placeholder="$t('components.comment.contentPlaceholder')"
           type="textarea"
           :rows="5"
           clearable
@@ -20,13 +20,17 @@
       </ElFormItem>
       <ElFormItem>
         <div class="flex justify-end w-full">
-          <ElButton type="primary" @click="addComment"> 发布 </ElButton>
+          <ElButton type="primary" @click="addComment">
+            {{ $t('components.comment.publish') }}
+          </ElButton>
         </div>
       </ElFormItem>
     </ElForm>
 
     <ul>
-      <div class="pb-5 text-lg font-medium"> 评论 {{ comments.length }} </div>
+      <div class="pb-5 text-lg font-medium">
+        {{ $t('components.comment.title') }} {{ comments.length }}
+      </div>
       <CommentItem
         v-for="comment in comments.slice().reverse()"
         :key="comment.id"
@@ -42,9 +46,13 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
+  import { ElMessage } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
   import CommentItem from './widget/CommentItem.vue'
   import { commentList, Comment } from '@/mock/temp/commentDetail'
   const comments = commentList
+
+  const { t } = useI18n()
 
   const newComment = ref<Partial<Comment>>({
     author: '',
@@ -55,7 +63,7 @@
 
   const addComment = () => {
     if (!newComment.value.author?.trim() || !newComment.value.content?.trim()) {
-      ElMessage.warning('请填写完整的评论信息')
+      ElMessage.warning(t('components.comment.fillCommentWarning'))
       return
     }
 
@@ -69,12 +77,12 @@
 
     newComment.value.author = ''
     newComment.value.content = ''
-    ElMessage.success('评论发布成功')
+    ElMessage.success(t('components.comment.publishSuccess'))
   }
 
   const addReply = (commentId: number, replyAuthor: string, replyContent: string) => {
     if (!replyAuthor?.trim() || !replyContent?.trim()) {
-      ElMessage.warning('请填写完整的回复信息')
+      ElMessage.warning(t('components.comment.fillReplyWarning'))
       return
     }
 
@@ -88,7 +96,7 @@
         replies: []
       })
       showReplyForm.value = null
-      ElMessage.success('回复发布成功')
+      ElMessage.success(t('components.comment.replySuccess'))
     }
   }
 

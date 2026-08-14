@@ -37,6 +37,7 @@
 <script setup lang="ts">
   // 导入默认图标
   import defaultIcon from '@imgs/3d/icon1.webp'
+  import { $t } from '@/locales'
 
   defineOptions({ name: 'ArtCardBanner' })
 
@@ -83,14 +84,14 @@
     // 主按钮默认配置
     button: () => ({
       show: true,
-      text: '查看详情',
+      text: $t('components.cardBanner.buttonText'),
       color: 'var(--theme-color)',
       textColor: '#fff'
     }),
     // 取消按钮默认配置
     cancelButton: () => ({
       show: false,
-      text: '取消',
+      text: $t('common.cancel'),
       color: '#f5f5f5',
       textColor: '#666'
     })

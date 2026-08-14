@@ -11,39 +11,60 @@
     />
     <ElCard class="art-table-card">
       <div class="tpkg-toolbar">
-        <ElButton v-perm="'sys:tenant-package:save'" type="primary" @click="showCreate"
-          >新建套餐</ElButton
-        >
+        <ElButton v-perm="'sys:tenant-package:save'" type="primary" @click="showCreate">{{
+          $t('pages.system.tenantPackage.create')
+        }}</ElButton>
       </div>
 
       <!-- 表格为自由增长内容：art-table-card 卡片体是 height:100%+overflow:hidden 裁剪，
            内部须自备滚动，否则矮视口下底部行被切断且不可达（同 track/user 修法） -->
       <div v-loading="loading" class="tpkg-table-wrap">
         <ElTable :data="tableData" border>
-          <ElTableColumn type="index" label="序号" width="60" />
-          <ElTableColumn prop="name" label="套餐名称" min-width="150" />
-          <ElTableColumn label="功能菜单数" width="110">
+          <ElTableColumn type="index" :label="$t('table.column.index')" width="60" />
+          <ElTableColumn
+            prop="name"
+            :label="$t('pages.system.tenantPackage.name')"
+            min-width="150"
+          />
+          <ElTableColumn :label="$t('pages.system.tenantPackage.menuCount')" width="110">
             <template #default="{ row }">{{ keyCount(row.menuKeys) }}</template>
           </ElTableColumn>
-          <ElTableColumn label="状态" width="90">
+          <ElTableColumn :label="$t('pages.system.tenantPackage.status')" width="90">
             <template #default="{ row }">
               <ElTag :type="row.status === 1 ? 'success' : 'info'">
-                {{ row.status === 1 ? '启用' : '停用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.tenantPackage.enabled')
+                    : $t('pages.system.tenantPackage.disabled')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="remark" label="备注" min-width="160" show-overflow-tooltip />
-          <ElTableColumn label="操作" width="150" fixed="right">
+          <ElTableColumn
+            prop="remark"
+            :label="$t('pages.system.tenantPackage.remark')"
+            min-width="160"
+            show-overflow-tooltip
+          />
+          <ElTableColumn
+            :label="$t('pages.system.tenantPackage.actions')"
+            width="150"
+            fixed="right"
+          >
             <template #default="{ row }">
               <ElButton
                 v-perm="'sys:tenant-package:save'"
                 link
                 type="primary"
                 @click="showEdit(row)"
-                >编辑</ElButton
+                >{{ $t('pages.system.tenantPackage.edit') }}</ElButton
               >
-              <ElButton v-perm="'sys:tenant-package:remove'" link type="danger" @click="remove(row)"
-                >删除</ElButton
+              <ElButton
+                v-perm="'sys:tenant-package:remove'"
+                link
+                type="danger"
+                @click="remove(row)"
+                >{{ $t('pages.system.tenantPackage.delete') }}</ElButton
               >
             </template>
           </ElTableColumn>
@@ -53,19 +74,26 @@
 
     <ElDialog
       v-model="dialogVisible"
-      :title="form.id ? '编辑套餐' : '新建套餐'"
+      :title="
+        form.id
+          ? $t('pages.system.tenantPackage.editTitle')
+          : $t('pages.system.tenantPackage.create')
+      "
       width="600px"
       align-center
       class="tpkg-dialog"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="90px">
-        <ElFormItem label="套餐名称" prop="name">
-          <ElInput v-model="form.name" placeholder="请输入套餐名称" />
+        <ElFormItem :label="$t('pages.system.tenantPackage.name')" prop="name">
+          <ElInput
+            v-model="form.name"
+            :placeholder="$t('pages.system.tenantPackage.namePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="状态">
+        <ElFormItem :label="$t('pages.system.tenantPackage.status')">
           <ElSwitch v-model="form.status" :active-value="1" :inactive-value="0" />
         </ElFormItem>
-        <ElFormItem label="功能菜单">
+        <ElFormItem :label="$t('pages.system.tenantPackage.menuLabel')">
           <ElTree
             ref="treeRef"
             :data="menuTree"
@@ -76,13 +104,19 @@
             class="tpkg-tree"
           />
         </ElFormItem>
-        <ElFormItem label="备注">
-          <ElInput v-model="form.remark" type="textarea" placeholder="备注" />
+        <ElFormItem :label="$t('pages.system.tenantPackage.remark')">
+          <ElInput
+            v-model="form.remark"
+            type="textarea"
+            :placeholder="$t('pages.system.tenantPackage.remarkPlaceholder')"
+          />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="dialogSaving" @click="submit">保存</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="dialogSaving" @click="submit">{{
+          $t('pages.system.tenantPackage.save')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -90,6 +124,7 @@
 
 <script setup lang="ts">
   import { ref, reactive, onMounted, nextTick } from 'vue'
+  import { useI18n } from 'vue-i18n'
   import type { FormInstance, FormRules } from 'element-plus'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import ArtSearchBar from '@/components/core/forms/art-search-bar/index.vue'
@@ -104,6 +139,8 @@
 
   defineOptions({ name: 'TenantPackage' })
 
+  const { t } = useI18n()
+
   // ===== 查询栏 =====
   const searchForm = ref({
     name: '',
@@ -112,20 +149,20 @@
   const searchItems = computed(() => [
     {
       key: 'name',
-      label: '套餐名称',
+      label: t('pages.system.tenantPackage.name'),
       type: 'input',
-      props: { placeholder: '请输入套餐名称', clearable: true }
+      props: { placeholder: t('pages.system.tenantPackage.namePlaceholder'), clearable: true }
     },
     {
       key: 'status',
-      label: '状态',
+      label: t('pages.system.tenantPackage.status'),
       type: 'select',
       props: {
-        placeholder: '请选择状态',
+        placeholder: t('pages.system.tenantPackage.statusPlaceholder'),
         clearable: true,
         options: [
-          { label: '启用', value: 1 },
-          { label: '停用', value: 0 }
+          { label: t('pages.system.tenantPackage.enabled'), value: 1 },
+          { label: t('pages.system.tenantPackage.disabled'), value: 0 }
         ]
       }
     }
@@ -160,7 +197,9 @@
   const form = reactive<Record<string, any>>({ id: null, name: '', status: 1, remark: '' })
 
   const rules: FormRules = {
-    name: [{ required: true, message: '请输入套餐名称', trigger: 'blur' }]
+    name: [
+      { required: true, message: t('pages.system.tenantPackage.namePlaceholder'), trigger: 'blur' }
+    ]
   }
 
   const keyCount = (keys: string): number => (keys ? keys.split(',').filter(Boolean).length : 0)
@@ -218,7 +257,7 @@
         // 仅收集叶子（勾选）节点名作为菜单标识
         const keys: string[] = treeRef.value?.getCheckedKeys(true) ?? []
         await fetchSubmitTenantPackage({ ...form, menuKeys: keys.join(',') })
-        ElMessage.success('保存成功')
+        ElMessage.success(t('pages.system.tenantPackage.msgSaved'))
         dialogVisible.value = false
         loadData()
       } finally {
@@ -228,13 +267,17 @@
   }
 
   const remove = (row: any): void => {
-    ElMessageBox.confirm(`确定删除套餐"${row.name}"吗？`, '删除套餐', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.tenantPackage.confirmDelete', { name: row.name }),
+      t('pages.system.tenantPackage.deleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveTenantPackage(row.id)
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.tenantPackage.msgDeleted'))
       loadData()
     })
   }

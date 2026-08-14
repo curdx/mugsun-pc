@@ -1,6 +1,11 @@
 <!-- 用户角色授权弹窗（对接 /system/user/grant，回显 /role-ids） -->
 <template>
-  <ElDialog v-model="dialogVisible" title="用户授权" width="440px" align-center>
+  <ElDialog
+    v-model="dialogVisible"
+    :title="$t('pages.system.user.grantTitle')"
+    width="440px"
+    align-center
+  >
     <ElCheckboxGroup v-model="checkedRoles" class="role-list">
       <div v-for="opt in roleOptions" :key="opt.value" class="role-item">
         <ElCheckbox :value="opt.value">{{ opt.label }}</ElCheckbox>
@@ -8,14 +13,17 @@
     </ElCheckboxGroup>
     <template #footer>
       <div class="dialog-footer">
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="handleSubmit">保存</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="handleSubmit">{{
+          $t('pages.system.user.save')
+        }}</ElButton>
       </div>
     </template>
   </ElDialog>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from 'vue-i18n'
   import { ElMessage } from 'element-plus'
   import { fetchRoleSelect } from '@/api/role'
   import { fetchUserRoleIds, grantUser } from '@/api/user'
@@ -32,6 +40,8 @@
 
   const props = defineProps<Props>()
   const emit = defineEmits<Emits>()
+
+  const { t } = useI18n()
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -57,7 +67,7 @@
     submitting.value = true
     try {
       await grantUser(props.userData.id, checkedRoles.value)
-      ElMessage.success('授权成功')
+      ElMessage.success(t('pages.system.user.grantSuccess'))
       dialogVisible.value = false
       emit('success')
     } finally {

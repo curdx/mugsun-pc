@@ -3,35 +3,56 @@
   <div class="client-page art-full-height">
     <ElCard class="art-table-card">
       <div class="client-toolbar">
-        <span class="client-title">登录客户端</span>
-        <ElButton v-perm="'sys:client:save'" type="primary" @click="openCreate"
-          >新增客户端</ElButton
-        >
+        <span class="client-title">{{ $t('pages.system.client.pageTitle') }}</span>
+        <ElButton v-perm="'sys:client:save'" type="primary" @click="openCreate">{{
+          $t('pages.system.client.addBtn')
+        }}</ElButton>
       </div>
 
       <div class="client-table-scroll">
         <ElTable :data="tableData" border v-loading="loading">
-          <ElTableColumn prop="clientId" label="客户端码" min-width="120" />
-          <ElTableColumn prop="clientName" label="名称" min-width="140" show-overflow-tooltip />
-          <ElTableColumn label="图形验证码" width="110">
+          <ElTableColumn
+            prop="clientId"
+            :label="$t('pages.system.client.colClientId')"
+            min-width="120"
+          />
+          <ElTableColumn
+            prop="clientName"
+            :label="$t('pages.system.client.colName')"
+            min-width="140"
+            show-overflow-tooltip
+          />
+          <ElTableColumn :label="$t('pages.system.client.colCaptcha')" width="110">
             <template #default="{ row }">
               <ElTag :type="row.captchaEnabled === 1 ? 'success' : 'info'" size="small">
-                {{ row.captchaEnabled === 1 ? '开启' : '关闭' }}
+                {{
+                  row.captchaEnabled === 1
+                    ? $t('pages.system.client.captchaOn')
+                    : $t('pages.system.client.captchaOff')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn prop="maxOnline" label="最大在线(0不限)" width="130" />
-          <ElTableColumn label="令牌有效期" width="120">
+          <ElTableColumn
+            prop="maxOnline"
+            :label="$t('pages.system.client.colMaxOnline')"
+            width="130"
+          />
+          <ElTableColumn :label="$t('pages.system.client.colTokenTimeout')" width="120">
             <template #default="{ row }">{{ formatSecondsDuration(row.tokenTimeout) }}</template>
           </ElTableColumn>
-          <ElTableColumn label="状态" width="90">
+          <ElTableColumn :label="$t('pages.system.client.colStatus')" width="90">
             <template #default="{ row }">
               <ElTag :type="row.status === 1 ? 'success' : 'danger'" size="small">
-                {{ row.status === 1 ? '启用' : '停用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.client.statusEnabled')
+                    : $t('pages.system.client.statusDisabled')
+                }}
               </ElTag>
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="220" fixed="right">
+          <ElTableColumn :label="$t('pages.system.client.colOperation')" width="220" fixed="right">
             <template #default="{ row }">
               <ElButton
                 v-perm="'sys:client:save'"
@@ -39,7 +60,7 @@
                 type="primary"
                 size="small"
                 @click="openEdit(row)"
-                >编辑</ElButton
+                >{{ $t('pages.system.client.editBtn') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:client:edit'"
@@ -48,7 +69,11 @@
                 size="small"
                 @click="toggleStatus(row)"
               >
-                {{ row.status === 1 ? '停用' : '启用' }}
+                {{
+                  row.status === 1
+                    ? $t('pages.system.client.statusDisabled')
+                    : $t('pages.system.client.statusEnabled')
+                }}
               </ElButton>
               <ElButton
                 v-perm="'sys:client:remove'"
@@ -56,7 +81,7 @@
                 type="danger"
                 size="small"
                 @click="remove(row)"
-                >删除</ElButton
+                >{{ $t('pages.system.client.deleteBtn') }}</ElButton
               >
             </template>
           </ElTableColumn>
@@ -76,33 +101,37 @@
 
     <ElDialog
       v-model="dialogVisible"
-      :title="dialogType === 'add' ? '新增客户端' : '编辑客户端'"
+      :title="
+        dialogType === 'add'
+          ? $t('pages.system.client.addBtn')
+          : $t('pages.system.client.editTitle')
+      "
       width="480px"
     >
       <ElForm ref="formRef" :model="form" :rules="rules" label-width="120px">
-        <ElFormItem label="客户端码" prop="clientId">
+        <ElFormItem :label="$t('pages.system.client.colClientId')" prop="clientId">
           <ElInput
             v-model="form.clientId"
             :disabled="dialogType === 'edit'"
-            placeholder="如 app / miniapp"
+            :placeholder="$t('pages.system.client.clientIdPlaceholder')"
           />
         </ElFormItem>
-        <ElFormItem label="名称" prop="clientName">
+        <ElFormItem :label="$t('pages.system.client.colName')" prop="clientName">
           <ElInput v-model="form.clientName" />
         </ElFormItem>
-        <ElFormItem label="图形验证码">
+        <ElFormItem :label="$t('pages.system.client.colCaptcha')">
           <ElSwitch v-model="form.captchaEnabled" :active-value="1" :inactive-value="0" />
         </ElFormItem>
-        <ElFormItem label="最大在线(0不限)">
+        <ElFormItem :label="$t('pages.system.client.colMaxOnline')">
           <ElInputNumber v-model="form.maxOnline" :min="0" />
         </ElFormItem>
-        <ElFormItem label="令牌有效期(秒)">
+        <ElFormItem :label="$t('pages.system.client.formTokenTimeout')">
           <ElInputNumber v-model="form.tokenTimeout" :min="60" :step="600" />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="dialogVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="submit">保存</ElButton>
+        <ElButton @click="dialogVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="submit">{{ $t('pages.system.client.saveBtn') }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -120,8 +149,11 @@
     fetchDisableClient
   } from '@/api/client'
   import { formatSecondsDuration } from '@/utils/date'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Client' })
+
+  const { t } = useI18n()
 
   const tableData = ref<any[]>([])
   const loading = ref(false)
@@ -142,8 +174,8 @@
   })
 
   const rules: FormRules = {
-    clientId: [{ required: true, message: '请输入客户端码', trigger: 'blur' }],
-    clientName: [{ required: true, message: '请输入名称', trigger: 'blur' }]
+    clientId: [{ required: true, message: t('pages.system.client.ruleClientId'), trigger: 'blur' }],
+    clientName: [{ required: true, message: t('pages.system.client.ruleName'), trigger: 'blur' }]
   }
 
   const loadData = async (): Promise<void> => {
@@ -188,7 +220,7 @@
     await formRef.value.validate(async (valid) => {
       if (!valid) return
       await fetchSaveClient(form)
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.client.saveSuccess'))
       dialogVisible.value = false
       loadData()
     })
@@ -198,25 +230,33 @@
     // 启用无风险直接执行；停用后该客户端将无法登录，属危险操作须二次确认
     if (row.status !== 1) {
       await fetchEnableClient(row.id)
-      ElMessage.success('操作成功')
+      ElMessage.success(t('pages.system.client.operateSuccess'))
       loadData()
       return
     }
-    ElMessageBox.confirm(`确定停用客户端「${row.clientName}」吗？停用后该端将无法登录。`, '停用', {
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.client.disableConfirm', { name: row.clientName }),
+      t('pages.system.client.disableTitle'),
+      {
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchDisableClient(row.id)
-      ElMessage.success('操作成功')
+      ElMessage.success(t('pages.system.client.operateSuccess'))
       loadData()
     })
   }
 
   const remove = (row: any): void => {
-    ElMessageBox.confirm(`确定删除客户端「${row.clientName}」吗？`, '删除', {
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.client.deleteConfirm', { name: row.clientName }),
+      t('pages.system.client.deleteTitle'),
+      {
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveClient([row.id])
-      ElMessage.success('删除成功')
+      ElMessage.success(t('pages.system.client.deleteSuccess'))
       loadData()
     })
   }

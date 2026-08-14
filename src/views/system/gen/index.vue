@@ -2,35 +2,57 @@
 <template>
   <div class="gen-page art-full-height">
     <ElCard class="art-table-card">
-      <ElDescriptions title="数据源" :column="4" border size="small" class="gen-ds">
+      <ElDescriptions
+        :title="$t('pages.system.gen.datasource')"
+        :column="4"
+        border
+        size="small"
+        class="gen-ds"
+      >
         <!-- 后端读不到连接配置时字段为 null，统一 '-' 兜底，避免出现无标题空白格 -->
-        <ElDescriptionsItem label="名称">{{ datasource.name || '-' }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="驱动">{{ datasource.driver || '-' }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="账号">{{ datasource.username || '-' }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="连接" :span="1">{{ datasource.url || '-' }}</ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.system.gen.dsName')">{{
+          datasource.name || '-'
+        }}</ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.system.gen.dsDriver')">{{
+          datasource.driver || '-'
+        }}</ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.system.gen.dsUsername')">{{
+          datasource.username || '-'
+        }}</ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.system.gen.dsUrl')" :span="1">{{
+          datasource.url || '-'
+        }}</ElDescriptionsItem>
       </ElDescriptions>
 
       <div class="gen-form">
-        <span class="gen-label">数据表</span>
+        <span class="gen-label">{{ $t('pages.system.gen.table') }}</span>
         <ElSelect
           v-model="importForm.tableName"
           filterable
-          placeholder="选择库表"
+          :placeholder="$t('pages.system.gen.tablePlaceholder')"
           style="width: 220px"
         >
           <ElOption v-for="t in tables" :key="t.name" :label="tableLabel(t)" :value="t.name" />
         </ElSelect>
-        <span class="gen-label">模块</span>
-        <ElInput v-model="importForm.moduleName" style="width: 110px" placeholder="如 system" />
-        <span class="gen-label">基础包</span>
+        <span class="gen-label">{{ $t('pages.system.gen.module') }}</span>
+        <ElInput
+          v-model="importForm.moduleName"
+          style="width: 110px"
+          :placeholder="$t('pages.system.gen.modulePlaceholder')"
+        />
+        <span class="gen-label">{{ $t('pages.system.gen.basePackage') }}</span>
         <ElInput
           v-model="importForm.basePackage"
           style="width: 180px"
           placeholder="com.mugsun.boot"
         />
-        <span class="gen-label">前缀</span>
-        <ElInput v-model="importForm.tablePrefix" style="width: 90px" placeholder="如 sys_" />
-        <span class="gen-label">作者</span>
+        <span class="gen-label">{{ $t('pages.system.gen.prefix') }}</span>
+        <ElInput
+          v-model="importForm.tablePrefix"
+          style="width: 90px"
+          :placeholder="$t('pages.system.gen.prefixPlaceholder')"
+        />
+        <span class="gen-label">{{ $t('pages.system.gen.author') }}</span>
         <ElInput v-model="importForm.author" style="width: 100px" placeholder="mugsun" />
         <ElButton
           v-perm="'sys:gen:import'"
@@ -39,7 +61,7 @@
           :disabled="!importForm.tableName"
           @click="onImport"
         >
-          导入
+          {{ $t('pages.system.gen.importBtn') }}
         </ElButton>
       </div>
 
@@ -47,11 +69,24 @@
       <div class="gen-list-wrap">
         <ElTable v-loading="listLoading" :data="genList" border size="small" height="100%">
           <ElTableColumn type="index" label="#" width="50" />
-          <ElTableColumn prop="tableName" label="表名" min-width="150" />
-          <ElTableColumn prop="entityName" label="实体" min-width="120" />
-          <ElTableColumn prop="moduleName" label="模块" min-width="90" />
-          <ElTableColumn prop="functionName" label="功能" min-width="140" show-overflow-tooltip />
-          <ElTableColumn label="操作" width="280" fixed="right">
+          <ElTableColumn
+            prop="tableName"
+            :label="$t('pages.system.gen.colTableName')"
+            min-width="150"
+          />
+          <ElTableColumn
+            prop="entityName"
+            :label="$t('pages.system.gen.colEntity')"
+            min-width="120"
+          />
+          <ElTableColumn prop="moduleName" :label="$t('pages.system.gen.module')" min-width="90" />
+          <ElTableColumn
+            prop="functionName"
+            :label="$t('pages.system.gen.colFunction')"
+            min-width="140"
+            show-overflow-tooltip
+          />
+          <ElTableColumn :label="$t('pages.system.gen.colOperation')" width="280" fixed="right">
             <template #default="{ row }">
               <ElButton
                 v-perm="'sys:gen:edit'"
@@ -59,7 +94,7 @@
                 type="primary"
                 size="small"
                 @click="openConfig(row)"
-                >配置</ElButton
+                >{{ $t('pages.system.gen.config') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:gen:preview'"
@@ -67,7 +102,7 @@
                 type="primary"
                 size="small"
                 @click="openPreview(row)"
-                >预览</ElButton
+                >{{ $t('pages.system.gen.preview') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:gen:edit'"
@@ -75,7 +110,7 @@
                 type="warning"
                 size="small"
                 @click="doSync(row)"
-                >同步</ElButton
+                >{{ $t('pages.system.gen.sync') }}</ElButton
               >
               <ElButton
                 v-perm="'sys:gen:preview'"
@@ -83,7 +118,7 @@
                 type="success"
                 size="small"
                 @click="doDownload(row)"
-                >下载</ElButton
+                >{{ $t('pages.system.gen.download') }}</ElButton
               >
             </template>
           </ElTableColumn>
@@ -92,16 +127,21 @@
     </ElCard>
 
     <!-- 字段级配置 -->
-    <ElDialog v-model="configVisible" title="字段配置" width="920px" align-center>
+    <ElDialog
+      v-model="configVisible"
+      :title="$t('pages.system.gen.configTitle')"
+      width="920px"
+      align-center
+    >
       <div v-if="configTable" class="gen-form" style="margin-bottom: 12px">
-        <span class="gen-label">模板</span>
+        <span class="gen-label">{{ $t('pages.system.gen.tpl') }}</span>
         <ElSelect v-model="configTable.tplCategory" style="width: 120px">
-          <ElOption label="单表" value="crud" />
-          <ElOption label="树表" value="tree" />
-          <ElOption label="主子表" value="master" />
+          <ElOption :label="$t('pages.system.gen.tplCrud')" value="crud" />
+          <ElOption :label="$t('pages.system.gen.tplTree')" value="tree" />
+          <ElOption :label="$t('pages.system.gen.tplMaster')" value="master" />
         </ElSelect>
         <template v-if="configTable.tplCategory === 'tree'">
-          <span class="gen-label">父字段</span>
+          <span class="gen-label">{{ $t('pages.system.gen.treeParentField') }}</span>
           <ElInput
             v-model="configTable.treeParentField"
             style="width: 130px"
@@ -109,68 +149,85 @@
           />
         </template>
         <template v-if="configTable.tplCategory === 'master'">
-          <span class="gen-label">子表</span>
-          <ElInput v-model="configTable.subTableName" style="width: 170px" placeholder="子表名" />
-          <span class="gen-label">外键列</span>
+          <span class="gen-label">{{ $t('pages.system.gen.subTable') }}</span>
+          <ElInput
+            v-model="configTable.subTableName"
+            style="width: 170px"
+            :placeholder="$t('pages.system.gen.subTablePlaceholder')"
+          />
+          <span class="gen-label">{{ $t('pages.system.gen.subJoinField') }}</span>
           <ElInput
             v-model="configTable.subJoinField"
             style="width: 130px"
-            placeholder="如 order_id"
+            :placeholder="$t('pages.system.gen.subJoinPlaceholder')"
           />
         </template>
       </div>
       <ElTable :data="configColumns" border size="small" max-height="420">
-        <ElTableColumn prop="javaField" label="字段" min-width="120" />
-        <ElTableColumn prop="javaType" label="类型" min-width="90" />
-        <ElTableColumn label="注释" min-width="130">
+        <ElTableColumn prop="javaField" :label="$t('pages.system.gen.colField')" min-width="120" />
+        <ElTableColumn prop="javaType" :label="$t('pages.system.gen.colType')" min-width="90" />
+        <ElTableColumn :label="$t('pages.system.gen.colComment')" min-width="130">
           <template #default="{ row }">
             <ElInput v-model="row.columnComment" size="small" />
           </template>
         </ElTableColumn>
-        <ElTableColumn label="控件" width="130">
+        <ElTableColumn :label="$t('pages.system.gen.colControl')" width="130">
           <template #default="{ row }">
             <ElSelect v-model="row.htmlType" size="small">
               <ElOption v-for="h in htmlTypes" :key="h" :label="h" :value="h" />
             </ElSelect>
           </template>
         </ElTableColumn>
-        <ElTableColumn label="字典" width="120">
+        <ElTableColumn :label="$t('pages.system.gen.colDict')" width="120">
           <template #default="{ row }">
-            <ElInput v-model="row.dictType" size="small" placeholder="字典码" />
+            <ElInput
+              v-model="row.dictType"
+              size="small"
+              :placeholder="$t('pages.system.gen.dictPlaceholder')"
+            />
           </template>
         </ElTableColumn>
-        <ElTableColumn label="列表" width="60" align="center">
+        <ElTableColumn :label="$t('pages.system.gen.colList')" width="60" align="center">
           <template #default="{ row }">
             <ElSwitch v-model="row.isList" :active-value="1" :inactive-value="0" />
           </template>
         </ElTableColumn>
-        <ElTableColumn label="表单" width="60" align="center">
+        <ElTableColumn :label="$t('pages.system.gen.colForm')" width="60" align="center">
           <template #default="{ row }">
             <ElSwitch v-model="row.isEdit" :active-value="1" :inactive-value="0" />
           </template>
         </ElTableColumn>
-        <ElTableColumn label="查询" width="60" align="center">
+        <ElTableColumn :label="$t('pages.system.gen.colQuery')" width="60" align="center">
           <template #default="{ row }">
             <ElSwitch v-model="row.isQuery" :active-value="1" :inactive-value="0" />
           </template>
         </ElTableColumn>
       </ElTable>
       <template #footer>
-        <ElButton @click="configVisible = false">取消</ElButton>
-        <ElButton type="primary" @click="saveConfig">保存配置</ElButton>
+        <ElButton @click="configVisible = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" @click="saveConfig">{{
+          $t('pages.system.gen.saveConfig')
+        }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 代码预览 -->
-    <ElDialog v-model="previewVisible" title="代码预览" width="1000px" align-center>
+    <ElDialog
+      v-model="previewVisible"
+      :title="$t('pages.system.gen.previewTitle')"
+      width="1000px"
+      align-center
+    >
       <ElTabs v-model="activeTab">
         <ElTabPane v-for="tab in codeTabs" :key="tab.key" :label="tab.label" :name="tab.key">
           <pre class="gen-code">{{ code[tab.key] }}</pre>
         </ElTabPane>
       </ElTabs>
       <template #footer>
-        <ElButton @click="previewVisible = false">关闭</ElButton>
-        <ElButton type="success" @click="doDownload(previewRow)">下载 zip</ElButton>
+        <ElButton @click="previewVisible = false">{{ $t('pages.system.gen.close') }}</ElButton>
+        <ElButton type="success" @click="doDownload(previewRow)">{{
+          $t('pages.system.gen.downloadZip')
+        }}</ElButton>
       </template>
     </ElDialog>
   </div>
@@ -190,8 +247,11 @@
     downloadGenZip
   } from '@/api/system-manage'
   import { ElMessage } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Gen' })
+
+  const { t } = useI18n()
 
   const datasource = ref<Record<string, any>>({})
   const tables = ref<any[]>([])
@@ -218,15 +278,15 @@
     'datetime',
     'switch'
   ]
-  const codeTabs = [
+  const codeTabs = computed(() => [
     { key: 'entity', label: 'Entity' },
     { key: 'mapper', label: 'Mapper' },
     { key: 'controller', label: 'Controller' },
-    { key: 'vue', label: '列表页' },
+    { key: 'vue', label: t('pages.system.gen.tabVue') },
     { key: 'api', label: 'api.ts' },
     { key: 'type', label: 'type.ts' },
-    { key: 'menu', label: '菜单SQL' }
-  ]
+    { key: 'menu', label: t('pages.system.gen.tabMenu') }
+  ])
 
   // 字段配置
   const configVisible = ref(false)
@@ -238,7 +298,10 @@
   const code = ref<Record<string, string>>({})
   const activeTab = ref('entity')
 
-  const tableLabel = (t: any): string => (t.comment ? `${t.name}（${t.comment}）` : t.name)
+  const tableLabel = (tb: any): string =>
+    tb.comment
+      ? t('pages.system.gen.tableLabelFmt', { name: tb.name, comment: tb.comment })
+      : tb.name
 
   const loadList = async (): Promise<void> => {
     listLoading.value = true
@@ -253,7 +316,7 @@
     importing.value = true
     try {
       await fetchGenImport({ ...importForm })
-      ElMessage.success('导入成功')
+      ElMessage.success(t('pages.system.gen.importSuccess'))
       await loadList()
     } finally {
       importing.value = false
@@ -271,7 +334,7 @@
     configSaving.value = true
     try {
       await fetchSaveGenMeta({ table: configTable.value, columns: configColumns.value })
-      ElMessage.success('配置已保存')
+      ElMessage.success(t('pages.system.gen.configSaved'))
       configVisible.value = false
     } finally {
       configSaving.value = false
@@ -280,7 +343,7 @@
 
   const doSync = async (row: any): Promise<void> => {
     await fetchGenSync(row.id)
-    ElMessage.success('同步成功')
+    ElMessage.success(t('pages.system.gen.syncSuccess'))
   }
 
   const openPreview = async (row: any): Promise<void> => {

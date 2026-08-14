@@ -6,8 +6,10 @@
       <ElCol :xs="24" :lg="8">
         <ElCard class="art-table-card" shadow="never">
           <div class="panel-toolbar">
-            <span class="panel-title">缓存分组</span>
-            <ElButton size="small" @click="loadGroups">刷新</ElButton>
+            <span class="panel-title">{{ $t('pages.system.cache.groupTitle') }}</span>
+            <ElButton size="small" @click="loadGroups">{{
+              $t('pages.system.cache.refreshBtn')
+            }}</ElButton>
           </div>
           <ElTable
             v-loading="groupLoading"
@@ -16,8 +18,8 @@
             highlight-current-row
             @current-change="onGroupSelect"
           >
-            <ElTableColumn prop="name" label="缓存名" min-width="160" />
-            <ElTableColumn prop="count" label="键数" width="90">
+            <ElTableColumn prop="name" :label="$t('pages.system.cache.colName')" min-width="160" />
+            <ElTableColumn prop="count" :label="$t('pages.system.cache.colCount')" width="90">
               <template #default="{ row }">{{ Number(row.count ?? 0).toLocaleString() }}</template>
             </ElTableColumn>
           </ElTable>
@@ -31,8 +33,11 @@
             <span class="panel-title">
               {{
                 selectedGroup
-                  ? `${selectedGroup.name} · 键（${keys.length}）`
-                  : '键列表（请选择左侧缓存）'
+                  ? $t('pages.system.cache.keyListTitle', {
+                      name: selectedGroup.name,
+                      count: keys.length
+                    })
+                  : $t('pages.system.cache.keyListEmpty')
               }}
             </span>
             <ElButton
@@ -42,24 +47,26 @@
               :disabled="!keys.length"
               @click="clearGroup"
             >
-              清空该组
+              {{ $t('pages.system.cache.clearGroupBtn') }}
             </ElButton>
           </div>
           <ElTable v-loading="keyLoading" :data="keys" border>
             <ElTableColumn type="index" label="#" width="50" />
-            <ElTableColumn label="键" min-width="260">
+            <ElTableColumn :label="$t('pages.system.cache.colKey')" min-width="260">
               <template #default="{ row }">{{ row }}</template>
             </ElTableColumn>
-            <ElTableColumn label="操作" width="150">
+            <ElTableColumn :label="$t('pages.system.cache.colOperation')" width="150">
               <template #default="{ row }">
-                <ElButton link type="primary" size="small" @click="viewKey(row)">查看</ElButton>
+                <ElButton link type="primary" size="small" @click="viewKey(row)">{{
+                  $t('pages.system.cache.viewBtn')
+                }}</ElButton>
                 <ElButton
                   v-perm="'sys:cache:manage'"
                   link
                   type="danger"
                   size="small"
                   @click="removeKey(row)"
-                  >清除</ElButton
+                  >{{ $t('pages.system.cache.clearBtn') }}</ElButton
                 >
               </template>
             </ElTableColumn>
@@ -68,14 +75,18 @@
       </ElCol>
     </ElRow>
 
-    <ElDialog v-model="viewVisible" title="缓存详情" width="560px">
+    <ElDialog v-model="viewVisible" :title="$t('pages.system.cache.detailTitle')" width="560px">
       <ElDescriptions :column="1" border>
-        <ElDescriptionsItem label="键"
+        <ElDescriptionsItem :label="$t('pages.system.cache.colKey')"
           ><span class="cache-key">{{ detail.key }}</span></ElDescriptionsItem
         >
-        <ElDescriptionsItem label="类型">{{ detail.type }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="TTL(秒)">{{ detail.ttl }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="值">
+        <ElDescriptionsItem :label="$t('pages.system.cache.detailType')">{{
+          detail.type
+        }}</ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.system.cache.detailTtl')">{{
+          detail.ttl
+        }}</ElDescriptionsItem>
+        <ElDescriptionsItem :label="$t('pages.system.cache.detailValue')">
           <pre class="cache-value">{{ detail.value }}</pre>
         </ElDescriptionsItem>
       </ElDescriptions>
@@ -87,8 +98,11 @@
   import { reactive } from 'vue'
   import { ElMessage, ElMessageBox } from 'element-plus'
   import { fetchCacheGroups, fetchCacheKeys, fetchCacheValue, fetchRemoveCache } from '@/api/cache'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'Cache' })
+
+  const { t } = useI18n()
 
   const groups = ref<any[]>([])
   const groupLoading = ref(false)
@@ -130,26 +144,31 @@
   }
 
   const removeKey = (key: string) => {
-    ElMessageBox.confirm(`确定清除缓存键「${key}」吗？`, '清除缓存', { type: 'warning' }).then(
-      async () => {
-        await fetchRemoveCache([key])
-        ElMessage.success('已清除')
-        loadKeys()
-        loadGroups()
-      }
-    )
+    ElMessageBox.confirm(
+      t('pages.system.cache.clearKeyConfirm', { name: key }),
+      t('pages.system.cache.clearTitle'),
+      { type: 'warning' }
+    ).then(async () => {
+      await fetchRemoveCache([key])
+      ElMessage.success(t('pages.system.cache.clearSuccess'))
+      loadKeys()
+      loadGroups()
+    })
   }
 
   const clearGroup = () => {
     ElMessageBox.confirm(
-      `确定清空「${selectedGroup.value.name}」下的全部 ${keys.value.length} 个键吗？`,
-      '清空缓存',
+      t('pages.system.cache.clearGroupConfirm', {
+        name: selectedGroup.value.name,
+        count: keys.value.length
+      }),
+      t('pages.system.cache.clearGroupTitle'),
       {
         type: 'warning'
       }
     ).then(async () => {
       await fetchRemoveCache([...keys.value])
-      ElMessage.success('已清空')
+      ElMessage.success(t('pages.system.cache.clearAllSuccess'))
       loadKeys()
       loadGroups()
     })

@@ -11,7 +11,7 @@
       <ElInput
         :model-value="modelValue"
         readonly
-        placeholder="请选择图标"
+        :placeholder="$t('pages.system.menu.iconSelector.placeholder')"
         clearable
         @clear="handleClear"
       >
@@ -20,7 +20,12 @@
         </template>
       </ElInput>
     </template>
-    <ElInput v-model="keyword" placeholder="搜索图标名称" clearable class="icon-search" />
+    <ElInput
+      v-model="keyword"
+      :placeholder="$t('pages.system.menu.iconSelector.search')"
+      clearable
+      class="icon-search"
+    />
     <div class="icon-grid">
       <div
         v-for="icon in filteredIcons"
@@ -33,7 +38,9 @@
       >
         <ArtSvgIcon :icon="icon" />
       </div>
-      <div v-if="!filteredIcons.length" class="icon-empty">无匹配图标</div>
+      <div v-if="!filteredIcons.length" class="icon-empty">
+        {{ $t('pages.system.menu.iconSelector.empty') }}
+      </div>
     </div>
   </ElPopover>
 </template>

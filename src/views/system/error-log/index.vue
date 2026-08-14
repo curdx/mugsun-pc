@@ -5,10 +5,18 @@
       <ArtTableHeader v-model:columns="columnChecks" :loading="loading" @refresh="refreshData">
         <template #left>
           <ElRadioGroup v-model="statusFilter" size="small" @change="onStatusFilterChange">
-            <ElRadioButton :value="undefined">全部</ElRadioButton>
-            <ElRadioButton :value="0">未处理</ElRadioButton>
-            <ElRadioButton :value="1">已处理</ElRadioButton>
-            <ElRadioButton :value="2">已忽略</ElRadioButton>
+            <ElRadioButton :value="undefined">{{
+              $t('pages.system.errorLog.filterAll')
+            }}</ElRadioButton>
+            <ElRadioButton :value="0">{{
+              $t('pages.system.errorLog.statusPending')
+            }}</ElRadioButton>
+            <ElRadioButton :value="1">{{
+              $t('pages.system.errorLog.statusHandled')
+            }}</ElRadioButton>
+            <ElRadioButton :value="2">{{
+              $t('pages.system.errorLog.statusIgnored')
+            }}</ElRadioButton>
           </ElRadioGroup>
         </template>
       </ArtTableHeader>
@@ -23,51 +31,80 @@
       >
       </ArtTable>
 
-      <ElDialog v-model="detailVisible" title="错误日志详情" width="720px" align-center>
+      <ElDialog
+        v-model="detailVisible"
+        :title="$t('pages.system.errorLog.detailTitle')"
+        width="720px"
+        align-center
+      >
         <ElDescriptions :column="1" border>
-          <ElDescriptionsItem label="链路号">{{ current.traceId }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="异常类">{{ current.exceptionClass }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="消息">{{ current.message }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="请求">
+          <ElDescriptionsItem :label="$t('pages.system.errorLog.traceId')">
+            {{ current.traceId }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.errorLog.exceptionClass')">
+            {{ current.exceptionClass }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.errorLog.message')">
+            {{ current.message }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.errorLog.request')">
             {{ current.requestMethod }} {{ current.requestUri }}
           </ElDescriptionsItem>
-          <ElDescriptionsItem label="操作人">{{ current.operator || '-' }}</ElDescriptionsItem>
-          <ElDescriptionsItem label="定位">
+          <ElDescriptionsItem :label="$t('pages.system.errorLog.operator')">
+            {{ current.operator || '-' }}
+          </ElDescriptionsItem>
+          <ElDescriptionsItem :label="$t('pages.system.errorLog.location')">
             {{ current.locationClass }}.{{ current.locationMethod }}({{ current.locationFile }}:{{
               current.locationLine
             }})
           </ElDescriptionsItem>
-          <ElDescriptionsItem label="堆栈">
+          <ElDescriptionsItem :label="$t('pages.system.errorLog.stacktrace')">
             <div class="error-log-stack">{{ current.stacktrace }}</div>
           </ElDescriptionsItem>
-          <ElDescriptionsItem v-if="current.handleUser" label="处理">
-            {{ current.handleUser }}（{{ current.handleTime }}）：{{ current.handleNote || '-' }}
+          <ElDescriptionsItem
+            v-if="current.handleUser"
+            :label="$t('pages.system.errorLog.handleInfo')"
+          >
+            {{
+              $t('pages.system.errorLog.handleDetail', {
+                user: current.handleUser,
+                time: current.handleTime,
+                note: current.handleNote || '-'
+              })
+            }}
           </ElDescriptionsItem>
         </ElDescriptions>
       </ElDialog>
 
-      <ElDialog v-model="handleVisible" title="认领处理" width="480px" align-center>
+      <ElDialog
+        v-model="handleVisible"
+        :title="$t('pages.system.errorLog.handleTitle')"
+        width="480px"
+        align-center
+      >
         <ElForm label-width="80px">
-          <ElFormItem label="处理状态">
+          <ElFormItem :label="$t('pages.system.errorLog.handleStatus')">
             <ElRadioGroup v-model="handleForm.status">
-              <ElRadio :value="1">已处理</ElRadio>
-              <ElRadio :value="2">已忽略</ElRadio>
+              <ElRadio :value="1">{{ $t('pages.system.errorLog.statusHandled') }}</ElRadio>
+              <ElRadio :value="2">{{ $t('pages.system.errorLog.statusIgnored') }}</ElRadio>
             </ElRadioGroup>
           </ElFormItem>
-          <ElFormItem label="处理备注">
+          <ElFormItem :label="$t('pages.system.errorLog.handleNote')">
             <ElInput
               v-model="handleForm.note"
               type="textarea"
               :rows="3"
               maxlength="500"
               show-word-limit
-              placeholder="修复说明 / 忽略原因"
+              :placeholder="$t('pages.system.errorLog.handleNotePlaceholder')"
             />
           </ElFormItem>
         </ElForm>
         <template #footer>
-          <ElButton @click="handleVisible = false">取消</ElButton>
-          <ElButton type="primary" :loading="handleLoading" @click="submitHandle">确定</ElButton>
+          <ElButton @click="handleVisible = false">{{ $t('common.cancel') }}</ElButton>
+          <ElButton type="primary" :loading="handleLoading" @click="submitHandle">{{
+            $t('common.confirm')
+          }}</ElButton>
         </template>
       </ElDialog>
     </ElCard>
@@ -84,8 +121,11 @@
   import { hasPerm } from '@/utils/permission'
   import { DICT_CODE } from '@/utils/constants'
   import { ElMessage, ElMessageBox, ElRadio, ElRadioButton, ElRadioGroup } from 'element-plus'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'ErrorLog' })
+
+  const { t } = useI18n()
 
   const detailVisible = ref(false)
   const current = ref<Record<string, any>>({})
@@ -114,20 +154,30 @@
       apiParams: { pageNum: 1, pageSize: 20 },
       paginationKey: { current: 'pageNum', size: 'pageSize' },
       columnsFactory: () => [
-        { type: 'index', width: 60, label: '序号' },
+        { type: 'index', width: 60, label: t('table.column.index') },
         {
           prop: 'exceptionClass',
-          label: '异常',
+          label: t('pages.system.errorLog.colException'),
           minWidth: 180,
           showOverflowTooltip: true,
           formatter: (row: any) => shortClass(row.exceptionClass)
         },
-        { prop: 'requestUri', label: '请求地址', minWidth: 180, showOverflowTooltip: true },
-        { prop: 'message', label: '消息', minWidth: 200, showOverflowTooltip: true },
-        { prop: 'operator', label: '操作人', width: 100 },
+        {
+          prop: 'requestUri',
+          label: t('pages.system.errorLog.colRequestUri'),
+          minWidth: 180,
+          showOverflowTooltip: true
+        },
+        {
+          prop: 'message',
+          label: t('pages.system.errorLog.message'),
+          minWidth: 200,
+          showOverflowTooltip: true
+        },
+        { prop: 'operator', label: t('pages.system.errorLog.operator'), width: 100 },
         {
           prop: 'status',
-          label: '状态',
+          label: t('pages.system.errorLog.colStatus'),
           width: 90,
           // 字典运行时驱动：改用 ArtDictTag，不再手写 STATUS_META
           formatter: (row: any) =>
@@ -135,13 +185,13 @@
         },
         {
           prop: 'createTime',
-          label: '时间',
+          label: t('pages.system.errorLog.colTime'),
           minWidth: 170,
           formatter: (row: any) => formatTableTime(row.createTime)
         },
         {
           prop: 'operation',
-          label: '操作',
+          label: t('pages.system.errorLog.colOperation'),
           width: 190,
           fixed: 'right',
           formatter: (row: any) =>
@@ -200,7 +250,7 @@
         status: handleForm.status,
         note: handleForm.note
       })
-      ElMessage.success('已处理')
+      ElMessage.success(t('pages.system.errorLog.statusHandled'))
       handleVisible.value = false
       refreshUpdate()
     } finally {
@@ -209,13 +259,15 @@
   }
 
   const removeRow = (row: Record<string, any>): void => {
-    ElMessageBox.confirm('确定删除该错误日志吗？', '删除确认', { type: 'warning' }).then(
-      async () => {
-        await fetchRemoveErrorLog(row.id)
-        ElMessage.success('已删除')
-        refreshRemove()
-      }
-    )
+    ElMessageBox.confirm(
+      t('pages.system.errorLog.removeConfirm'),
+      t('pages.system.errorLog.removeTitle'),
+      { type: 'warning' }
+    ).then(async () => {
+      await fetchRemoveErrorLog(row.id)
+      ElMessage.success(t('pages.system.errorLog.removed'))
+      refreshRemove()
+    })
   }
 </script>
 

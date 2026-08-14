@@ -60,7 +60,7 @@
         :src="imageConfig.src"
         :style="{ width: imageConfig.width, bottom: imageConfig.bottom, right: imageConfig.right }"
         loading="lazy"
-        alt="背景图片"
+        :alt="$t('components.basicBanner.bgAlt')"
       />
     </div>
   </div>
@@ -69,6 +69,7 @@
 <script setup lang="ts">
   import { onMounted, ref, computed } from 'vue'
   import { useSettingStore } from '@/store/modules/setting'
+  import { $t } from '@/locales'
   const settingStore = useSettingStore()
   const { isDark } = storeToRefs(settingStore)
 
@@ -151,7 +152,7 @@
     decoration: true,
     buttonConfig: () => ({
       show: true,
-      text: '查看',
+      text: $t('components.basicBanner.buttonText'),
       color: '#fff',
       textColor: '#333',
       radius: '6px'

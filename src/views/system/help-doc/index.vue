@@ -6,10 +6,10 @@
       <ElCol :span="8">
         <ElCard class="art-table-card" shadow="never">
           <div class="panel-toolbar">
-            <span class="panel-title">帮助目录</span>
-            <ElButton v-perm="'sys:help:manage'" size="small" @click="showCatalogDialog('add')"
-              >新增目录</ElButton
-            >
+            <span class="panel-title">{{ $t('pages.system.helpDoc.catalogTitle') }}</span>
+            <ElButton v-perm="'sys:help:manage'" size="small" @click="showCatalogDialog('add')">{{
+              $t('pages.system.helpDoc.addCatalog')
+            }}</ElButton>
           </div>
           <ElTable
             v-loading="catalogLoading"
@@ -20,9 +20,13 @@
             highlight-current-row
             @current-change="onCatalogSelect"
           >
-            <ElTableColumn prop="name" label="目录名称" min-width="130" />
-            <ElTableColumn prop="sort" label="排序" width="60" />
-            <ElTableColumn label="操作" width="140">
+            <ElTableColumn
+              prop="name"
+              :label="$t('pages.system.helpDoc.catalogName')"
+              min-width="130"
+            />
+            <ElTableColumn prop="sort" :label="$t('pages.system.helpDoc.sort')" width="60" />
+            <ElTableColumn :label="$t('pages.system.helpDoc.colOperation')" width="140">
               <template #default="{ row }">
                 <ElButton
                   v-perm="'sys:help:manage'"
@@ -31,7 +35,7 @@
                   size="small"
                   @click.stop="showCatalogDialog('add', row)"
                 >
-                  下级
+                  {{ $t('pages.system.helpDoc.addChild') }}
                 </ElButton>
                 <ElButton
                   v-perm="'sys:help:manage'"
@@ -40,7 +44,7 @@
                   size="small"
                   @click.stop="showCatalogDialog('edit', row)"
                 >
-                  编辑
+                  {{ $t('pages.system.helpDoc.edit') }}
                 </ElButton>
                 <ElButton
                   v-perm="'sys:help:manage'"
@@ -49,7 +53,7 @@
                   size="small"
                   @click.stop="removeCatalog(row)"
                 >
-                  删除
+                  {{ $t('pages.system.helpDoc.remove') }}
                 </ElButton>
               </template>
             </ElTableColumn>
@@ -62,7 +66,11 @@
         <ElCard class="art-table-card" shadow="never">
           <div class="panel-toolbar">
             <span class="panel-title">
-              {{ selectedCatalog ? `${selectedCatalog.name} · 文档` : '文档（请先选择左侧目录）' }}
+              {{
+                selectedCatalog
+                  ? $t('pages.system.helpDoc.docListTitle', { name: selectedCatalog.name })
+                  : $t('pages.system.helpDoc.docListEmpty')
+              }}
             </span>
             <ElButton
               v-perm="'sys:help:manage'"
@@ -71,14 +79,18 @@
               :disabled="!selectedCatalog"
               @click="showDocDialog('add')"
             >
-              新增文档
+              {{ $t('pages.system.helpDoc.addDoc') }}
             </ElButton>
           </div>
           <ElTable v-loading="docLoading" :data="docList" border>
-            <ElTableColumn prop="title" label="标题" min-width="200" />
-            <ElTableColumn prop="viewCount" label="浏览量" width="90" />
-            <ElTableColumn prop="sort" label="排序" width="70" />
-            <ElTableColumn label="操作" width="210">
+            <ElTableColumn prop="title" :label="$t('pages.system.helpDoc.title')" min-width="200" />
+            <ElTableColumn
+              prop="viewCount"
+              :label="$t('pages.system.helpDoc.viewCount')"
+              width="90"
+            />
+            <ElTableColumn prop="sort" :label="$t('pages.system.helpDoc.sort')" width="70" />
+            <ElTableColumn :label="$t('pages.system.helpDoc.colOperation')" width="210">
               <template #default="{ row }">
                 <ElButton
                   v-perm="'sys:help:manage'"
@@ -86,7 +98,7 @@
                   type="primary"
                   size="small"
                   @click="showDocDialog('edit', row)"
-                  >编辑</ElButton
+                  >{{ $t('pages.system.helpDoc.edit') }}</ElButton
                 >
                 <ElButton
                   v-perm="'sys:help:manage'"
@@ -94,7 +106,7 @@
                   type="primary"
                   size="small"
                   @click="showBindingDialog(row)"
-                  >绑定页面</ElButton
+                  >{{ $t('pages.system.helpDoc.bindPage') }}</ElButton
                 >
                 <ElButton
                   v-perm="'sys:help:manage'"
@@ -102,7 +114,7 @@
                   type="danger"
                   size="small"
                   @click="removeDoc(row)"
-                  >删除</ElButton
+                  >{{ $t('pages.system.helpDoc.remove') }}</ElButton
                 >
               </template>
             </ElTableColumn>
@@ -114,63 +126,86 @@
     <!-- 目录弹窗 -->
     <ElDialog
       v-model="catalogDialog"
-      :title="catalogForm.id ? '编辑目录' : '新增目录'"
+      :title="
+        catalogForm.id
+          ? $t('pages.system.helpDoc.editCatalog')
+          : $t('pages.system.helpDoc.addCatalog')
+      "
       width="460px"
     >
       <ElForm :model="catalogForm" label-width="90px">
-        <ElFormItem label="目录名称" required>
-          <ElInput v-model="catalogForm.name" placeholder="请输入目录名称" />
+        <ElFormItem :label="$t('pages.system.helpDoc.catalogName')" required>
+          <ElInput
+            v-model="catalogForm.name"
+            :placeholder="$t('pages.system.helpDoc.catalogNamePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="排序">
+        <ElFormItem :label="$t('pages.system.helpDoc.sort')">
           <ElInputNumber v-model="catalogForm.sort" :min="0" />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="catalogDialog = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="submitCatalog">确定</ElButton>
+        <ElButton @click="catalogDialog = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submitCatalog">{{
+          $t('common.confirm')
+        }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 文档弹窗 -->
     <ElDialog
       v-model="docDialog"
-      :title="docForm.id ? '编辑文档' : '新增文档'"
+      :title="docForm.id ? $t('pages.system.helpDoc.editDoc') : $t('pages.system.helpDoc.addDoc')"
       width="780px"
       top="6vh"
       class="help-doc-dialog"
     >
       <ElForm :model="docForm" label-width="70px">
-        <ElFormItem label="标题" required>
-          <ElInput v-model="docForm.title" placeholder="请输入文档标题" />
+        <ElFormItem :label="$t('pages.system.helpDoc.title')" required>
+          <ElInput
+            v-model="docForm.title"
+            :placeholder="$t('pages.system.helpDoc.docTitlePlaceholder')"
+          />
         </ElFormItem>
-        <ElFormItem label="排序">
+        <ElFormItem :label="$t('pages.system.helpDoc.sort')">
           <ElInputNumber v-model="docForm.sort" :min="0" />
         </ElFormItem>
-        <ElFormItem label="内容">
+        <ElFormItem :label="$t('pages.system.helpDoc.content')">
           <ArtWangEditor v-model="docForm.content" height="320px" />
         </ElFormItem>
       </ElForm>
       <template #footer>
-        <ElButton @click="docDialog = false">取消</ElButton>
-        <ElButton type="primary" :loading="submitting" @click="submitDoc">确定</ElButton>
+        <ElButton @click="docDialog = false">{{ $t('common.cancel') }}</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="submitDoc">{{
+          $t('common.confirm')
+        }}</ElButton>
       </template>
     </ElDialog>
 
     <!-- 绑定弹窗 -->
-    <ElDialog v-model="bindingDialog" title="绑定页面" width="560px" class="help-doc-dialog">
+    <ElDialog
+      v-model="bindingDialog"
+      :title="$t('pages.system.helpDoc.bindPage')"
+      width="560px"
+      class="help-doc-dialog"
+    >
       <div class="binding-add">
         <ElInput
           v-model="newRoutePath"
-          placeholder="页面路由，如 /system/user"
+          :placeholder="$t('pages.system.helpDoc.routePathPlaceholder')"
           style="width: 74%"
         />
-        <ElButton type="primary" :loading="submitting" @click="addBinding">添加绑定</ElButton>
+        <ElButton type="primary" :loading="submitting" @click="addBinding">{{
+          $t('pages.system.helpDoc.addBinding')
+        }}</ElButton>
       </div>
       <ElTable :data="bindingList" border style="margin-top: 12px">
-        <ElTableColumn prop="routePath" label="页面路由" />
-        <ElTableColumn label="操作" width="90">
+        <ElTableColumn prop="routePath" :label="$t('pages.system.helpDoc.routePath')" />
+        <ElTableColumn :label="$t('pages.system.helpDoc.colOperation')" width="90">
           <template #default="{ row }">
-            <ElButton link type="danger" size="small" @click="removeBinding(row)">删除</ElButton>
+            <ElButton link type="danger" size="small" @click="removeBinding(row)">{{
+              $t('pages.system.helpDoc.remove')
+            }}</ElButton>
           </template>
         </ElTableColumn>
       </ElTable>
@@ -193,8 +228,11 @@
     fetchSaveHelpBinding,
     fetchRemoveHelpBinding
   } from '@/api/help-doc'
+  import { useI18n } from 'vue-i18n'
 
   defineOptions({ name: 'HelpDoc' })
+
+  const { t } = useI18n()
 
   // ---------------- 目录 ----------------
   const catalogTree = ref<any[]>([])
@@ -236,11 +274,12 @@
   }
 
   const submitCatalog = async () => {
-    if (!catalogForm.name?.trim()) return ElMessage.warning('请输入目录名称')
+    if (!catalogForm.name?.trim())
+      return ElMessage.warning(t('pages.system.helpDoc.catalogNamePlaceholder'))
     submitting.value = true
     try {
       await fetchSaveHelpCatalog({ ...catalogForm })
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.helpDoc.saveSuccess'))
       catalogDialog.value = false
       loadCatalogTree()
     } finally {
@@ -249,17 +288,19 @@
   }
 
   const removeCatalog = (row: any) => {
-    ElMessageBox.confirm(`确定删除目录「${row.name}」吗？`, '删除', { type: 'warning' }).then(
-      async () => {
-        await fetchRemoveHelpCatalog(row.id)
-        ElMessage.success('删除成功')
-        if (selectedCatalog.value?.id === row.id) {
-          selectedCatalog.value = null
-          docList.value = []
-        }
-        loadCatalogTree()
+    ElMessageBox.confirm(
+      t('pages.system.helpDoc.removeCatalogConfirm', { name: row.name }),
+      t('pages.system.helpDoc.removeTitle'),
+      { type: 'warning' }
+    ).then(async () => {
+      await fetchRemoveHelpCatalog(row.id)
+      ElMessage.success(t('pages.system.helpDoc.removeSuccess'))
+      if (selectedCatalog.value?.id === row.id) {
+        selectedCatalog.value = null
+        docList.value = []
       }
-    )
+      loadCatalogTree()
+    })
   }
 
   // ---------------- 文档 ----------------
@@ -314,11 +355,12 @@
   }
 
   const submitDoc = async () => {
-    if (!docForm.title?.trim()) return ElMessage.warning('请输入文档标题')
+    if (!docForm.title?.trim())
+      return ElMessage.warning(t('pages.system.helpDoc.docTitlePlaceholder'))
     submitting.value = true
     try {
       await fetchSaveHelpDoc({ ...docForm })
-      ElMessage.success('保存成功')
+      ElMessage.success(t('pages.system.helpDoc.saveSuccess'))
       docDialog.value = false
       loadDocs()
     } finally {
@@ -327,13 +369,15 @@
   }
 
   const removeDoc = (row: any) => {
-    ElMessageBox.confirm(`确定删除文档「${row.title}」吗？`, '删除', { type: 'warning' }).then(
-      async () => {
-        await fetchRemoveHelpDoc([row.id])
-        ElMessage.success('删除成功')
-        loadDocs()
-      }
-    )
+    ElMessageBox.confirm(
+      t('pages.system.helpDoc.removeDocConfirm', { title: row.title }),
+      t('pages.system.helpDoc.removeTitle'),
+      { type: 'warning' }
+    ).then(async () => {
+      await fetchRemoveHelpDoc([row.id])
+      ElMessage.success(t('pages.system.helpDoc.removeSuccess'))
+      loadDocs()
+    })
   }
 
   // ---------------- 页面绑定 ----------------
@@ -355,11 +399,11 @@
 
   const addBinding = async () => {
     const path = newRoutePath.value.trim()
-    if (!path) return ElMessage.warning('请输入页面路由')
+    if (!path) return ElMessage.warning(t('pages.system.helpDoc.routePathRequired'))
     submitting.value = true
     try {
       await fetchSaveHelpBinding({ docId: bindingDocId.value, routePath: path, sort: 0 })
-      ElMessage.success('绑定成功')
+      ElMessage.success(t('pages.system.helpDoc.bindSuccess'))
       newRoutePath.value = ''
       loadBindings()
     } finally {
@@ -368,11 +412,15 @@
   }
 
   const removeBinding = (row: any) => {
-    ElMessageBox.confirm(`确定解除页面「${row.routePath}」的绑定吗？`, '解除绑定', {
-      type: 'warning'
-    }).then(async () => {
+    ElMessageBox.confirm(
+      t('pages.system.helpDoc.unbindConfirm', { path: row.routePath }),
+      t('pages.system.helpDoc.unbindTitle'),
+      {
+        type: 'warning'
+      }
+    ).then(async () => {
       await fetchRemoveHelpBinding(row.id)
-      ElMessage.success('已解除绑定')
+      ElMessage.success(t('pages.system.helpDoc.unbindSuccess'))
       loadBindings()
     })
   }
